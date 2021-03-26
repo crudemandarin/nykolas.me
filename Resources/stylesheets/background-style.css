@@ -1,0 +1,48 @@
+/*
+* Prefixed by https://autoprefixer.github.io
+* PostCSS: v7.0.29,
+* Autoprefixer: v9.7.6
+* Browsers: last 4 version
+*/
+
+body {
+    background-size: 600% 600%;
+    -webkit-animation: GradientAnimation 5s ease infinite;
+            animation: GradientAnimation 5s ease infinite;
+}
+
+@-webkit-keyframes GradientAnimation {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+@keyframes GradientAnimation {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+#crude-gradebook {
+    background-image: -webkit-gradient(linear, right bottom, left top, from(#2eb872), color-stop(#4cbf74), color-stop(#63c776), color-stop(#78ce79), color-stop(#8bd57d), color-stop(#9ed06c), color-stop(#b0c95c), color-stop(#c1c250), color-stop(#d7a937), color-stop(#e98d32), color-stop(#f66c40), to(#fa4659));
+    background-image: -o-linear-gradient(right bottom, #2eb872, #4cbf74, #63c776, #78ce79, #8bd57d, #9ed06c, #b0c95c, #c1c250, #d7a937, #e98d32, #f66c40, #fa4659);
+    background-image: linear-gradient(to left top, #2eb872, #4cbf74, #63c776, #78ce79, #8bd57d, #9ed06c, #b0c95c, #c1c250, #d7a937, #e98d32, #f66c40, #fa4659);
+}
+
+#dc2-website {
+    background-image: -webkit-gradient(linear, right top, left bottom, from(#fac483), color-stop(#fbc073), color-stop(#fbbd62), color-stop(#faba4f), color-stop(#f9b73b), color-stop(#fca231), color-stop(#fd8b2d), color-stop(#fd732f), color-stop(#f13e49), color-stop(#d50062), color-stop(#a70078), to(#660086));
+    background-image: -o-linear-gradient(top right, #fac483, #fbc073, #fbbd62, #faba4f, #f9b73b, #fca231, #fd8b2d, #fd732f, #f13e49, #d50062, #a70078, #660086);
+    background-image: linear-gradient(to bottom left, #fac483, #fbc073, #fbbd62, #faba4f, #f9b73b, #fca231, #fd8b2d, #fd732f, #f13e49, #d50062, #a70078, #660086);
+}
+
+#crude-scene-editor {
+    background-color: lightblue;
+    background-image: url(../CSE/bluemoon-background.png);
+    background-size: contain;
+}
+
+#galaga {
+    background-color: black;
+    background-image: url(../Galaga/space-pixel-background.gif);
+    background-size: contain;
+}

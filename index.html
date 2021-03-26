@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<!-- Authored by Nykolas Farhangi -->
+<!-- Curious to see how the magic works? -->
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="icon" type="image/png" href="Resources/favicon.png">
+    
+        <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+        
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="Resources/stylesheets/styles.css">
+        <link rel="stylesheet" href="Resources/stylesheets/background-style.css">
+
+        <title>nykolas.me</title>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    </head>
+
+    <body>
+        <header>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12">
+                        <div class="profile-card">
+                            <div> <img src="Resources/headshot.jpg" alt="Profile Picture" class="thumbnail"> </div>
+                            <div>
+                                <h1> Nykolas Farhangi </h1>
+                                <h2> nykolasfarhangi@protonmail.com </h2>
+                                <div>
+                                    <a href="https://www.linkedin.com/in/nykolasfarhangi/" target="_blank"> <img style="margin-left: 0;" src="Resources/linkedin-icon.png" alt="LinkedIn"> </a>
+                                    <a href="https://github.com/crudemandarin" target="_blank"> <img src="Resources/github-icon.png" alt="GitHub"> </a>
+                                    <a href="Resources/Nykolas Farhangi Resume.pdf" target="_blank"> <img src="Resources/cv.png" alt="resume"> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <ul class="nav-sect">
+                            <li onclick="glideTo( 'about-me' )"> about me </li>
+                            <li onclick="glideTo( 'experiences' )"> experiences </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section id="hero">
+                <div>
+                    <h1> Hello, world! </h1>
+                    <div> I'm a versatile and energetic programmer </div>
+                    <div> Scroll down to learn more about me </div>
+                </div>
+                <img src="Resources/hero.png">
+            </section>
+
+            <section id="about-me">
+                <div class="container">
+                    <div class="header"> about me </div>
+
+                    <div class="row">
+                        <div class="col-lg-7 col-sm-12">
+                            <div class="block slim" style="width: 90%;">
+                                <h1>
+                                    Hey there, I'm Nykolas Farhangi <br>
+                                    It's nice to meet you
+                                </h1>
+                            </div>
+
+                            <div class="block" style="margin-top: 1rem; width: 90%;">
+                                <div>
+                                    I’m a senior undergraduate student at the University of Houston pursuing a B.S. in Computer Science. <br><br>
+                                    I’m an energetic, ambitious, and growth-driven tech junkie with a deep passion for overcoming technical challenges. <br><br>
+
+                                    Human connection is one of the most important components of an effective workplace, especially in the virtual workplace familiar to so many of us now. <br><br>
+                                    I take a people-oriented approach to work in order to build trust, promote communication, and foster camaraderie.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-sm-12">
+                            <div class="slideshow">
+                                <img class="about-me-slides" src="Resources/nykolas-tmhcc.jpeg" alt="Nykolas TMHCC">
+                                <img class="about-me-slides" src="Resources/nykolas-tutoring.png" alt="Nykolas Tutoring">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem; display: flex; justify-content: center;">
+                        <div class="block slim" style="background-color: #b8fffa;"> I’m currently seeking software engineer internship opportunities for the summer of 2021 </div>
+                    </div>
+                </div>
+            </section>
+
+            <div id="skills">
+                <div class="container">
+                    <div class="head"> My Skills </div>
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-12">
+                            <div class="title"> Programming Languages </div>
+                            <div class="item-sect">
+                                <div>Java</div>
+                                <div>C++</div>
+                                <div>Python</div>
+                                <div>JavaScript</div>
+                                <div>HTML/CSS</div>
+                                <div>SASS</div>
+                                <div>SQL</div>
+                                <div>C#</div>
+                                <div>MATLAB</div>
+                                <div>R</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-12">
+                            <div class="title"> Libraries and Frameworks </div>
+                            <div class="item-sect">
+                                <div>ReactJS</div>
+                                <div>Node.js</div>
+                                <div>Maven</div>
+                                <div>NuGet</div>
+                                <div>Bootstrap</div>
+                                <div>JWT</div>
+                                <div>Bcrypt</div>
+                                <div>MongoDB</div>
+                                <div>JQuery</div>
+                                <div>SQL Server</div>
+                                <div>MySQL</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-12">
+                            <div class="title"> Additional </div>
+                            <div class="item-sect">
+                                <div>Github</div>
+                                <div>AWS DevOps Tools</div>
+                                <div>Docker</div>
+                                <div>Kubernetes</div>
+                                <div>Agile Scrum</div>
+                                <div>DevOps</div>
+                                <div>ITSM</div>
+                                <div>ITIL</div>
+                                <div>Visual Studio</div>
+                                <div>JetBrains IDEs</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section id="experiences">
+                <div class="container">
+                    <div class="header"> experiences </div>
+
+                    <div class="experiences-desc-area">
+                        <div class="block slim"> Interested to learn more about any one of these projects? Click on any experience to see more </div>
+                    </div>
+
+                    <div class="item-sect">
+                        <div class="experience-card" onclick="toggleExperience( 'crude-gradebook' )">
+                            <div> <img src="Resources/CGB/gradebook-icon.png" alt="HoneyComb" class="thumbnail"> </div>
+                            <div>
+                                <h1> Crude Gradebook </h1>
+                                <div class="tags">
+                                    <div style="margin-left: 0;"> ReactJS </div>
+                                    <div> Python Flask </div>
+                                </div> 
+                            </div>
+                        </div>
+
+                        <div class="experience-card" onclick="toggleExperience( 'honeycomb' )">
+                            <div> <img src="Resources/HoneyComb/honeycomb_icon.png" alt="HoneyComb" class="thumbnail"> </div>
+                            <div>
+                                <h1> HoneyComb </h1>
+                                <div class="tags">
+                                    <div style="margin-left: 0;"> Java </div>
+                                    <div> Physics Sim. </div>
+                                    <div> A.I. </div>
+                                </div> 
+                            </div>
+                        </div>
+
+                        <div class="experience-card" onclick="toggleExperience( 'dc2-website' )">
+                            <div> <img src="Resources/DC2/DC2_icon.png" alt="HoneyComb" class="thumbnail"> </div>
+                            <div>
+                                <h1> DC2 Website </h1>
+                                <div class="tags">
+                                    <div style="margin-left: 0;"> Frontend </div>
+                                    <div> JavaScript </div>
+                                </div> 
+                            </div>
+                        </div>
+
+                        <div class="experience-card" onclick="toggleExperience( 'crude-scene-editor' )">
+                            <div> <img src="Resources/CSE/cse_icon.png" alt="HoneyComb" class="thumbnail"> </div>
+                            <div>
+                                <h1> Crude Scene Editor </h1>
+                                <div class="tags">
+                                    <div style="margin-left: 0;"> Java </div>
+                                    <div> Swing </div>
+                                    <div> UX </div>
+                                </div> 
+                            </div>
+                        </div>
+
+                        <div class="experience-card" onclick="toggleExperience( 'galaga' )">
+                            <div> <img src="Resources/Galaga/galaga_icon.png" alt="HoneyComb" class="thumbnail"> </div>
+                            <div>
+                                <h1> Galaga Remake </h1>
+                                <div class="tags">
+                                    <div style="margin-left: 0;"> Java </div>
+                                    <div> Game Design </div>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="crude-gradebook" class="experience">
+                        <div class="row">
+                            <div class="col-lg-4 left">
+                                <div>
+                                    <img src="Resources/CGB/crude-gradebook-main-pic.png" alt="Crude Gradebook">
+                                    <div>
+                                        <h1> Crude Gradebook </h1>
+                                    
+                                        <div class="tags">
+                                            <div style="margin-left: 0;"> Full-stack </div>
+                                            <div> ReactJS </div>
+                                            <div> Python Flask </div>
+                                            <div> MongoDB </div>
+                                            <div> JWT </div>
+                                            <div> Bcrypt </div>
+                                            <div> Docker </div>
+                                            <div> Data Visualization </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8 right">
+                                <ul>
+                                    <li> Planned, designed and programmed a full stack web application utilizing ReactJS, Python Flask, and MongoDB </li>
+                                    <li> Full feature account system that allows users to input transcript information to calculate GPA and visualize trends incorporating Material UI and Nivo </li>
+                                    <li> Employs RESTful backend service in Python and implements JWT and Bcrypt to protect endpoints and user information </li>
+                                    <li> Containerized into one binary by combining Node.js, Python, and Alpine images via Docker </li>
+                                </ul>
+
+                                <div class="slideshow">
+                                    <img class="cgb-slide" src="Resources/CGB/edit-mode-feature.png" alt="Edit Mode Feature">
+                                    <img class="cgb-slide" src="Resources/CGB/control-feature.png" alt="Control Panel">
+                                    <img class="cgb-slide" src="Resources/CGB/transcript_trends-feature.png" alt="Transcript Trends Feature">
+                                
+                                    <div>
+                                        <div class="ss-btn" onclick="moveCGBSlide(-1)"> &#10094; </div>
+                                        <div class="ss-btn" onclick="moveCGBSlide(1)"> &#10095; </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="honeycomb" class="experience">
+                        <div class="row">
+                            <div class="col-lg-4 left">
+                                <div>
+                                    <img src="Resources/HoneyComb/honeycomb_main_pic.png" alt="HoneyComb">
+                                    <div>
+                                        <h1> HoneyComb </h1>
+                                    
+                                        <div class="tags">
+                                            <div style="margin-left: 0;"> Java </div>
+                                            <div> Physics Simulator </div>
+                                            <div> A.I. </div>
+                                            <div> Modular Design </div>
+                                            <div> Animations </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8 right">
+                                <ul>
+                                    <li> Developed a two dimensional platform-genre physics simulator using no external dependencies or code in Java </li>
+                                    <li> Purpose-built highly generic and modular code structure that strictly abides by modern programming conventions </li>
+                                    <li> Features customizable state-machine A.I. with artificial senses that make for an advanced detection system </li>
+                                </ul>
+
+                                <iframe src="https://www.youtube.com/embed/DzfVCyHGR-8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen> </iframe>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="dc2-website" class="experience">
+                        <div class="row">
+                            <div class="col-lg-4 left">
+                                <div>
+                                    <img src="Resources/DC2/dc2_main_pic.png" alt="Demand Control 2">
+                                    <div>
+                                        <h1> DC2 Website </h1>
+                                    
+                                        <div class="tags">
+                                            <div style="margin-left: 0;"> Frontend </div>
+                                            <div> HTML/CSS </div>
+                                            <div> JavaScript </div>
+                                            <div> JQuery </div>
+                                            <div> Responsive Design </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8 right">
+                                <ul>
+                                    <li> Commissioned by Demand Control 2 to design and implement a website brochure </li>
+                                    <li> Collaborated with principal members of the company to deliver an exceptional website </li>
+                                </ul>
+
+                                <div class="slideshow">
+                                    <img class="dc2-slide" src="Resources/DC2/dc2_home.png" alt="Home Page">
+                                    <img class="dc2-slide" src="Resources/DC2/dc2_meet_the_team.png" alt="Meet Our Team Table">
+                                    <img class="dc2-slide" src="Resources/DC2/dc2_service_table.png" alt="Interactable Services Drop-Down Table">
+                                
+                                    <div>
+                                        <div class="ss-btn" onclick="moveDC2Slide(-1)"> &#10094; </div>
+                                        <div class="ss-btn" onclick="moveDC2Slide(1)"> &#10095; </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="crude-scene-editor" class="experience">
+                        <div class="row">
+                            <div class="col-lg-4 left">
+                                <div>
+                                    <img src="Resources/CSE/cse_main_pic.png" alt="Crude Scene Editor">
+                                    <div>
+                                        <h1> Crude Scene Editor </h1>
+                                    
+                                        <div class="tags">
+                                            <div style="margin-left: 0;"> Java </div>
+                                            <div> Swing </div>
+                                            <div> UX </div>
+                                            <div> Level Builder </div>
+                                            <div> Data Compression </div>
+                                            <div> Tool Suite </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8 right">
+                                <ul>
+                                    <li> Programmed multi-layer grid-based world designer featuring a modular and customizable tool suite using Swing in Java </li>
+                                    <li> Created novel and unique data compression algorithm and file type to store world information </li>
+                                    <li> Implemented action-tracking for undo/redo, preview mode to paint shading, and shortcut key combinations </li>                               
+                                </ul>
+
+                                <iframe src="https://www.youtube.com/embed/4zc1gBsbpp0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="galaga" class="experience">
+                        <div class="row">
+                            <div class="col-lg-4 left">
+                                <div>
+                                    <img src="Resources/Galaga/galaga_main_pic.png" alt="Galaga Remake">
+                                    <div>
+                                        <h1> Galaga Remake </h1>
+                                    
+                                        <div class="tags">
+                                            <div style="margin-left: 0;"> Java </div>
+                                            <div> Game Design </div>
+                                            <div> UX </div>
+                                            <div> Sound Effects </div>
+                                            <div> Animations </div>
+                                            <div> Leaderboards </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8 right">
+                                <ul>
+                                    <li> A parody of the Galaga series developed in order to expand my skills in Java and teach myself the basics of game design </li>
+                                    <li> Incorporates the game engine to provide for a unique menu-navigation user experience </li>
+                                    <li> Features a diversity of NPC and playable ship types each equipped with distinct properties </li>
+                                    <li> Tracks user metrics to produce a post-game breakdown of the user’s performance </li>
+                                </ul>
+
+                                <iframe src="https://www.youtube.com/embed/atD58nE9c1Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="profile-card">
+                            <div> <img src="Resources/headshot.jpg" alt="Profile Picture" class="thumbnail"> </div>
+                            <div>
+                                <h1> Nykolas Farhangi </h1>
+                                <h2> nykolasfarhangi@protonmail.com </h2>
+                                <div>
+                                    <a href="https://www.linkedin.com/in/nykolasfarhangi/" target="_blank"> <img style="margin-left: 0;" src="Resources/linkedin-icon.png" alt="LinkedIn"> </a>
+                                    <a href="https://github.com/crudemandarin" target="_blank"> <img src="Resources/github-icon.png" alt="GitHub"> </a>
+                                    <a href="Resources/Nykolas Farhangi Resume.pdf" target="_blank"> <img src="Resources/cv.png" alt="resume"> </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <ul class="nav-sect">
+                            <li onclick="glideTo( 'top' )"> back to top </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </body>
+
+    <script>
+        // navigation
+        const glideTo = id => {
+            if ( id === 'top' ) {
+                $( 'html' ).animate( { scrollTop: 0 }, 600);
+                return;
+            }
+
+            const y = $( '#' + id ).offset().top - 50;
+            $( 'html' ).animate( { scrollTop: y }, 400 );
+        }
+
+        // about me section script
+        var ABOUT_ME_SLIDES = $( '.about-me-slides' );
+        const ABOUT_ME_SS_SIZE = ABOUT_ME_SLIDES.length;
+        var about_me_index = 0;
+        showAboutMeSlide();
+
+        function showAboutMeSlide() {
+            if (about_me_index < 0) about_me_index = ABOUT_ME_SS_SIZE - 1;
+            else if (about_me_index >= ABOUT_ME_SS_SIZE) about_me_index = 0;
+            ABOUT_ME_SLIDES.each( index => ABOUT_ME_SLIDES[ index ].style.display = about_me_index === index ? 'block' : 'none' );
+            about_me_index += 1;
+            setTimeout( showAboutMeSlide, 5000 ); 
+        }
+
+        // experiences section script
+        var activeExperienceID = '';
+        const toggleExperience = id => {
+            const element = $( '#' + id );
+
+            if ( activeExperienceID === id ) {
+                element.fadeOut();
+                activeExperienceID = '';
+            }
+
+            else {
+                if ( activeExperienceID !== '' ) $( '#' + activeExperienceID ).css( 'display', 'none' );
+                element.fadeIn();
+                activeExperienceID = id;
+                const y = $( '#' + id ).offset().top - 50;
+                $( 'html' ).animate( { scrollTop: y }, 400 );
+            }
+        }
+
+        // experiences crude gradebook slideshow
+        var CGB_SLIDES = $( '.cgb-slide' );
+        const CGB_SS_SIZE = CGB_SLIDES.length;
+        var CGB_SS_index = 0;
+        showCGBSlide();
+
+        function moveCGBSlide( diff ) {
+            CGB_SS_index += diff;
+            showCGBSlide();
+        }
+
+        function showCGBSlide() {
+            if (CGB_SS_index < 0) CGB_SS_index = CGB_SS_SIZE - 1;
+            else if (CGB_SS_index >= CGB_SS_SIZE) CGB_SS_index = 0;
+            CGB_SLIDES.each( index => CGB_SLIDES[ index ].style.display = CGB_SS_index === index ? 'block' : 'none' );
+        }
+
+        // experiences dc2 slideshow
+        var DC2_SLIDES = $( '.dc2-slide' );
+        const DC2_SS_SIZE = DC2_SLIDES.length;
+        var DC2_SS_index = 0;
+        showDC2Slide();
+
+        function moveDC2Slide( diff ) {
+            DC2_SS_index += diff;
+            showDC2Slide();
+        }
+
+        function showDC2Slide() {
+            if (DC2_SS_index < 0) DC2_SS_index = DC2_SS_SIZE - 1;
+            else if (DC2_SS_index >= DC2_SS_SIZE) DC2_SS_index = 0;
+            DC2_SLIDES.each( index => DC2_SLIDES[ index ].style.display = DC2_SS_index === index ? 'block' : 'none' );
+        }
+
+    </script>
+</html>
