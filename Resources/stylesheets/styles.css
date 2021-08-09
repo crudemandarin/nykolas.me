@@ -84,7 +84,8 @@ body {
     width: -moz-max-content;
     width: max-content;
 
-    background-color: rgb(124, 123, 136);
+    /* color: white; */
+    background-color: rgb(105, 100, 100);
     border-radius: 25px;
 
     font-size: 2rem;
@@ -94,7 +95,7 @@ body {
 .block {
     padding: 30px 40px;
     border-radius: 20px;
-    background-color: rgba(255,255,255,0.75);
+    background-color: rgb(255,255,255);
     line-height: 1.5;
 }
 
@@ -124,7 +125,7 @@ body {
         -ms-flex-align: center;
             align-items: center;
     border-radius: 100px;
-    background-color: rgba(255,255,255,0.65);
+    background-color: rgb(255,255,255);
 }
 
 .profile-card > div {
@@ -185,7 +186,7 @@ header {
     padding: 10px 20px;
     font-size: 1.5rem;
     border-radius: 25px;
-    background-color: rgba(255,255,255,0.75);
+    background-color: rgb(255,255,255);
     cursor: pointer;
     -webkit-user-select: none;
        -moz-user-select: none;
@@ -216,7 +217,7 @@ main > section {
     font-size: 2rem;
     line-height: 1.25;
     text-align: center;
-    background-color: rgba(255,255,255,0.8);
+    background-color: rgb(255,255,255);
 }
 
 #hero h1 {
@@ -248,10 +249,7 @@ main > section {
 }
 
 #about-me .slideshow > img {
-    max-width: 400px;
     max-height: 450px;
-    width: 90%;
-    height: auto;
     border-radius: 15px;
     border: 1px solid grey;
 }
@@ -377,7 +375,7 @@ main > section {
     padding: 2px 5px;
     border-radius: 5px;
     color: white;
-    background-color: rgb(151, 149, 238);
+    background-color: rgb(145, 87, 211);
 }
 
 .experience {
@@ -443,7 +441,7 @@ main > section {
     width: max-content;
     border-radius: 5px;
     color: white;
-    background-color: rgb(151, 149, 238);
+    background-color: rgb(145, 87, 211);
 }
 
 .experience ul {
