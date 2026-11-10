@@ -142,5 +142,5 @@ export const crew = {
 export const flightLog = [
   { date: '2026-11', version: 'v3.0', note: 'Third flight. New identity (NYKO), the Flight Manual design system, and this site, rebuilt from scratch as static HTML. Both earlier versions are kept in the repository archive.' },
   { date: '2021–2023', version: 'v2', href: '/v2/', note: 'Club Nyko: a React portfolio with a small Express API serving experience, skills and projects. Retired with honours.' },
-  { date: '2021', version: 'v1', href: '/v1/', note: 'Maiden flight: a hand-written HTML, Bootstrap and jQuery page with a résumé and project gallery.' },
+  { date: '2020', version: 'v1', href: '/v1/', note: 'Maiden flight: a hand-written HTML, Bootstrap and jQuery page with a résumé and project gallery.' },
 ];

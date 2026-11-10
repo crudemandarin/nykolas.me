@@ -58,7 +58,7 @@ const bar = (label) =>
   `<div role="note" style="all:initial;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;padding:8px 16px;background:#101322;color:#C9CFDE;border-bottom:2px solid #FF4A22;font:500 12px/1.5 'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em;text-align:center">` +
   `<span>ARCHIVE &middot; ${label}</span>` +
   `<a href="/" style="color:#FF4A22;text-decoration:underline;font:inherit">Go to the latest nykolas.me &rarr;</a></div>`;
-for (const [v, label] of [["v1", "nykolas.me v1 (2021)"], ["v2", "nykolas.me v2 (2021&ndash;2023)"]]) {
+for (const [v, label] of [["v1", "nykolas.me v1 (2020)"], ["v2", "nykolas.me v2 (2021&ndash;2023)"]]) {
   const f = `${dist}/${v}/index.html`;
   const html = fs.readFileSync(f, "utf8");
   if (!/<body[^>]*>/.test(html)) { console.error(`no <body> in ${f}`); process.exit(1); }
