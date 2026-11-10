@@ -1,0 +1,26 @@
+---
+// The orbit from the mark, unrolled. Decorative: a section connector under the hero.
+const cx = 640, cy = 70, rx = 600, ry = 46;
+const ticks = Array.from({ length: 30 }, (_, k) => k * 12).map((a) => {
+  const t = (a * Math.PI) / 180, x = rx * Math.cos(t), y = ry * Math.sin(t);
+  let nx = Math.cos(t) / rx, ny = Math.sin(t) / ry; const L = Math.hypot(nx, ny); nx /= L; ny /= L;
+  return [x, y, x + nx * 7, y + ny * 7];
+});
+const path = `M ${-rx},0 A ${rx},${ry} 0 0 0 ${rx},0 A ${rx},${ry} 0 0 0 ${-rx},0`;
+---
+<svg class="nk-fig orbit-connector" viewBox="0 0 1280 140" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+  <g transform={`translate(${cx},${cy}) rotate(-3)`}>
+    <ellipse class="hair" cx="0" cy="0" rx={rx} ry={ry} />
+    {ticks.map(([a, b, c, d]) => <line class="tick" x1={a.toFixed(1)} y1={b.toFixed(1)} x2={c.toFixed(1)} y2={d.toFixed(1)} />)}
+    <path class="lead" d={`M ${-rx},0 A ${rx},${ry} 0 0 0 ${rx},0`} />
+    <circle class="orb nk-orb" r="6" style={`offset-path: path('${path}')`} />
+    <rect class="marker" x={rx - 5} y="-5" width="10" height="10" />
+  </g>
+</svg>
+<style>
+  .orbit-connector { display: block; margin: calc(-1 * var(--space-8)) 0 var(--space-24); }
+  @media (max-width: 720px) { .orbit-connector { margin-bottom: var(--space-12); } }
+  .nk-orb { offset-rotate: 0deg; animation: nk-orbit 24s linear infinite; }
+  @keyframes nk-orbit { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+  :global([data-motion="idle"]) .nk-orb { animation: none; offset-distance: 25%; }
+</style>

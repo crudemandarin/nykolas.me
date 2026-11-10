@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Loss of signal" status="caution" statusText="Loss of signal">
+  <section class="los nk-grid">
+    <div class="inner">
+      <picture>
+        <source srcset="/brand/nyko-404-los.svg" media="(prefers-reduced-motion: reduce)" />
+        <img src="/brand/nyko-404-los-animated.svg" data-motion-src="/brand/nyko-404-los-animated.svg" data-still="/brand/nyko-404-los.svg" alt="The NYKO satellite drifting off a broken trajectory" width="320" height="320" />
+      </picture>
+      <span class="nk-lamp nk-lamp--caution">Loss of signal · 404</span>
+      <h1 class="display-lg">This page isn't in orbit.</h1>
+      <a class="nk-btn nk-btn--primary" href="/">Return to T–0 <span class="nk-arrow">→</span></a>
+    </div>
+  </section>
+</Base>

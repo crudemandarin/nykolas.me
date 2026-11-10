@@ -1,0 +1,62 @@
+---
+import t from '../data/terrain-fo01.json';
+const meta = {
+  url: t.mesh.url, cols: t.mesh.cols, rows: t.mesh.rows, scale: t.mesh.scale, minM: t.mesh.min_m, maxM: t.mesh.max_m,
+  widthKm: t.mesh.width_km, depthKm: t.mesh.depth_km, intervalFt: t.interval_ft, indexFt: t.index_ft,
+  markers: Object.entries(t.markers).map(([key, m]) => ({ key, label: m.label, u: m.x / t.width, v: m.y / t.height, hot: key === 'crestone_peak' })),
+  seg: [t.transect.x1 / t.width, t.transect.y1 / t.height, t.transect.x2 / t.width, t.transect.y2 / t.height],
+};
+---
+<div class="t3d" data-terrain={JSON.stringify(meta)}>
+  <canvas tabindex="0" role="img" aria-label="Interactive 3D relief of the Sangre de Cristo front above Crestone, Colorado, from real elevation data. Drag to rotate, shift-drag to pan, scroll to zoom once selected; arrow keys rotate, shift plus arrows pan, plus and minus zoom, R resets."></canvas>
+  <div class="t3d-labels" aria-hidden="true"></div>
+  <div class="t3d-top">
+    <span class="nk-label-sm">Fig. 2 — Survey model · 1.5× vertical</span>
+    <span class="t3d-north" aria-hidden="true"><svg viewBox="-12 -16 24 32" width="22" height="28"><path d="M0,-14 L6,-2 L-6,-2 Z" fill="var(--ember)"/><path d="M0,-2 L0,12" stroke="var(--ink-muted)" stroke-width="1.5"/></svg><b>N</b></span>
+  </div>
+  <div class="t3d-hud">
+    <span class="nk-label-sm t3d-hint"><span class="when-idle"><span class="fine-ptr">Drag to rotate · Shift-drag to pan · Click, then scroll to zoom</span><span class="coarse-ptr">Tap to engage · Drag to rotate · Pinch to zoom</span></span><span class="when-engaged">Engaged · Esc to release · R to reset</span></span>
+    <span class="t3d-ctrls">
+      <button class="switch" type="button" data-t3d="out" aria-label="Zoom out">−</button>
+      <button class="switch" type="button" data-t3d="in" aria-label="Zoom in">+</button>
+      <button class="switch" type="button" data-t3d="reset">Reset</button>
+    </span>
+  </div>
+  <p class="t3d-fallback nk-label-sm">3D model needs JavaScript and WebGL 2 · The survey sheet beside it shows the same data</p>
+</div>
+<script>
+  import { mountAll } from '../scripts/terrain3d';
+  mountAll();
+</script>
+<style>
+  .t3d { position: relative; height: 100%; min-height: 540px; background: var(--surface-200); border: var(--stroke-hair) solid var(--line); overflow: hidden; }
+  .t3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; opacity: 0; transition: opacity 400ms linear; }
+  .t3d canvas:active { cursor: grabbing; }
+  .t3d.engaged canvas { touch-action: none; }
+  .t3d canvas:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
+  .t3d.ready canvas { opacity: 1; }
+  .t3d-fallback { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--space-8); text-align: center; }
+  .t3d.ready .t3d-fallback { display: none; }
+  .t3d-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .t3d-labels :global(.t3d-mark) { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; white-space: nowrap; font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; color: var(--ink-muted); margin: -12px 0 0 -6px; transition: opacity 150ms linear; }
+  .t3d-labels :global(.t3d-mark.flip) { flex-direction: row-reverse; translate: calc(-100% + 12px) 0; }
+  .t3d-labels :global(.t3d-mark i) { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid var(--ember); }
+  .t3d-labels :global(.t3d-mark.town i) { width: 9px; height: 9px; border: 1.5px solid var(--signal); background: var(--surface-200); }
+  .t3d-labels :global(.t3d-mark.hot b) { color: var(--ember-text); }
+  .t3d-labels :global(.t3d-mark b) { font-weight: 500; background: color-mix(in srgb, var(--surface-200) 70%, transparent); padding: 1px 3px; }
+  .t3d-top, .t3d-hud { position: absolute; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-4); pointer-events: none; }
+  .t3d-top { top: 0; } .t3d-hud { bottom: 0; }
+  .t3d-hud > * { pointer-events: auto; }
+  .t3d-north { display: inline-flex; flex-direction: column; align-items: center; font-family: var(--font-mono); font-size: 11px; color: var(--ink-subtle); }
+  .t3d-north svg { transform-origin: 50% 50%; }
+  .t3d-ctrls { display: flex; gap: var(--space-2); }
+  .t3d-ctrls .switch { background: var(--surface-200); }
+  .t3d .when-engaged { display: none; }
+  .t3d.engaged .when-engaged { display: inline; }
+  .t3d.engaged .when-idle { display: none; }
+  .t3d:not(.ready) .t3d-hud, .t3d:not(.ready) .t3d-top { display: none; }
+  @media (max-width: 1000px) { .t3d { height: auto; min-height: 0; aspect-ratio: 4 / 3; } }
+  @media (max-width: 640px) { .t3d { aspect-ratio: 1; } }
+  .coarse-ptr { display: none; }
+  @media (pointer: coarse) { .fine-ptr { display: none; } .coarse-ptr { display: inline; } }
+</style>

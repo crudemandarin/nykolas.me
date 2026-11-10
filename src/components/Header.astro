@@ -1,0 +1,27 @@
+---
+import { sections } from '../data/site';
+import night from '../../public/brand/ui/nyko-ui-theme-night.svg?raw';
+import day from '../../public/brand/ui/nyko-ui-theme-day.svg?raw';
+import armed from '../../public/brand/ui/nyko-ui-engine-armed.svg?raw';
+import idle from '../../public/brand/ui/nyko-ui-engine-idle.svg?raw';
+const icon = (svg: string, cls: string) => svg.replace('<svg', `<svg class="ico ${cls}" aria-hidden="true" width="16" height="16"`);
+interface Props { home: boolean }
+const { home } = Astro.props;
+const prefix = home ? '' : '/';
+---
+<header class="header">
+  <div class="wrap">
+    <a class="lockup" href="/" aria-label="Nykolas Farhangi — home">
+      <img class="mark-night" src="/brand/nyko-mark-compact.svg" alt="" width="36" height="36" />
+      <img class="mark-day" src="/brand/nyko-mark-compact-day.svg" alt="" width="36" height="36" />
+      <span>Nykolas Farhangi</span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      {sections.slice(2).map((s) => <a href={`${prefix}#${s.id}`}><span class="n">{s.n}</span>{s.title}</a>)}
+    </nav>
+    <div class="switches">
+      <button class="switch" type="button" data-switch="theme" hidden aria-label="Toggle day or night theme" title="Theme: Night / Day"><Fragment set:html={icon(night, 'i-night') + icon(day, 'i-day')} /><span class="pre">Theme </span><b>Night</b></button>
+      <button class="switch" type="button" data-switch="motion" hidden aria-label="Toggle motion" title="Engines: Armed / Idle (motion)"><Fragment set:html={icon(armed, 'i-armed') + icon(idle, 'i-idle')} /><span class="pre">Engines </span><b>Armed</b></button>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import { flightLog } from '../data/site';
+---
+<Base title="Flight Log" description="Changelog for nykolas.me.">
+  <section class="doc">
+    <div class="wrap">
+      <div class="nk-section-head"><span class="nk-index">FL</span><h1 class="display-lg">Flight Log</h1><span class="nk-label nk-meta">Changes to this site</span></div>
+      <hr class="nk-seam" />
+      <div class="section-body">
+        {flightLog.map((e) => <div class="log-row"><span class="data">{e.date}</span><span class="nk-label nk-hot">{e.version}</span><p class="body-sm">{e.note}</p></div>)}
+      </div>
+    </div>
+  </section>
+</Base>

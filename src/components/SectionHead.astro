@@ -1,0 +1,10 @@
+---
+interface Props { id?: string; n: string; title: string; meta?: string; level?: 'lg' | 'md' }
+const { n, title, meta, level = 'lg' } = Astro.props;
+---
+<div class="nk-section-head">
+  <span class="nk-index">{n}</span>
+  <h2 class={level === 'lg' ? 'display-lg' : 'display-md'}>{title}</h2>
+  {meta ? <span class="nk-label nk-meta">{meta}</span> : <span></span>}
+</div>
+<hr class="nk-seam" />

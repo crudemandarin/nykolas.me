@@ -1,0 +1,163 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import MissionCard from '../components/MissionCard.astro';
+import TopoMap from '../components/TopoMap.astro';
+import Transect from '../components/Transect.astro';
+import Orbit from '../components/Orbit.astro';
+import Terrain3D from '../components/Terrain3D.astro';
+import { person, profile, missions, payloads, fieldOps, crew } from '../data/site';
+const icons = Object.fromEntries(Object.entries(import.meta.glob('../icons/section-*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>).map(([k, v]) => [k.replace(/^.*section-|\.svg$/g, ''), v]));
+const lamp = { live: ['nominal', 'Live'], offline: ['standby', 'Offline'], nominal: ['nominal', 'Nominal'], archived: ['standby', 'Archived'] } as const;
+---
+<Base home>
+  <!-- 00 · Overview -->
+  <section id="overview" class="hero nk-grid" aria-label="Overview">
+    <span class="sheet tl">Sheet 00 · Overview</span><span class="sheet tr">{person.base.coords}</span>
+    <span class="sheet bl">Grid 32 · Major 128</span><span class="sheet br">Rev 1.0 · 2026-11</span>
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="nk-label nk-hot hero-index"><Fragment set:html={icons.overview} />00 · Overview</span>
+        <h1 class="display-xl">Nykolas<br />Farhangi</h1>
+        <p class="lead">{person.headline}</p>
+        <p class="nk-label">{person.role}</p>
+        <div class="hero-actions">
+          <a class="nk-btn nk-btn--primary" href="#missions">Read the missions <span class="nk-arrow">→</span></a>
+          <a class="nk-btn nk-btn--secondary" href={person.github}>GitHub</a>
+          <a class="nk-btn nk-btn--secondary" href={person.linkedin}>LinkedIn</a>
+        </div>
+      </div>
+      <div class="hero-mark">
+        <picture>
+          <source srcset="/brand/nyko-512.png" media="(prefers-reduced-motion: reduce)" />
+          <img src="/brand/nyko-animated.svg" data-motion-src="/brand/nyko-animated.svg" data-still="/brand/nyko-512.png" alt="The NYKO mark: a Soyuz rocket climbing through a tilted orbit" width="460" height="460" fetchpriority="high" />
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · Mission Profile -->
+  <section id="profile" class="section" aria-labelledby="profile-h">
+    <div class="wrap">
+      <div class="nk-section-head"><span class="nk-index"><Fragment set:html={icons.profile} />01</span><h2 id="profile-h" class="display-lg">Mission Profile</h2><span class="nk-label nk-meta">Crew member · N. Farhangi</span></div>
+      <hr class="nk-seam" />
+      <div class="section-body profile">
+        <figure class="nk-photo">
+          <div class="nk-photo-img nk-reg">
+            {person.portrait
+              ? <img src={person.portrait.src} alt={person.portrait.alt} loading="lazy" />
+              : <div class="portrait-pending"><img src="/brand/nyko-1bit-plain.svg" alt="" /><span class="nk-label-sm">Portrait · awaiting uplink</span></div>}
+          </div>
+          <figcaption><span class="nk-label-sm">Fig. 01 — Crew</span><span class="nk-label-sm">{person.base.label}</span></figcaption>
+        </figure>
+        <div class="profile-copy">
+          <p class="lead">{profile.lead}</p>
+          <p class="body">{profile.body}</p>
+          <dl class="nk-kv">{profile.record.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}</dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · Missions -->
+  <section id="missions" class="section" aria-labelledby="missions-h">
+    <div class="wrap">
+      <div class="nk-section-head"><span class="nk-index"><Fragment set:html={icons.missions} />02</span><h2 id="missions-h" class="display-lg">Missions</h2><span class="nk-label nk-meta">{missions.length} logged · Google Cloud · CougarCS</span></div>
+      <hr class="nk-seam" />
+      <p class="intro body">Four systems from Google Cloud and two from running CougarCS, each told as the decision that mattered.</p>
+      <div class="section-body missions">{missions.map((m) => <MissionCard m={m} />)}</div>
+    </div>
+  </section>
+
+  <!-- 03 · Payloads -->
+  <section id="payloads" class="section" aria-labelledby="payloads-h">
+    <div class="wrap">
+      <div class="nk-section-head"><span class="nk-index"><Fragment set:html={icons.payloads} />03</span><h2 id="payloads-h" class="display-lg">Payloads</h2><span class="nk-label nk-meta">Side projects · manifest</span></div>
+      <hr class="nk-seam" />
+      <div class="section-body manifest">
+        {payloads.map((p) => (
+          <div class="manifest-row">
+            <span class="nk-label">{p.code}</span>
+            <h3 class="display-sm">{p.title}</h3>
+            <div><p class="body-sm desc">{p.desc}</p>{p.links && <div class="links">{p.links.map((l) => l.href ? <a class="nk-link" href={l.href}>{l.label}</a> : <span class="link-off" aria-disabled="true" title="Offline">{l.label}</span>)}</div>}</div>
+            <span class:list={['nk-lamp', `nk-lamp--${lamp[p.status][0]}`, 'status']}>{lamp[p.status][1]}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · Field Ops -->
+  <section id="field-ops" class="section" aria-labelledby="fo-h">
+    <div class="wrap">
+      <div class="nk-section-head"><span class="nk-index"><Fragment set:html={icons.fieldops} />04</span><h2 id="fo-h" class="display-lg">Field Ops</h2><span class="nk-label nk-meta">4 sites · CO · WA · AR</span></div>
+      <hr class="nk-seam" />
+      <div class="section-body">
+        <article class="nk-plate nk-reg fo-lead">
+          <div class="nk-plate-head"><span class="nk-label">{fieldOps.lead.code} · {fieldOps.lead.title}<span class="place"> · {fieldOps.lead.place}</span></span><span class="nk-label">{fieldOps.lead.cadence}</span></div>
+          <div class="nk-plate-body">
+            <div class="fo-main"><Terrain3D /></div>
+            <div class="fo-side">
+              <div class="patch-row"><h3 class="display-md">{fieldOps.lead.title}</h3><img class="patch" src={fieldOps.lead.patch} alt={fieldOps.lead.patchAlt} width="112" height="112" loading="lazy" /></div>
+              <p class="body-sm">{fieldOps.lead.body}</p>
+              <dl class="nk-kv">{fieldOps.lead.record.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}</dl>
+              <TopoMap compact />
+              <Transect compact />
+            </div>
+          </div>
+        </article>
+        <div class="fo-grid">
+          {fieldOps.others.map((f) => (
+            <article class="nk-plate fo-card">
+              <div class="nk-plate-head"><span class="nk-label">{f.code}</span><span class="nk-label">{f.discipline}</span></div>
+              <div class="nk-plate-body">
+                <div class="patch-row"><div class="fo-head"><h3 class="display-sm">{f.title}</h3><div><span class="nk-label-sm">{f.statLabel}</span><div class="readout">{f.stat}</div></div></div><img class="patch" src={f.patch} alt={f.patchAlt} width="96" height="96" loading="lazy" /></div>
+                <p class="body-sm">{f.body}</p>
+                <span class="nk-label-sm">{f.coords}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · Crew -->
+  <section id="crew" class="section" aria-labelledby="crew-h">
+    <div class="wrap">
+      <div class="nk-section-head"><span class="nk-index"><Fragment set:html={icons.crew} />05</span><h2 id="crew-h" class="display-lg">Crew</h2><span class="nk-label nk-meta">1 on file</span></div>
+      <hr class="nk-seam" />
+      <div class="section-body crew">
+        <article class="nk-plate nk-reg">
+          <div class="nk-plate-head"><span class="nk-label">Crew file · {crew.file}</span><span class="nk-lamp nk-lamp--nominal">On duty</span></div>
+          <div class="crew-file">
+            <div class="nk-photo-img"><img src="/crew/powder-crew.jpg" alt="Powder, a small white maltipoo in a blue harness, sitting in a car seat" width="560" height="700" loading="lazy" /></div>
+            <div class="crew-data">
+              <div class="patch-row"><h3 class="display-md">{crew.name}</h3><img class="patch" src={crew.patch} alt={crew.patchAlt} width="104" height="104" loading="lazy" /></div>
+              <dl class="nk-kv">{crew.record.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}</dl>
+              <p class="body-sm">{crew.note}</p>
+              <div class="archive"><img src="/crew/powder-first-flight-144.jpg" alt="Powder as a puppy in a grey booster seat" width="72" height="72" loading="lazy" /><span class="nk-label-sm">Archive · First flight</span></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · Comms -->
+  <section id="comms" class="section" aria-labelledby="comms-h">
+    <div class="wrap">
+      <div class="nk-section-head"><span class="nk-index"><Fragment set:html={icons.comms} />06</span><h2 id="comms-h" class="display-lg">Comms</h2><span class="nk-label nk-meta">Channel open</span></div>
+      <hr class="nk-seam" />
+      <div class="section-body comms">
+        <p class="lead">Say hello. I read everything that comes in.</p>
+        <div class="channels">
+          <div class="channel"><span class="nk-label">Email</span><a class="nk-link data" href={`mailto:${person.email}`}>{person.email}</a><button class="nk-btn nk-btn--secondary copy" type="button" data-copy={person.email} hidden>Copy</button></div>
+          <div class="channel"><span class="nk-label">GitHub</span><a class="nk-link data" href={person.github}>crudemandarin</a><span></span></div>
+          <div class="channel"><span class="nk-label">LinkedIn</span><a class="nk-link data" href={person.linkedin}>nykolasfarhangi</a><span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="wrap"><Orbit /></div>
+</Base>

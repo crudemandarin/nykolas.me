@@ -1,0 +1,22 @@
+{
+  "name": "Nykolas Farhangi",
+  "short_name": "NYKO",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#F4F5F9",
+  "theme_color": "#101322",
+  "icons": [
+    {
+      "src": "/brand/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

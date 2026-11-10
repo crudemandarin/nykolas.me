@@ -1,0 +1,139 @@
+
+/* Components — ported 1:1 from the Flight Manual design system (components/bundle.css). */
+
+body { margin: 0; background: var(--surface-100); color: var(--ink); font-family: var(--font-sans); font-size: 16px; line-height: 26px; -webkit-font-smoothing: antialiased; }
+.display-xl, .display-lg, .display-md, .display-sm { text-transform: uppercase; margin: 0; }
+.label, .label-sm { text-transform: uppercase; }
+.nk-stage { padding: var(--space-6); }
+
+/* ── Ground: the engineering grid ─────────────────────────────── */
+.nk-grid {
+  background-color: var(--surface-100);
+  background-image:
+    linear-gradient(var(--line) var(--stroke-hair), transparent var(--stroke-hair)),
+    linear-gradient(90deg, var(--line) var(--stroke-hair), transparent var(--stroke-hair)),
+    linear-gradient(var(--grid) var(--stroke-hair), transparent var(--stroke-hair)),
+    linear-gradient(90deg, var(--grid) var(--stroke-hair), transparent var(--stroke-hair));
+  background-size: 128px 128px, 128px 128px, 32px 32px, 32px 32px;
+  background-position: -1px -1px;
+}
+
+/* ── Registration marks: four corner crops on any plate ───────── */
+.nk-reg { position: relative; }
+.nk-reg::before {
+  content: ""; position: absolute; inset: -6px; pointer-events: none;
+  background:
+    linear-gradient(var(--ink-subtle), var(--ink-subtle)) top left / 12px var(--stroke-rule) no-repeat,
+    linear-gradient(var(--ink-subtle), var(--ink-subtle)) top left / var(--stroke-rule) 12px no-repeat,
+    linear-gradient(var(--ink-subtle), var(--ink-subtle)) top right / 12px var(--stroke-rule) no-repeat,
+    linear-gradient(var(--ink-subtle), var(--ink-subtle)) top right / var(--stroke-rule) 12px no-repeat,
+    linear-gradient(var(--ink-subtle), var(--ink-subtle)) bottom left / 12px var(--stroke-rule) no-repeat,
+    linear-gradient(var(--ink-subtle), var(--ink-subtle)) bottom left / var(--stroke-rule) 12px no-repeat,
+    linear-gradient(var(--ink-subtle), var(--ink-subtle)) bottom right / 12px var(--stroke-rule) no-repeat,
+    linear-gradient(var(--ink-subtle), var(--ink-subtle)) bottom right / var(--stroke-rule) 12px no-repeat;
+}
+
+/* ── Plates (panels) ──────────────────────────────────────────── */
+.nk-plate { background: var(--surface-200); border: var(--stroke-hair) solid var(--line); border-radius: var(--radius-0); }
+.nk-plate-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); padding: var(--space-2) var(--space-4); border-bottom: var(--stroke-hair) solid var(--line); color: var(--ink-subtle); }
+.nk-plate-body { padding: var(--space-6); }
+
+/* ── Telemetry text ───────────────────────────────────────────── */
+.nk-label { font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-subtle); }
+.nk-label-sm { font-family: var(--font-mono); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-subtle); }
+.nk-num { color: var(--ink-muted); }
+.nk-hot { color: var(--ember-text); }
+
+/* Key/value readout table */
+.nk-kv { display: grid; grid-template-columns: max-content 1fr; column-gap: var(--space-6); row-gap: 0; margin: 0; }
+.nk-kv dt { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-subtle); padding: 9px 0; border-bottom: var(--stroke-hair) solid var(--line); }
+.nk-kv dd { margin: 0; font-family: var(--font-mono); font-size: 14px; line-height: 20px; color: var(--ink); padding: 6px 0; border-bottom: var(--stroke-hair) solid var(--line); }
+
+/* Status lamp: a word plus a square, never colour alone */
+.nk-lamp { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; }
+.nk-lamp::before { content: ""; width: 8px; height: 8px; background: currentColor; }
+.nk-lamp--nominal { color: var(--nominal); }
+.nk-lamp--caution { color: var(--caution); }
+.nk-lamp--standby { color: var(--ink-subtle); }
+.nk-lamp--standby::before { background: transparent; box-shadow: inset 0 0 0 var(--stroke-rule) currentColor; }
+
+/* ── Status bar ───────────────────────────────────────────────── */
+.nk-statusbar { display: flex; align-items: center; gap: var(--space-6); height: 32px; padding: 0 var(--space-6); background: var(--surface-000); border-bottom: var(--stroke-hair) solid var(--line); font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-subtle); white-space: nowrap; overflow: hidden; }
+.nk-statusbar .nk-sep { width: 1px; height: 12px; background: var(--line-strong); }
+.nk-statusbar .nk-push { margin-left: auto; }
+.nk-statusbar b { font-weight: 500; color: var(--ink-muted); }
+
+/* ── Buttons and links ────────────────────────────────────────── */
+.nk-btn { display: inline-flex; align-items: center; gap: var(--space-2); height: 40px; padding: 0 var(--space-4); border-radius: var(--radius-1); border: var(--stroke-rule) solid transparent; font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: background-color 120ms linear, border-color 120ms linear, color 120ms linear; }
+.nk-btn--primary { background: var(--ember); color: var(--on-ember); }
+.nk-btn--primary:hover { background: var(--amber); }
+.nk-btn--secondary { background: transparent; color: var(--ink); border-color: var(--control); }
+.nk-btn--secondary:hover { background: var(--surface-300); border-color: var(--ink-muted); }
+.nk-btn .nk-arrow { font-family: var(--font-mono); }
+.nk-btn[disabled], .nk-btn[aria-disabled="true"] { background: transparent; color: var(--ink-subtle); border-color: var(--line-strong); cursor: not-allowed; }
+.nk-link { color: var(--ink); text-decoration: underline; text-decoration-color: var(--control); text-decoration-thickness: var(--stroke-hair); text-underline-offset: 4px; }
+.nk-link:hover { color: var(--ember-text); text-decoration-color: var(--ember-text); }
+:where(a, button, [tabindex]):focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+/* ── Tags ─────────────────────────────────────────────────────── */
+.nk-tag { display: inline-flex; align-items: center; height: 22px; padding: 0 var(--space-2); border: var(--stroke-hair) solid var(--line-strong); border-radius: var(--radius-1); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); }
+
+/* ── Seams (dividers) ─────────────────────────────────────────── */
+.nk-seam { height: 9px; border: 0; margin: 0; background:
+  linear-gradient(var(--line), var(--line)) left 4px / 100% var(--stroke-hair) no-repeat,
+  repeating-linear-gradient(90deg, var(--line-strong) 0 var(--stroke-hair), transparent var(--stroke-hair) 32px) left 0 / 100% 9px no-repeat; }
+.nk-seam--plain { height: var(--stroke-hair); background: var(--line); }
+
+/* Star-chart cross: list marker and spot mark */
+.nk-cross { display: inline-block; width: 9px; height: 9px; flex: none; background:
+  linear-gradient(var(--hull-mid), var(--hull-mid)) center / 100% var(--stroke-rule) no-repeat,
+  linear-gradient(var(--hull-mid), var(--hull-mid)) center / var(--stroke-rule) 100% no-repeat; }
+.nk-list { list-style: none; margin: 0; padding: 0; }
+.nk-list li { display: flex; gap: var(--space-3); align-items: baseline; padding: var(--space-1) 0; }
+.nk-list li .nk-cross { transform: translateY(-1px); }
+
+/* ── Section header ───────────────────────────────────────────── */
+.nk-section-head { display: grid; grid-template-columns: max-content 1fr max-content; align-items: end; column-gap: var(--space-4); }
+.nk-section-head .nk-index { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; color: var(--ember-text); padding-bottom: 10px; }
+.nk-section-head .nk-meta { padding-bottom: 10px; }
+.nk-section-head + .nk-seam { margin-top: var(--space-3); }
+
+/* ── Photo frame ──────────────────────────────────────────────── */
+.nk-photo { margin: 0; display: grid; gap: var(--space-2); }
+.nk-photo-img { position: relative; background: var(--surface-000); border: var(--stroke-hair) solid var(--line); }
+.nk-photo-img img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.82) contrast(1.04); }
+.nk-photo-img .nk-cross-hair { position: absolute; inset: 0; pointer-events: none; background:
+  linear-gradient(var(--flame-core), var(--flame-core)) center / 14px var(--stroke-hair) no-repeat,
+  linear-gradient(var(--flame-core), var(--flame-core)) center / var(--stroke-hair) 14px no-repeat; opacity: .55; }
+.nk-photo figcaption { display: flex; justify-content: space-between; gap: var(--space-4); }
+
+/* ── Mission card ─────────────────────────────────────────────── */
+.nk-mission { display: grid; grid-template-rows: auto 1fr auto; }
+.nk-mission .nk-trajectory { display: block; width: 100%; height: 40px; }
+.nk-mission h3 { margin: var(--space-2) 0 var(--space-3); }
+.nk-mission p { margin: 0; color: var(--ink-muted); }
+.nk-mission .nk-outcome { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); padding: var(--space-3) var(--space-6); border-top: var(--stroke-hair) solid var(--line); }
+
+/* ── Diagram plate defaults (SVG) ─────────────────────────────── */
+.nk-fig { display: block; width: 100%; height: auto; }
+.nk-fig .hair { stroke: var(--line); stroke-width: var(--stroke-hair); fill: none; }
+.nk-fig .rule { stroke: var(--line-strong); stroke-width: var(--stroke-rule); fill: none; }
+.nk-fig .tick { stroke: var(--ink-subtle); stroke-width: var(--stroke-hair); }
+.nk-fig .lead { stroke: var(--ember); stroke-width: var(--stroke-lead); fill: none; stroke-linecap: round; }
+.nk-fig .data { stroke: var(--signal); stroke-width: var(--stroke-lead); fill: none; stroke-linejoin: round; }
+.nk-fig .fill-data { fill: var(--signal); opacity: .12; }
+.nk-fig .cross { stroke: var(--hull-mid); stroke-width: var(--stroke-rule); stroke-linecap: round; }
+.nk-fig .orb { fill: var(--amber); }
+.nk-fig .marker { fill: var(--ember); }
+.nk-fig .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; fill: var(--ink-subtle); text-transform: uppercase; }
+.nk-fig .lbl-ink { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; fill: var(--ink-muted); }
+.nk-fig .lbl-hot { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; fill: var(--ember-text); }
+
+/* ── Motion: physics, never bounce ────────────────────────────── */
+@keyframes nk-weave { 0%,100% { transform: translate(0,0); } 50% { transform: translate(3px,-2px); } }
+.nk-weave { animation: nk-weave 6.3s ease-in-out infinite; }
+@keyframes nk-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: .25; } }
+.nk-live::before { animation: nk-blink 2.4s steps(1) infinite; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

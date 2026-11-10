@@ -1,0 +1,18 @@
+---
+import { person } from '../data/site';
+---
+<footer class="footer">
+  <div class="wrap">
+    <p class="eot">End of transmission</p>
+    <nav aria-label="Footer">
+      <a href="/flight-manual">Flight Manual</a>
+      <a href="/flight-log">Flight Log</a>
+      <a href={person.github}>GitHub ↗</a>
+      <a href={person.linkedin}>LinkedIn ↗</a>
+    </nav>
+    <div class="fine">
+      <span class="nk-label-sm">Designed and built by {person.name} · Seattle</span>
+      <a class="nk-label-sm" href="#main" style="text-decoration:none">Return to T–0 ↑</a>
+    </div>
+  </div>
+</footer>

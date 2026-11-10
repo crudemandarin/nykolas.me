@@ -1,0 +1,29 @@
+---
+import t from '../data/terrain-fo01.json';
+const { compact = false } = Astro.props as { compact?: boolean };
+const W = 560, H = 230, x0 = 52, x1 = 540, y0 = 22, y1 = 176;
+const fmin = 7000, fmax = 15000;
+const maxMi = t.profile_miles;
+const X = (mi: number) => x0 + (x1 - x0) * (mi / maxMi);
+const Y = (ft: number) => y1 - (y1 - y0) * ((ft - fmin) / (fmax - fmin));
+const d = 'M' + t.profile.map(([mi, ft]) => `${X(mi).toFixed(1)},${Y(ft).toFixed(1)}`).join(' L');
+const area = `${d} L${X(maxMi).toFixed(1)},${y1} L${x0},${y1} Z`;
+const grid = [8000, 10000, 12000, 14000];
+const miTicks = Array.from({ length: Math.floor(maxMi) + 1 }, (_, i) => i);
+const top = t.profile.reduce((a, b) => (b[1] > a[1] ? b : a));
+const rise = 14294 - 7930;
+---
+<figure class:list={['fo-figure', compact && 'compact']}>
+  <svg class="nk-fig" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="tr-t">
+    <title id="tr-t">Elevation along a straight line from the town of Crestone (7,930 ft) to Crestone Peak (14,294 ft), {maxMi} miles</title>
+    {grid.map((f) => <g><line class="hair" x1={x0} y1={Y(f)} x2={x1} y2={Y(f)} /><text class="lbl" x={x0 - 8} y={Y(f) + 4} text-anchor="end">{f / 1000}K</text></g>)}
+    <line class="rule" x1={x0} y1={y1} x2={x1} y2={y1} />
+    {miTicks.map((m) => <g><line class="tick" x1={X(m)} y1={y1} x2={X(m)} y2={y1 + 6} /><text class="lbl" x={X(m)} y={y1 + 20} text-anchor="middle">{m}</text></g>)}
+    <path class="fill-data" d={area} /><path class="data" d={d} />
+    <rect class="marker" x={X(top[0]) - 4} y={Y(top[1]) - 4} width="8" height="8" />
+    {!compact && <text class="lbl-hot" x={X(top[0]) - 10} y={Y(top[1]) - 8} text-anchor="end">CRESTONE PEAK</text>}
+    <text class="lbl" x={x0} y="12">FT</text>
+    <text class="lbl" x={x0} y={H - 8}>{compact ? `FIG. 4 — TRANSECT · +${rise.toLocaleString('en-US')} FT` : `FIG. 4 — TRANSECT · CRESTONE → SUMMIT · +${rise.toLocaleString('en-US')} FT`}</text>
+    <text class="lbl" x={x1} y={H - 8} text-anchor="end">MI</text>
+  </svg>
+</figure>

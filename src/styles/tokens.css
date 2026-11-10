@@ -1,0 +1,85 @@
+/* Flight Manual — generated from src/design/tokens.json by scripts/tokens.mjs. Do not edit. */
+:root, [data-theme="dark"] {
+  --surface-000: #0A0D18;
+  --surface-100: #101322;
+  --surface-200: #171B2E;
+  --surface-300: #1F2438;
+  --grid: #161A2C;
+  --line: #262B42;
+  --line-strong: #3A4260;
+  --control: #616B8A;
+  --ink: #E6E9F2;
+  --ink-muted: #9AA4BE;
+  --ink-subtle: #7E88A6;
+  --ember: #FF4A22;
+  --ember-text: #FF5A33;
+  --on-ember: #14182A;
+  --amber: #FFB300;
+  --flame-core: #FFF3E0;
+  --brand-blue: #3238C9;
+  --signal: #8A93FF;
+  --nominal: #3FD69B;
+  --caution: #FFB300;
+  --focus-ring: #FFB300;
+  --hull-xlight: #DDE2EC;
+  --hull-light: #C9CFDE;
+  --hull-mid: #9AA4BE;
+  --hull-shadow: #525C7A;
+  --deep-indigo: #2A3170;
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  --surface-000: #E8EAF1;
+  --surface-100: #F4F5F9;
+  --surface-200: #FFFFFF;
+  --surface-300: #EBEDF3;
+  --grid: #E3E6EE;
+  --line: #D5D9E3;
+  --line-strong: #B4BCCF;
+  --control: #7A84A0;
+  --ink: #1E2233;
+  --ink-muted: #4A5370;
+  --ink-subtle: #5F6886;
+  --ember: #FF4A22;
+  --ember-text: #C1300C;
+  --on-ember: #14182A;
+  --amber: #FFB300;
+  --flame-core: #FFF3E0;
+  --brand-blue: #3238C9;
+  --signal: #3238C9;
+  --nominal: #0C734F;
+  --caution: #8A5D00;
+  --focus-ring: #3238C9;
+  color-scheme: light;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --radius-0: 0px;
+  --radius-1: 2px;
+  --radius-2: 4px;
+  --stroke-hair: 1px;
+  --stroke-rule: 1.5px;
+  --stroke-lead: 2.5px;
+  --font-display: "Big Shoulders Display", "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+.display-xl { font-family: var(--font-display); font-size: 96px; line-height: 88px; font-weight: 800; letter-spacing: 0.01em; }
+.display-lg { font-family: var(--font-display); font-size: 64px; line-height: 60px; font-weight: 800; letter-spacing: 0.01em; }
+.display-md { font-family: var(--font-display); font-size: 40px; line-height: 40px; font-weight: 700; letter-spacing: 0.02em; }
+.display-sm { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 700; letter-spacing: 0.03em; }
+.lead { font-family: var(--font-sans); font-size: 20px; line-height: 30px; font-weight: 400; }
+.body { font-family: var(--font-sans); font-size: 16px; line-height: 26px; font-weight: 400; }
+.body-sm { font-family: var(--font-sans); font-size: 14px; line-height: 22px; font-weight: 400; }
+.readout { font-family: var(--font-mono); font-size: 28px; line-height: 32px; font-weight: 500; letter-spacing: -0.01em; }
+.data { font-family: var(--font-mono); font-size: 14px; line-height: 20px; font-weight: 400; }
+.label { font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.12em; }
+.label-sm { font-family: var(--font-mono); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; }

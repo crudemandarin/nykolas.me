@@ -1,0 +1,34 @@
+---
+import t from '../data/terrain-fo01.json';
+const { compact = false } = Astro.props as { compact?: boolean };
+const m = t.markers;
+const kmPerPx = t.km_per_px;
+const scalePx = Math.round(2 / kmPerPx); // 2 km
+const labelPos: Record<string, [number, number, 'start' | 'end']> = compact
+  ? { crestone_peak: [-16, -24, 'end'], crestone_needle: [-6, 34, 'end'] }
+  : { crestone_peak: [12, -12, 'start'], crestone_needle: [-4, 26, 'end'] };
+---
+<figure class:list={['fo-figure', compact && 'compact']}>
+  <svg class="nk-fig" viewBox={`0 0 ${t.width} ${t.height + 40}`} role="img" aria-labelledby="topo-t topo-d">
+    <title id="topo-t">Survey sheet: the Sangre de Cristo front above Crestone, Colorado</title>
+    <desc id="topo-d">Contour lines every 400 feet from real elevation data, from the flat San Luis Valley on the west to Crestone Peak and Crestone Needle on the east, with the transect from the town of Crestone to Crestone Peak.</desc>
+    <defs><clipPath id="sheet"><rect x="0" y="0" width={t.width} height={t.height} /></clipPath></defs>
+    <rect x="0" y="0" width={t.width} height={t.height} fill="none" class="hair" />
+    <g clip-path="url(#sheet)">
+      {t.contours.map((c) => <path class={c.index ? 'rule' : 'hair'} d={c.d} />)}
+      <line class="data" x1={t.transect.x1} y1={t.transect.y1} x2={t.transect.x2} y2={t.transect.y2} stroke-dasharray="6 5" />
+    </g>
+    {Object.entries(m).map(([k, v]) => k === 'crestone_town'
+      ? <g><rect x={v.x - 5} y={v.y - 5} width="10" height="10" style="fill:var(--surface-200);stroke:var(--signal);stroke-width:1.5" /><text class="lbl-ink" x={v.x + 12} y={v.y - 8}>{v.label}</text></g>
+      : <g><path class="marker" d={`M${v.x},${v.y - 7} L${v.x + 7},${v.y + 5} L${v.x - 7},${v.y + 5} Z`} />
+          <text class={k === 'crestone_peak' ? 'lbl-hot' : 'lbl'} x={v.x + labelPos[k][0]} y={v.y + labelPos[k][1]} text-anchor={labelPos[k][2]}>{v.label}</text></g>)}
+    <g transform={`translate(${t.width - 28},36)`}><path class="rule" d="M0,16 L0,-14" /><path class="marker" d="M0,-20 L6,-8 L-6,-8 Z" /><text class="lbl" x="0" y="32" text-anchor="middle">N</text></g>
+    <g transform={`translate(16,${t.height + 14})`}>
+      <rect x="0" y="0" width={scalePx / 2} height="5" style="fill:var(--ink-muted);stroke:var(--ink-muted);stroke-width:1" />
+      <rect x={scalePx / 2} y="0" width={scalePx / 2} height="5" style="fill:transparent;stroke:var(--ink-muted);stroke-width:1" />
+      <text class="lbl" x="0" y="22">0</text><text class="lbl" x={scalePx} y="22" text-anchor="middle">2 KM</text>
+    </g>
+    <text class="lbl" x={t.width} y={t.height + 36} text-anchor="end">{compact ? `FIG. 3 — ${t.interval_ft} FT CONTOURS` : `FIG. 3 — CONTOUR ${t.interval_ft} FT · INDEX ${t.index_ft} FT`}</text>
+  </svg>
+  <figcaption class="nk-label-sm" hidden={compact}>{t.bounds.north.toFixed(2)}°N {Math.abs(t.bounds.west).toFixed(2)}°W — {t.bounds.south.toFixed(2)}°N {Math.abs(t.bounds.east).toFixed(2)}°W · Terrain Tiles on AWS</figcaption>
+</figure>

@@ -1,0 +1,14 @@
+---
+import { person } from '../data/site';
+interface Props { status: 'nominal' | 'caution'; text: string }
+const { status, text } = Astro.props;
+---
+<div class="nk-statusbar" role="status">
+  <span class:list={['nk-lamp', `nk-lamp--${status}`, status === 'nominal' && 'nk-live']}>{text}</span>
+  <span class="nk-sep hide-sm"></span>
+  <span class="hide-sm"><b>{person.base.coords}</b></span>
+  <span class="nk-sep hide-sm"></span>
+  <span hidden>SEA <b id="nk-clock"></b> PT</span>
+  <span class="nk-push hide-sm">Crew <b>2</b> · Powder on duty</span>
+  <span class="nk-progress" aria-hidden="true"></span>
+</div>

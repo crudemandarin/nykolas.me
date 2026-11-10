@@ -1,0 +1,21 @@
+---
+import type { Mission } from '../data/site';
+interface Props { m: Mission }
+const { m } = Astro.props;
+const X = Math.round(400 * m.arc);
+const ticks = Array.from({ length: 13 }, (_, i) => i * 32 + 8);
+---
+<article class:list={['nk-plate', 'nk-mission', m.featured && 'nk-reg']}>
+  <div class="nk-plate-head"><span class="nk-label">Mission {String(m.n).padStart(2, '0')}</span><span class="nk-label">{m.org}</span></div>
+  <div class="nk-plate-body">
+    <svg class="nk-fig nk-trajectory" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true">
+      <line class="hair" x1="0" y1="20" x2="400" y2="20" />
+      {ticks.map((x) => <line class="tick" x1={x} y1="16" x2={x} y2="24" />)}
+      <line class={m.featured ? 'lead' : 'lead quiet'} x1="0" y1="20" x2={X} y2="20" />
+      <rect class={m.featured ? 'marker' : 'marker quiet'} x={X - 4} y="16" width="8" height="8" />
+    </svg>
+    <h3 class="display-md">{m.title}</h3>
+    <p class="body-sm">{m.body}</p>
+  </div>
+  <div class="nk-outcome"><span class="nk-label">{m.outcomeLabel}</span><span class:list={['data', m.featured && 'nk-hot']}>{m.outcome}</span></div>
+</article>

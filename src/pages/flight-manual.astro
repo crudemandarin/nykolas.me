@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import tokens from '../design/tokens.json';
+import budget from '../data/budget.json';
+import terrain from '../data/terrain-fo01.json';
+const brand = ['ember', 'amber', 'flame-core', 'brand-blue', 'signal', 'nominal', 'caution', 'hull-mid', 'hull-shadow'];
+const ui = ['surface-000', 'surface-100', 'surface-200', 'ink', 'ink-muted', 'ink-subtle', 'line', 'control'];
+const byName = Object.fromEntries(tokens.color.tokens.map((t) => [t.name, t]));
+const hex = (n: string) => { const v = byName[n].value; return typeof v === 'string' ? v : v.dark; };
+---
+<Base title="Flight Manual" description="How nykolas.me is built: principles, budgets, data and the design system behind it.">
+  <section class="doc">
+    <div class="wrap">
+      <div class="nk-section-head"><span class="nk-index">FM</span><h1 class="display-lg">Flight Manual</h1><span class="nk-label nk-meta">Colophon · rev 1.0</span></div>
+      <hr class="nk-seam" />
+      <div class="section-body prose">
+        <p class="lead" style="color:var(--ink)">How this site is built, for the people who open DevTools.</p>
+        <p>One static page, generated ahead of time, with no client framework and almost no JavaScript. Everything you read works with scripts off. The one exception is the FO-01 survey model: about 400 lines of hand-written WebGL 2, no 3D library, fetched only when it scrolls into view and rendered only when something changes.</p>
+      </div>
+
+      <h2 class="display-md">Budget</h2>
+      <p class="nk-label-sm" style="margin:var(--space-2) 0 var(--space-6)">Measured on the home page at build time · uncompressed</p>
+      <dl class="nk-kv budget">
+        <dt>HTML + inline CSS</dt><dd>{budget.html_kb} KB</dd>
+        <dt>JavaScript</dt><dd>{budget.js_kb} KB · inline, no framework</dd>
+        <dt>Fonts</dt><dd>{budget.fonts_kb} KB · 5 files, self-hosted, latin subset</dd>
+        <dt>Images</dt><dd>{budget.img_kb} KB · mark, crew</dd>
+        <dt>Total</dt><dd>{budget.total_kb} KB · {budget.requests} requests</dd>
+        <dt>Survey model</dt><dd>{budget.model_kb} KB · WebGL + mesh, loaded when you scroll to it</dd>
+      </dl>
+
+      <h2 class="display-md">Principles</h2>
+      <div class="section-body prose">
+        <p><strong>Built to hold.</strong> Static output, no runtime dependencies, nothing to break at 3 a.m. Every external link is a plain link.</p>
+        <p><strong>Restraint.</strong> One accent colour, used for the thing that matters on each screen. No shadows anywhere: depth comes from overlap and line weight.</p>
+        <p><strong>Grounded in real hardware.</strong> The FO-01 survey sheet is drawn from real elevation data, not an illustration. The orbit, the ticks and the status bar all borrow from actual instruments.</p>
+        <p><strong>Motion obeys physics.</strong> Things move because they would: the orb orbits, the mark weaves, the lamp blinks. Set <span class="data">Engines: Idle</span> in the header, or ask your OS for reduced motion, and everything parks in its resting pose.</p>
+      </div>
+
+      <h2 class="display-md">Survey data</h2>
+      <div class="section-body prose">
+        <p>FO-01's contours come from <a class="nk-link" href="https://registry.opendata.aws/terrain-tiles/">Terrain Tiles on AWS</a> (Mapzen's terrarium encoding, zoom 12), derived from public elevation datasets including USGS 3DEP. Four tiles were resampled to a 64 × 64 grid of roughly 240 m cells, smoothed, and contoured every {terrain.interval_ft} ft with contourpy. The 3D model resamples that grid to 129 × 97 vertices at decimetre precision and draws contours in the fragment shader, so they stay sharp at any zoom. The transect samples the same grid along a straight line from Crestone to the summit, so it reads a little under the published 14,294 ft: the cells average the peak with its surroundings. Summit heights in the text are the published figures.</p>
+        <p>The pipeline is two files: the grid, checksummed row by row, and <span class="data">scripts/terrain.py</span>. Swap in a GPX track and a finer grid and the same plate becomes a real route.</p>
+      </div>
+
+      <h2 class="display-md">Design system</h2>
+      <div class="section-body prose">
+        <p>Everything here is drawn from <strong>Flight Manual</strong>, the NYKO design system: {tokens.color.tokens.length} colour tokens across a Night and a Day theme, three type families and a 4 px spacing scale. Every text colour clears WCAG AA on the surfaces it's allowed on, and keyboard focus is a solid 2 px ring in every theme.</p>
+      </div>
+      <p class="nk-label" style="margin:var(--space-8) 0 var(--space-3)">Signal colours</p>
+      <div class="swatches">{brand.map((n) => <div class="swatch"><i style={`background:var(--${n})`}></i><span class="nk-label-sm">{n}<br />{hex(n)}</span></div>)}</div>
+      <p class="nk-label" style="margin:var(--space-8) 0 var(--space-3)">Night surfaces and ink</p>
+      <div class="swatches">{ui.map((n) => <div class="swatch"><i style={`background:${hex(n)}`}></i><span class="nk-label-sm">{n}<br />{hex(n)}</span></div>)}</div>
+      <dl class="nk-kv budget" style="margin-top:var(--space-8)">
+        <dt>Display</dt><dd>Big Shoulders Display 800</dd>
+        <dt>Text</dt><dd>IBM Plex Sans 400 / 500</dd>
+        <dt>Telemetry</dt><dd>IBM Plex Mono 400 / 500</dd>
+        <dt>Stack</dt><dd>Astro 5 · static · Fontsource</dd>
+      </dl>
+
+      <h2 class="display-md">Credits</h2>
+      <div class="section-body prose">
+        <p>Mark, system and site: Nykolas Farhangi. Typefaces: Big Shoulders Display and IBM Plex, both under the SIL Open Font License. Co-pilot: Powder.</p>
+      </div>
+    </div>
+  </section>
+</Base>

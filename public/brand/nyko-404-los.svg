@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+  <title>NYKO 404 — loss of signal</title><defs>
+  <linearGradient id="gSat" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#C9CFDE"/><stop offset="1" stop-color="#9AA4BE"/>
+  </linearGradient></defs>
+  <path d="M 46,50 H 58 M 52,44 V 56" stroke="#9AA4BE" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".55"></path><path d="M 263,250 H 273 M 268,245 V 255" stroke="#9AA4BE" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".55"></path><path d="M 34,236 H 42 M 38,232 V 240" stroke="#9AA4BE" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".55"></path>
+  <g transform="translate(160 178) rotate(-14)">
+    <path d="M 104.2,-19.7 L 109.2,-15.9 L 113.1,-11.9 L 115.9,-7.8 L 117.6,-3.7 L 118.0,0.5 L 117.2,4.8 L 115.3,8.9 L 112.2,13.0 L 108.0,16.9 L 102.7,20.7 L 96.4,24.2 L 89.1,27.6 L 80.9,30.6 L 71.8,33.3 L 62.1,35.7 L 51.7,37.7 L 40.8,39.4 L 29.5,40.7 L 18.0,41.5 L 6.2,41.9 L -5.7,42.0 L -17.4,41.5 L -29.0,40.7 L -40.4,39.5 L -51.3,37.8 L -61.7,35.8 L -71.4,33.4 L -80.5,30.7 L -88.7,27.7 L -96.1,24.4 L -102.4,20.8 L -107.8,17.1 L -112.1,13.2 L -115.2,9.1 L -117.2,4.9 L -118.0,0.7 L -117.6,-3.5 L -116.0,-7.7 L -113.3,-11.8 L -109.4,-15.7 L -104.4,-19.6 L -98.4,-23.2 L -91.4,-26.6 L -83.4,-29.7 L -74.7,-32.5 L -65.1,-35.0 L -54.9,-37.2 L -44.2,-38.9" fill="none" stroke="#9AA4BE" stroke-width="2" stroke-dasharray="7 9"
+      stroke-linecap="round" opacity=".7"/>
+    <path d="M 4.1,-42.0 L 5.5,-42.0 L 6.9,-41.9 L 8.2,-41.9 L 9.6,-41.9 L 11.0,-41.8 L 12.3,-41.8 L 13.7,-41.7 L 15.1,-41.7 L 16.4,-41.6 L 17.8,-41.5 L 19.1,-41.4 L 20.5,-41.4 L 21.8,-41.3 L 23.2,-41.2 L 24.5,-41.1 L 25.9,-41.0 L 27.2,-40.9 L 28.5,-40.8 L 29.9,-40.6 L 31.2,-40.5 L 32.5,-40.4 L 33.8,-40.2 L 35.2,-40.1 L 36.5,-39.9 L 37.8,-39.8 L 39.1,-39.6 L 40.4,-39.5 L 41.6,-39.3 L 42.9,-39.1 L 44.2,-38.9 L 45.5,-38.8 L 46.7,-38.6 L 48.0,-38.4 L 49.2,-38.2 L 50.5,-38.0 L 51.7,-37.7 L 53.0,-37.5 L 54.2,-37.3 L 55.4,-37.1 L 56.6,-36.9 L 57.8,-36.6 L 59.0,-36.4 L 60.2,-36.1 L 61.4,-35.9 L 62.5,-35.6 L 63.7,-35.4 L 64.8,-35.1 L 66.0,-34.8" fill="none" stroke="#9AA4BE" stroke-width="2" stroke-dasharray="7 9"
+      stroke-linecap="round" opacity=".4"/>
+    <g><path d="M 124.0,-13.9 l 2.5,4.9" stroke="#9AA4BE" stroke-width="2.4" stroke-linecap="round" opacity="0.60" transform="rotate(-26 124.0 -13.9)"/></g><g><path d="M 143.8,-4.0 l 0.4,5.0" stroke="#9AA4BE" stroke-width="2.4" stroke-linecap="round" opacity="0.45" transform="rotate(-38 143.8 -4.0)"/></g><g><path d="M 157.8,22.0 l -1.7,5.0" stroke="#9AA4BE" stroke-width="2.4" stroke-linecap="round" opacity="0.30" transform="rotate(-52 157.8 22.0)"/></g>
+  </g>
+  <g><g><g transform="translate(246 76) rotate(22) scale(1.15)"><g transform="scale(-1 1)" stroke-linejoin="round">
+    <g stroke="#9AA4BE" stroke-width="1.1" fill="none"><path d="M -19,-4 L -29,-12"/><path d="M -19,4 L -27,14"/><path d="M -21,0 L -27,0"/></g>
+    <path d="M 9,-11 L 16,-11 L 21,-40 L 13,-40 Z" fill="#3238C9" stroke="#1E2233" stroke-width="1"/>
+    <path d="M 9,11 L 16,11 L 11,40 L 3,40 Z" fill="#3238C9" stroke="#1E2233" stroke-width="1"/>
+    <g stroke="#C9CFDE" stroke-width=".8"><path d="M 10.5,-21 L 17.8,-21"/><path d="M 12,-31 L 19.3,-31"/><path d="M 7.5,21 L 14.8,21"/><path d="M 6,31 L 13.3,31"/></g>
+    <path d="M 4,-8.5 L 17,-8.5 L 21,-10 L 21,10 L 17,8.5 L 4,8.5 Z" fill="#C9CFDE" stroke="#1E2233" stroke-width="1"/>
+    <path d="M 7,-8.5 L 10,-8.5 L 10,8.5 L 7,8.5 Z" fill="#525C7A"/>
+    <path d="M -6.5,-4.8 C -3.5,-7.8 1,-9 4,-9 L 4,9 C 1,9 -3.5,7.8 -6.5,4.8 Z" fill="#9AA4BE" stroke="#1E2233" stroke-width="1"/>
+    <circle cx="-13" cy="0" r="7.5" fill="#C9CFDE" stroke="#1E2233" stroke-width="1"/>
+    <path d="M -20,-1.8 A 7.5 7.5 0 0 1 -6,-1.8" fill="none" stroke="#525C7A" stroke-width="2" transform="rotate(90 -13 0)"/>
+  </g></g></g></g>
+</svg>
