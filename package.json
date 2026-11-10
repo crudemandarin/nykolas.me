@@ -10,7 +10,6 @@
     "dev": "npm run tokens && astro dev",
     "build": "npm run tokens && astro build",
     "preview": "astro preview",
-    "deploy": "npm run build && npx wrangler@4 deploy"
   },
   "dependencies": {
     "@fontsource/big-shoulders-display": "5.3.0",
