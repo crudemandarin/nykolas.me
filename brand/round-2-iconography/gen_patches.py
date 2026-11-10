@@ -183,7 +183,10 @@ def cr01():
     return patch("NYKO patch CR-01", "CR-01 · POWDER", art, ring_col=GOLD, hair_col=GOLD_HI)
 
 
-PATCHES.append(("cr01", cr01))
+# CR-01 is now hand-drawn: assets/powder-patch.svg is the master and
+# nyko-patch-cr01.svg (+ public/patches/) is copied from it. cr01() is kept for
+# reference only and no longer regenerated, so it won't overwrite the new art.
+# PATCHES.append(("cr01", cr01))
 
 if __name__ == "__main__":
     import os
