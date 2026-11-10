@@ -1,0 +1,16 @@
+---
+// Hidden from the live site for now (see `hidden` in src/data/site.ts). Kept for later.
+import MissionCard from '../MissionCard.astro';
+import { missions } from '../../data/site';
+interface Props { n: string; icon: string }
+const { n, icon } = Astro.props;
+---
+<section id="missions" class="section" aria-labelledby="missions-h">
+  <div class="wrap">
+    <div class="nk-section-head"><span class="nk-index"><Fragment set:html={icon} />{n}</span><h2 id="missions-h" class="display-lg">Missions</h2><span class="nk-label nk-meta">{missions.length} logged · Google Cloud · CougarCS</span></div>
+    <hr class="nk-seam" />
+    <p class="intro body">Four systems from Google Cloud and two from running CougarCS, each told as the decision that mattered.</p>
+    <div class="section-body missions">{missions.map((m) => <MissionCard m={m} />)}</div>
+  </div>
+</section>
+

@@ -1,0 +1,24 @@
+---
+// Hidden from the live site for now (see `hidden` in src/data/site.ts). Kept for later.
+import { payloads } from '../../data/site';
+const lamp = { live: ['nominal', 'Live'], offline: ['standby', 'Offline'], nominal: ['nominal', 'Nominal'], archived: ['standby', 'Archived'] } as const;
+interface Props { n: string; icon: string }
+const { n, icon } = Astro.props;
+---
+<section id="payloads" class="section" aria-labelledby="payloads-h">
+  <div class="wrap">
+    <div class="nk-section-head"><span class="nk-index"><Fragment set:html={icon} />{n}</span><h2 id="payloads-h" class="display-lg">Payloads</h2><span class="nk-label nk-meta">Side projects · manifest</span></div>
+    <hr class="nk-seam" />
+    <div class="section-body manifest">
+      {payloads.map((p) => (
+        <div class="manifest-row">
+          <span class="nk-label">{p.code}</span>
+          <h3 class="display-sm">{p.title}</h3>
+          <div><p class="body-sm desc">{p.desc}</p>{p.links && <div class="links">{p.links.map((l) => l.href ? <a class="nk-link" href={l.href}>{l.label}</a> : <span class="link-off" aria-disabled="true" title="Offline">{l.label}</span>)}</div>}</div>
+          <span class:list={['nk-lamp', `nk-lamp--${lamp[p.status][0]}`, 'status']}>{lamp[p.status][1]}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+

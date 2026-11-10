@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "nykolas.me \u2014 the personal site of Nykolas Farhangi, built on the NYKO Flight Manual design system.",
+  "description": "nykolas.me — the personal site of Nykolas Farhangi, built on the NYKO Flight Manual design system.",
   "scripts": {
     "tokens": "node scripts/tokens.mjs",
     "terrain": "python3 scripts/terrain.py",
     "dev": "npm run tokens && astro dev",
     "build": "npm run tokens && astro build",
     "preview": "astro preview",
+    "build:archive": "bash scripts/build-archive.sh"
   },
   "dependencies": {
     "@fontsource/big-shoulders-display": "5.3.0",

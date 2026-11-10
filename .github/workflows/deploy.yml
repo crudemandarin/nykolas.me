@@ -1,9 +1,13 @@
 name: Deploy to GitHub Pages
 
+# Changes that only touch archive/ do not build or deploy.
+# The archived sites still ship with every deploy (nykolas.me/v1, /v2).
 on:
   push:
     branches: [main]
+    paths-ignore: ['archive/**']
   pull_request:
+    paths-ignore: ['archive/**']
   workflow_dispatch:
 
 permissions:
@@ -24,8 +28,12 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            archive/v2/app/package-lock.json
       - run: npm ci
       - run: npm run build
+      - run: npm run build:archive
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

@@ -36,10 +36,11 @@ npm install
 npm run dev        # local dev server at http://localhost:4321
 npm run build      # static build to dist/
 npm run preview    # serve the built site
-npm run deploy     # build and deploy to Cloudflare
 ```
 
-Pushes to `main` build and deploy automatically through GitHub Actions.
+To include the archived sites at `/v1` and `/v2`, run `npm run build:archive` after `npm run build`.
+
+Pushes to `main` build and deploy to GitHub Pages automatically. Changes only under `archive/` do not trigger a deploy.
 
 ## Manifest
 
@@ -51,8 +52,8 @@ Pushes to `main` build and deploy automatically through GitHub Actions.
 ├── scripts/        token, terrain and budget build scripts
 ├── data/           raw elevation data for the FO-01 survey sheet
 └── archive/        earlier versions of nykolas.me, with full git history
-    ├── v1/         the original static site
-    └── v2/         the second site (nykolas.me-21)
+    ├── v1/         the original static site          → nykolas.me/v1
+    └── v2/         the second site (nykolas.me-21)   → nykolas.me/v2
         ├── app/    React app         (was crudemandarin/nykolas.me-21)
         └── api/    Express API       (was crudemandarin/nykolas.me-21-backend)
 ```

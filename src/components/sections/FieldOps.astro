@@ -1,0 +1,43 @@
+---
+// Hidden from the live site for now (see `hidden` in src/data/site.ts). Kept for later.
+import TopoMap from '../TopoMap.astro';
+import Transect from '../Transect.astro';
+import Terrain3D from '../Terrain3D.astro';
+import { fieldOps } from '../../data/site';
+interface Props { n: string; icon: string }
+const { n, icon } = Astro.props;
+---
+<section id="field-ops" class="section" aria-labelledby="fo-h">
+  <div class="wrap">
+    <div class="nk-section-head"><span class="nk-index"><Fragment set:html={icon} />{n}</span><h2 id="fo-h" class="display-lg">Field Ops</h2><span class="nk-label nk-meta">4 sites · CO · WA · AR</span></div>
+    <hr class="nk-seam" />
+    <div class="section-body">
+      <article class="nk-plate nk-reg fo-lead">
+        <div class="nk-plate-head"><span class="nk-label">{fieldOps.lead.code} · {fieldOps.lead.title}<span class="place"> · {fieldOps.lead.place}</span></span><span class="nk-label">{fieldOps.lead.cadence}</span></div>
+        <div class="nk-plate-body">
+          <div class="fo-main"><Terrain3D /></div>
+          <div class="fo-side">
+            <div class="patch-row"><h3 class="display-md">{fieldOps.lead.title}</h3><img class="patch" src={fieldOps.lead.patch} alt={fieldOps.lead.patchAlt} width="112" height="112" loading="lazy" /></div>
+            <p class="body-sm">{fieldOps.lead.body}</p>
+            <dl class="nk-kv">{fieldOps.lead.record.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}</dl>
+            <TopoMap compact />
+            <Transect compact />
+          </div>
+        </div>
+      </article>
+      <div class="fo-grid">
+        {fieldOps.others.map((f) => (
+          <article class="nk-plate fo-card">
+            <div class="nk-plate-head"><span class="nk-label">{f.code}</span><span class="nk-label">{f.discipline}</span></div>
+            <div class="nk-plate-body">
+              <div class="patch-row"><div class="fo-head"><h3 class="display-sm">{f.title}</h3><div><span class="nk-label-sm">{f.statLabel}</span><div class="readout">{f.stat}</div></div></div><img class="patch" src={f.patch} alt={f.patchAlt} width="96" height="96" loading="lazy" /></div>
+              <p class="body-sm">{f.body}</p>
+              <span class="nk-label-sm">{f.coords}</span>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+

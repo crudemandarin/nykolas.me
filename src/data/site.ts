@@ -12,15 +12,21 @@ export const person = {
   portrait: { src: '/crew/nykolas.jpg', alt: 'Nykolas Farhangi, smiling, in a navy patterned shirt' } as null | { src: string; alt: string },
 };
 
-export const sections = [
-  { id: 'overview', n: '00', title: 'Overview' },
-  { id: 'profile', n: '01', title: 'Mission Profile' },
-  { id: 'missions', n: '02', title: 'Missions' },
-  { id: 'payloads', n: '03', title: 'Payloads' },
-  { id: 'field-ops', n: '04', title: 'Field Ops' },
-  { id: 'crew', n: '05', title: 'Crew' },
-  { id: 'comms', n: '06', title: 'Comms' },
-] as const;
+// Set `hidden: true` to take a section off the live site without deleting it.
+// Visible sections are renumbered in order (00, 01, 02, ...).
+export const allSections: { id: string; title: string; hidden?: boolean }[] = [
+  { id: 'overview', title: 'Overview' },
+  { id: 'profile', title: 'Mission Profile' },
+  { id: 'missions', title: 'Missions', hidden: true },
+  { id: 'payloads', title: 'Payloads', hidden: true },
+  { id: 'field-ops', title: 'Field Ops', hidden: true },
+  { id: 'crew', title: 'Crew' },
+  { id: 'comms', title: 'Comms' },
+];
+
+export const sections = allSections
+  .filter((s) => !s.hidden)
+  .map((s, i) => ({ ...s, n: String(i).padStart(2, '0') }));
 
 export const profile = {
   lead: "I'm Nykolas. I've spent my career on the systems that have to hold up: auth, migrations, and the guardrails that let everyone else move fast.",
@@ -134,6 +140,7 @@ export const crew = {
 };
 
 export const flightLog = [
-  { date: '2026-11', version: 'v1.0', note: 'First flight. New identity (NYKO), the Flight Manual design system, and this site, rebuilt from scratch as static HTML.' },
-  { date: '2022', version: 'v0', note: 'Club Nyko: the old React portfolio. Retired with honours.' },
+  { date: '2026-11', version: 'v3.0', note: 'Third flight. New identity (NYKO), the Flight Manual design system, and this site, rebuilt from scratch as static HTML. Both earlier versions are kept in the repository archive.' },
+  { date: '2021–2023', version: 'v2', href: '/v2/', note: 'Club Nyko: a React portfolio with a small Express API serving experience, skills and projects. Retired with honours.' },
+  { date: '2021', version: 'v1', href: '/v1/', note: 'Maiden flight: a hand-written HTML, Bootstrap and jQuery page with a résumé and project gallery.' },
 ];
