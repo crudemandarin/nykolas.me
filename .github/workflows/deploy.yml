@@ -1,4 +1,4 @@
-name: Build and deploy
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -8,10 +8,12 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -24,28 +26,17 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-pages-artifact@v3
         with:
-          name: dist
           path: dist
-          retention-days: 7
 
   deploy:
     needs: build
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
-      name: production
-      url: https://nykolas.me
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: "4"
-          command: deploy
+      - id: deployment
+        uses: actions/deploy-pages@v4
