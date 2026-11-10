@@ -1,0 +1,23 @@
+[
+    {
+        "title": "1Announce",
+        "img": "https://s3.amazonaws.com/nykolas.me/1a.png",
+        "shortDesc":
+            "An extensible, scalable platform to schedule rich messages to variable destinations",
+        "tags": ["Full Stack", "Cloud Native", "AWS"]
+    },
+    {
+        "title": "HoneyComb",
+        "img": "https://s3.amazonaws.com/nykolas.me/dino.gif",
+        "shortDesc":
+            "A 2D platform-genre physics simulator sandbox built from scratch in Java",
+        "tags": ["Java", "OOP", "Physics Sim"]
+    },
+    {
+        "title": "DC2 Commission",
+        "img": "https://s3.amazonaws.com/nykolas.me/dc2.png",
+        "shortDesc":
+            "Commissioned to design and implement a website brochure for energy retail products",
+        "tags": ["Front-End", "HTML/CSS/JS"]
+    }
+]

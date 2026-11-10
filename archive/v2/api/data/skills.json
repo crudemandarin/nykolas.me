@@ -1,0 +1,55 @@
+[
+    {
+        "title": "Programming Languages",
+        "skills": [
+            "Java",
+            "Python",
+            "JavaScript",
+            "TypeScript",
+            "C++",
+            "HTML/CSS",
+            "C#",
+            "SQL"
+        ],
+        "bgColor": "bg-red-600"
+    },
+    {
+        "title": "Libraries, Frameworks",
+        "skills": [
+            "Node.js",
+            "React",
+            "Angular",
+            "Maven",
+            "NuGet",
+            "Express",
+            "Python Flask",
+            "AWS SDK",
+            "AWS CDK",
+            "JWT",
+            "Bcrypt",
+            "jQuery",
+            "Tailswind",
+            "SASS"
+        ],
+        "bgColor": "bg-violet-600"
+    },
+    {
+        "title": "Additional",
+        "skills": [
+            "Git",
+            "AWS",
+            "Azure",
+            "Google Cloud",
+            "Docker",
+            "Windows",
+            "MacOS",
+            "Linux",
+            "Agile",
+            "DevOps",
+            "Visual Studio",
+            "IBM i",
+            "ServiceNow"
+        ],
+        "bgColor": "bg-green-600"
+    }
+]
