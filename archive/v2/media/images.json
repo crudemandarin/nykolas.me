@@ -1,0 +1,12 @@
+{
+  "_note": "Image files for the v2 archive, served at /v2/media/. The build fills these into the API data by title/company. The originals lived in an S3 bucket that is now gone.",
+  "projects": {
+    "1Announce": "logo-1a.png",
+    "HoneyComb": "logo-honeycomb.png",
+    "DC2 Commission": "logo-dc2.png"
+  },
+  "experiences": {
+    "IBM Corporation": "logo-ibm.svg",
+    "Tokio Marine HCC": "logo-tmhcc.svg"
+  }
+}

@@ -22,20 +22,32 @@ rm -rf "$DIST/v2"
     BUILD_PATH="$DIST/v2" npm run build
 )
 
-# v2 project images: originally served from an S3 bucket that is now gone (403).
-# The same files are in the app repo, so serve those instead.
+# v2 images: originally served from an S3 bucket that is now gone (403).
+# Copies live in archive/v2/media; images.json maps them onto the API data.
 mkdir -p "$DIST/v2/media"
-cp "$ROOT/archive/v2/app/src/resources/logos/"{1a.png,dc2.png,dino.gif} "$DIST/v2/media/"
+cp "$ROOT/archive/v2/media/"* "$DIST/v2/media/"
+rm -f "$DIST/v2/media/images.json"
 
 # v2 API: each endpoint returned { <name>: data/<name>.json }, so write the same shape,
-# pointing the dead S3 image URLs at /v2/media/
+# with project images and experience logos pointed at /v2/media/
 mkdir -p "$DIST/v2/api"
-for name in experiences skills projects; do
-  node -e 'const fs=require("fs");const[n,src,out]=process.argv.slice(1);const txt=fs.readFileSync(src,"utf8").replaceAll("https://s3.amazonaws.com/nykolas.me/","/v2/media/");fs.writeFileSync(out,JSON.stringify({[n]:JSON.parse(txt)}))' \
-    "$name" "$ROOT/archive/v2/api/data/$name.json" "$DIST/v2/api/$name"
-done
-if grep -l "s3.amazonaws.com/nykolas.me/[^\"]*\.\(png\|gif\|jpe\?g\)" "$DIST/v2/api/"*; then
-  echo "unmapped S3 image left in the v2 API data" >&2; exit 1
-fi
+node - "$ROOT/archive/v2" "$DIST/v2/api" <<'JS'
+const fs = require("fs");
+const [src, out] = process.argv.slice(2);
+const map = JSON.parse(fs.readFileSync(`${src}/media/images.json`, "utf8"));
+const read = (n) => JSON.parse(fs.readFileSync(`${src}/api/data/${n}.json`, "utf8"));
+const media = (f) => `/v2/media/${f}`;
+const projects = read("projects").map((p) => ({ ...p, img: map.projects[p.title] ? media(map.projects[p.title]) : p.img }));
+const experiences = read("experiences").map((e) => (map.experiences[e.company] ? { ...e, logo: media(map.experiences[e.company]) } : e));
+const data = { projects, experiences, skills: read("skills") };
+for (const [n, v] of Object.entries(data)) {
+  const missing = n === "projects" ? v.filter((p) => !p.img?.startsWith("/v2/media/")).map((p) => p.title)
+    : n === "experiences" ? v.filter((e) => !e.logo).map((e) => e.company) : [];
+  if (missing.length) { console.error(`v2 ${n} missing images: ${missing.join(", ")}`); process.exit(1); }
+  for (const p of [...new Set(JSON.stringify(v).match(/\/v2\/media\/[^"]+/g) || [])])
+    if (!fs.existsSync(`${src}/media/${p.slice(10)}`)) { console.error(`missing file ${p}`); process.exit(1); }
+  fs.writeFileSync(`${out}/${n}`, JSON.stringify({ [n]: v }));
+}
+JS
 
 echo "archive ok: dist/v1, dist/v2"
