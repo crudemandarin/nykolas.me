@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>NYKO</title>
+  <defs><clipPath id="cf" clipPathUnits="userSpaceOnUse"><rect x="-300" y="0" width="600" height="300"/></clipPath></defs>
+  <g transform="translate(256 266) rotate(18)"><path d="M -218,0 A 218 74 0 1 0 218,0 A 218 74 0 1 0 -218,0" fill="none" stroke="#FF4A22" stroke-width="20" opacity=".45"/>
+    <g transform="translate(-179 -42) rotate(-26) scale(1.35)"><rect x="-4" y="-26" width="8" height="17" fill="#3238C9"/><rect x="-4" y="9" width="8" height="17" fill="#3238C9"/><rect x="-10" y="-7" width="22" height="14" rx="3" fill="#2A3170"/><circle cx="-14" cy="0" r="7" fill="#2A3170"/></g></g>
+  <g transform="translate(272 242) rotate(-45) scale(1.08)">
+    <path d="M -183,-21.00 C -199,-22.50 -242.0,-10.50 -301.0,0.0 C -242.0,10.50 -199,22.50 -183,21.00 Z" fill="#FF4A22"/><path d="M -183,-11.00 C -199,-12.50 -214.0,-5.50 -245.0,0.0 C -214.0,5.50 -199,12.50 -183,11.00 Z" fill="#FFB300"/>
+    <g fill="#1E2233"><path d="M -175,-39 L -183,-36.5 L -183,-26.5 L -175,-24 Z"/><path d="M -175,39 L -183,36.5 L -183,26.5 L -175,24 Z"/><path d="M -175,-9 L -184,-7 L -184,7 L -175,9 Z"/><path d="M 58,-15.5 L 76,-15.5 L 76,15.5 L 58,15.5 Z"/></g>
+    <g fill="#2A3170"><path d="M -175,-46 L -98,-40.5 Q -58,-34 -31,-18.5 L -175,-18.5 Z"/><path d="M -175,46 L -98,40.5 Q -58,34 -31,18.5 L -175,18.5 Z"/><path d="M -175,-18 L -60,-17.5 Q 10,-15.5 58,-15.5 L 58,15.5 Q 10,15.5 -60,17.5 L -175,18 Z"/><path d="M 76,-15.5 L 120,-15.5 L 120,15.5 L 76,15.5 Z"/><path d="M 112,-15.5 L 126,-19.5 L 154,-19.5 Q 174,-18 187,-4 L 187,4 Q 174,18 154,19.5 L 126,19.5 L 112,15.5 Z"/></g>
+    <path d="M -175,-15 L -102,-13.5 Q -55,-10.5 -27,0 Q -55,10.5 -102,13.5 L -175,15 Z" fill="#9AA4BE"/>
+    <path d="M 126,-19.5 L 134,-19.5 L 134,19.5 L 126,19.5 Z" fill="#C9CFDE"/>
+  </g>
+  <g transform="translate(256 266) rotate(18)"><g clip-path="url(#cf)"><path d="M -218,0 A 218 74 0 1 0 218,0 A 218 74 0 1 0 -218,0" fill="none" stroke="#FF4A22" stroke-width="24"/>
+    <circle cx="125" cy="61" r="26" fill="#FFB300"/></g></g>
+</svg>

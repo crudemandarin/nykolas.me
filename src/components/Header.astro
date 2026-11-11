@@ -17,7 +17,7 @@ const prefix = home ? '' : '/';
       <span>Nykolas Farhangi</span>
     </a>
     <nav class="nav" aria-label="Sections">
-      {sections.slice(2).map((s) => <a href={`${prefix}#${s.id}`}><span class="n">{s.n}</span>{s.title}</a>)}
+      {sections.slice(1).map((s) => <a href={`${prefix}#${s.id}`}><span class="n">{s.n}</span>{s.title}</a>)}
     </nav>
     <div class="switches">
       <button class="switch" type="button" data-switch="theme" hidden aria-label="Toggle day or night theme" title="Theme: Night / Day"><Fragment set:html={icon(night, 'i-night') + icon(day, 'i-day')} /><span class="pre">Theme </span><b>Night</b></button>

@@ -3,7 +3,7 @@
 // Works without JS (tiles link to the file); JS adds category filters and a preview dialog.
 const urls = import.meta.glob('/brand/round-{1-launch,2-iconography}/*.svg', { query: '?url', import: 'default', eager: true }) as Record<string, string>;
 const raws = import.meta.glob('/brand/round-{1-launch,2-iconography}/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
-const hifi = ['nyko-animated.svg', 'nyko-1bit.svg', 'nyko-1bit-plain.svg'];
+const hifi = ['nyko-animated.svg', 'nyko.svg', 'nyko-favicon.svg', 'nyko-1bit.svg', 'nyko-1bit-plain.svg', 'nyko-1bit-plain-detail.svg'];
 
 const categories = [
   ['marks', 'Marks'],

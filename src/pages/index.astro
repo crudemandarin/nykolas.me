@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import SectionHead from '../components/SectionHead.astro';
 import Orbit from '../components/Orbit.astro';
+import HeroSky from '../components/HeroSky.astro';
 import Missions from '../components/sections/Missions.astro';
 import Payloads from '../components/sections/Payloads.astro';
 import FieldOps from '../components/sections/FieldOps.astro';
@@ -13,6 +14,7 @@ const num = Object.fromEntries(sections.map((s) => [s.id, s.n])) as Record<strin
 <Base home>
   <!-- 00 · Overview -->
   <section id="overview" class="hero nk-grid" aria-label="Overview">
+    <HeroSky />
     <span class="sheet tl">Sheet 00 · Overview</span><span class="sheet tr">{person.base.coords}</span>
     <span class="sheet bl">Grid 32 · Major 128</span><span class="sheet br">Rev 1.0 · 2026-11</span>
     <div class="wrap">
@@ -26,12 +28,6 @@ const num = Object.fromEntries(sections.map((s) => [s.id, s.n])) as Record<strin
           <a class="nk-btn nk-btn--secondary" href={person.github}>GitHub</a>
           <a class="nk-btn nk-btn--secondary" href={person.linkedin}>LinkedIn</a>
         </div>
-      </div>
-      <div class="hero-mark">
-        <picture>
-          <source srcset="/brand/nyko-512.png" media="(prefers-reduced-motion: reduce)" />
-          <img src="/brand/nyko-animated.svg" data-motion-src="/brand/nyko-animated.svg" data-still="/brand/nyko-512.png" alt="The NYKO mark: a Soyuz rocket climbing through a tilted orbit" width="460" height="460" fetchpriority="high" />
-        </picture>
       </div>
     </div>
   </section>
