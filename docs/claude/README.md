@@ -40,7 +40,9 @@ These came out of reconciling `nyko-brand-export.zip` against the repo. The owne
 
 ## UFO model (`public/brand/nyko-ufo.svg`)
 
-A model only. Someone else is programming it into `HeroSky.astro`, replacing `drawUfo()`. The intended behaviour: the UFO occasionally pulls up beside the NYKO rocket and scans it directly.
+Baked and drawn by `src/scripts/hero-sky.ts`. Three pilots on one saucer: `nyko-ufo.svg` (green, ~60% of visits), `nyko-ufo-pink.svg` and `nyko-ufo-purple.svg` (~20% each), all from `brand/round-2-iconography/gen_ufo_aliens.mjs`.
+
+Visits (`UfoMode`): `scan` (pulls up beside the rocket and scans it; the first visit always does this), `pass`, `probe` (scans the satellite, the Moon, NK-4B, its moon or an asteroid), `land` (scans Earth, then shrinks down into it), `abduct` (grows out of Earth with a cow in its beam and leaves), `rise` (grows out of the ringed planet and leaves). Preview one with `/?ufo=<mode>`; it repeats every few seconds. The cow in the beam is `public/brand/nyko-cow.svg` ([handoffs/UFO-COW-ICON-HANDOFF.md](handoffs/UFO-COW-ICON-HANDOFF.md)).
 
 - Origin (0,0) is the saucer centre on the rim line; the viewBox is `-136 -72 272 128`.
 - Groups, back to front: `underglow`, `dome-interior`, `cabin-glow`, `pilot`, `dome-glass`, `hull`, `rim-lights` (`light-1`…`light-7`), `emitter`.

@@ -28,13 +28,24 @@ export type Rock = {
   // Flight Mode only: size class (3 big → 1 small), hit points, hit flash.
   size?: number; hp?: number; flash?: number; beam?: number;
 };
-// A UFO either passes through (sometimes pausing to beam down), or pulls up beside the rocket and scans it.
+// A UFO visit. pass: crosses, sometimes pausing to beam down. scan: pulls up beside the rocket and scans it.
+// probe: scans another body (satellite, Moon, NK-4B or its moon, an asteroid). land: scans Earth, then shrinks
+// down into it. abduct: grows up out of Earth with a cow in its beam and leaves. rise: grows out of the ringed
+// planet and leaves.
+export type UfoMode = 'pass' | 'scan' | 'probe' | 'land' | 'abduct' | 'rise';
 export type Ufo = {
   x: number; y: number; dir: number; age: number; tilt: number;
-  mode: 'pass' | 'scan'; phase: 'in' | 'scan' | 'out';
+  mode: UfoMode; phase: 'in' | 'scan' | 'out' | 'descend' | 'ascend' | 'hold';
   hoverAt: number; hover: number; beam: boolean; scan: number; vx: number; vy: number; outAge: number;
   shield: number; hostile: boolean;
+  scale: number;             // 1 = full size; shrinks into and grows out of planets
+  t: number;                 // descend/ascend progress (0..1), or the hold timer
+  fx: number; fy: number;    // where a descent started
+  target?: ProbeTarget; rock?: Rock; cow?: boolean;
+  skin: UfoSkin;             // which pilot is flying (public/brand/nyko-ufo[-pink|-purple].svg)
 };
+export type UfoSkin = 'green' | 'pink' | 'purple';
+type ProbeTarget = 'sat' | 'moon' | 'nk4b' | 'nk4bMoon' | 'rock' | 'earth';
 export type Ship = {
   hx: number; hy: number; hs: number; base: number; // home pose (hero)
   x: number; y: number; a: number; s: number;
@@ -126,7 +137,7 @@ export function initHeroSky() {
   let wt = t, gamma = 1;
   let stars: Star[] = [], ufo: Ufo | null = null;
   const meteors: Meteor[] = [], rocks: Rock[] = [], puffs: Puff[] = [];
-  let nextMeteor = rnd(1, 3), nextRock = rnd(3, 8), nextUfo = rnd(10, 18), ufoVisits = 0, puffClock = 0;
+  let nextMeteor = rnd(1, 3), nextRock = rnd(3, 8), nextUfo = /[?&]ufo=/.test(location.search) ? 1.5 : rnd(10, 18), ufoVisits = 0, puffClock = 0;
   const c: Record<string, string> = {};
 
   // Bodies are laid out in layout() so they scale with the hero.
@@ -390,7 +401,6 @@ export function initHeroSky() {
       const sea = b.createLinearGradient(-42, -42, 42, 42);
       sea.addColorStop(0, EARTH.ocean[0]); sea.addColorStop(1, EARTH.ocean[1]);
       b.beginPath(); b.arc(0, 0, EARTH.R, 0, TAU); b.fillStyle = sea; b.fill(); b.clip();
-      b.globalAlpha = EARTH.gridAlpha; b.lineWidth = 1; b.strokeStyle = EARTH.grid; b.stroke(new Path2D(L.grid)); b.globalAlpha = 1;
       b.fillStyle = EARTH.land; b.fill(new Path2D(L.land));
       const ice = b.createLinearGradient(0, -60, 0, -30);
       ice.addColorStop(0, EARTH.ice[0]); ice.addColorStop(1, EARTH.ice[1]);
@@ -438,15 +448,12 @@ export function initHeroSky() {
     shadeFrom(x, y, r, light ? 0.6 : 0.88);
     ctx!.restore();
     if (moon.front) drawMoon(moon);
-    // Callout, blueprint style (mirrors NK-4B, off to the upper left).
-    if (W >= 900) {
-      ctx!.save(); ctx!.globalAlpha = 0.8; ctx!.strokeStyle = c['ink-subtle']; ctx!.fillStyle = c['ink-subtle']; ctx!.lineWidth = 1;
-      ctx!.beginPath(); ctx!.moveTo(x - r - 4, y - r - 4); ctx!.lineTo(x - r - 22, y - r - 22); ctx!.lineTo(x - r - 70, y - r - 22); ctx!.stroke();
-      ctx!.font = '500 10px "IBM Plex Mono", monospace'; ctx!.textAlign = 'right'; ctx!.fillText('EARTH', x - r - 24, y - r - 27);
-      ctx!.restore();
-    }
   }
 
+  function rockyMoonPos() {
+    const { x, y, r } = rocky, a = wt * 0.6;
+    return { x: x + Math.cos(a) * r * 2.4, y: y + Math.sin(a) * r * 0.8, r: Math.max(2, r * 0.22), front: Math.sin(a) > 0 };
+  }
   function drawRocky() {
     const { x, y, r } = rocky;
     ctx!.save(); ctx!.globalAlpha = fade;
@@ -456,10 +463,10 @@ export function initHeroSky() {
     ctx!.fillStyle = 'rgba(10,13,24,0.45)'; ctx!.beginPath(); ctx!.arc(x - r * 0.45, y + r * 0.45, r, 0, TAU); ctx!.fill();
     ctx!.restore();
     // A small moon on a tight orbit.
-    const a = wt * 0.6, mx = x + Math.cos(a) * r * 2.4, my = y + Math.sin(a) * r * 0.8;
-    if (Math.sin(a) > 0 || Math.hypot(mx - x, my - y) > r) {
+    const m = rockyMoonPos();
+    if (m.front || Math.hypot(m.x - x, m.y - y) > r) {
       ctx!.save(); ctx!.globalAlpha = fade; ctx!.fillStyle = c['hull-light'];
-      ctx!.beginPath(); ctx!.arc(mx, my, Math.max(2, r * 0.22), 0, TAU); ctx!.fill(); ctx!.restore();
+      ctx!.beginPath(); ctx!.arc(m.x, m.y, m.r, 0, TAU); ctx!.fill(); ctx!.restore();
     }
     // Callout, blueprint style.
     if (W >= 900) {
@@ -761,19 +768,30 @@ export function initHeroSky() {
     ctx!.restore();
   }
 
-  // The model lives in public/brand/nyko-ufo.svg (origin = saucer centre, emitter at (0, 31)).
-  // It is baked once per layout into an offscreen canvas; rim lights and beams are drawn live on top.
-  const UFO_SRC = '/brand/nyko-ufo.svg', UFO_BOX = { x: -136, y: -72, w: 272, h: 128 }, UFO_EMIT = 31;
+  // The model lives in public/brand/nyko-ufo.svg (origin = saucer centre, emitter at (0, 31)), with two more
+  // pilots on the same saucer: nyko-ufo-pink.svg and nyko-ufo-purple.svg (brand/round-2-iconography/gen_ufo_aliens.mjs).
+  // Each is baked once per layout into an offscreen canvas; rim lights and beams are drawn live on top.
+  const UFO_BOX = { x: -136, y: -72, w: 272, h: 128 }, UFO_EMIT = 31;
   const UFO_LIGHTS = [-102, -68, -34, 0, 34, 68, 102];
-  const ufoImg = new Image(), ufoBake = document.createElement('canvas');
-  let ufoK = 0.3, ufoReady = false;
-  ufoImg.onload = () => { ufoReady = true; bakeUfo(); };
-  ufoImg.src = UFO_SRC;
+  const UFO_SKINS: Record<UfoSkin, { img: HTMLImageElement; bake: HTMLCanvasElement; ready: boolean }> = {
+    green: { img: new Image(), bake: document.createElement('canvas'), ready: false },
+    pink: { img: new Image(), bake: document.createElement('canvas'), ready: false },
+    purple: { img: new Image(), bake: document.createElement('canvas'), ready: false },
+  };
+  let ufoK = 0.3;
+  for (const [k, v] of Object.entries(UFO_SKINS)) {
+    v.img.onload = () => { v.ready = true; bakeUfo(); };
+    v.img.src = k === 'green' ? '/brand/nyko-ufo.svg' : `/brand/nyko-ufo-${k}.svg`;
+  }
+  // Green is the regular; pink and purple turn up now and then.
+  const pickSkin = (): UfoSkin => { const r = Math.random(); return r < 0.6 ? 'green' : r < 0.8 ? 'pink' : 'purple'; };
   function bakeUfo() {
-    if (!ufoReady) return;
     const px = ufoK * Math.min(window.devicePixelRatio || 1, 2) * 1.5;
-    ufoBake.width = Math.ceil(UFO_BOX.w * px); ufoBake.height = Math.ceil(UFO_BOX.h * px);
-    ufoBake.getContext('2d')!.drawImage(ufoImg, 0, 0, ufoBake.width, ufoBake.height);
+    for (const v of Object.values(UFO_SKINS)) {
+      if (!v.ready) continue;
+      v.bake.width = Math.ceil(UFO_BOX.w * px); v.bake.height = Math.ceil(UFO_BOX.h * px);
+      v.bake.getContext('2d')!.drawImage(v.img, 0, 0, v.bake.width, v.bake.height);
+    }
   }
 
   // Where the UFO parks to scan: off the rocket's upper flank, so its emitter looks down onto the hull.
@@ -781,18 +799,71 @@ export function initHeroSky() {
   const scanPost = () => flight.active ? { x: ship.x, y: ship.y - 110 } : toWorld(10, W < 900 ? -240 : -270);
   const shipLen = () => (flight.active ? 0.8 : 1);
 
+  // ?ufo=<mode> forces every visit to that mode, every few seconds (for previewing the behaviours).
+  const UFO_MODES: UfoMode[] = ['pass', 'scan', 'probe', 'land', 'abduct', 'rise'];
+  const UFO_FORCE = UFO_MODES.find((m) => new RegExp(`[?&]ufo=${m}\\b`).test(location.search));
+  const easeIO = (k: number) => k * k * (3 - 2 * k);
+  // Green ring pulses where the UFO enters or leaves a planet.
+  const blips: { x: number; y: number; age: number }[] = [];
+  // A cow dropped mid-abduction (the UFO was shot) tumbles away.
+  let looseCow: { x: number; y: number; vx: number; vy: number; rot: number; vr: number; age: number; k: number } | null = null;
+
+  function pickProbe(): Pick<Ufo, 'target' | 'rock'> | null {
+    const opts: Pick<Ufo, 'target' | 'rock'>[] = [{ target: 'sat' }, { target: 'moon' }, { target: 'nk4b' }, { target: 'nk4bMoon' }];
+    for (const k of rocks) if (k.x > 80 && k.x < W - 80 && k.y > 80 && k.y < H - 40) opts.push({ target: 'rock', rock: k });
+    return opts[Math.floor(Math.random() * opts.length)] ?? null;
+  }
+  // The body a probe/land visit is scanning, wherever it is now; null if it's gone (a shot asteroid).
+  function probeInfo(u: Ufo): { x: number; y: number; r: number; label: string; sub: string } | null {
+    switch (u.target) {
+      case 'sat': { const p = satPos(); return { x: p.x, y: p.y, r: W < 900 ? 8 : 12, label: 'NYKO-SAT', sub: 'SIGNAL ∙ NOT FOR US' }; }
+      case 'moon': { const m = moonPos(); return { x: m.x, y: m.y, r: m.r, label: 'LUNA', sub: 'FOOTPRINTS ∙ 12 PAIRS' }; }
+      case 'nk4b': return { ...rocky, label: 'NK-4B', sub: 'IRON OXIDE ∙ ABUNDANT' };
+      case 'nk4bMoon': { const m = rockyMoonPos(); return { x: m.x, y: m.y, r: m.r, label: 'NK-4B I', sub: 'ROCK ∙ UNREMARKABLE' }; }
+      case 'rock': return u.rock && rocks.includes(u.rock) ? { x: u.rock.x, y: u.rock.y, r: u.rock.r, label: u.rock.tag, sub: 'MINERALS ∙ LOW VALUE' } : null;
+      case 'earth': return { ...earth, label: 'EARTH', sub: 'LIFE ∙ CONFIRMED' };
+    }
+    return null;
+  }
+  // Hover post above a scanned body: the emitter sits a short beam's length over its top.
+  const probePost = (b: { x: number; y: number; r: number }) => ({ x: b.x, y: Math.max(28, b.y - b.r - UFO_EMIT * ufoK - 46 * (ufoK / 0.38)) });
+  const ascendFrom = (u: Ufo) => (u.mode === 'abduct' ? earth : planet);
+
   function spawnUfo() {
     const dir = Math.random() < 0.5 ? 1 : -1;
-    // The first visit always scans so it gets seen; after that, about half do.
-    const mode = ufoVisits++ === 0 || Math.random() < 0.5 ? 'scan' : 'pass';
-    ufo = {
+    // The first visit always scans the rocket so it gets seen; after that, any behaviour.
+    let mode: UfoMode = UFO_FORCE ?? 'scan';
+    if (!UFO_FORCE && ufoVisits > 0) {
+      const r = Math.random();
+      mode = r < 0.3 ? 'scan' : r < 0.45 ? 'pass' : r < 0.67 ? 'probe' : r < 0.78 ? 'land' : r < 0.89 ? 'abduct' : 'rise';
+    }
+    ufoVisits++;
+    const u: Ufo = {
       x: dir > 0 ? -80 : W + 80, y: mode === 'scan' ? rnd(H * 0.05, H * 0.2) : rnd(H * 0.12, H * 0.4), dir, age: 0, tilt: 0,
       mode, phase: 'in', hoverAt: rnd(W * 0.3, W * 0.8), hover: Math.random() < 0.6 ? rnd(1.6, 3) : 0, beam: false,
-      scan: 0, vx: 0, vy: 0, outAge: 0, shield: 0, hostile: false,
+      scan: 0, vx: 0, vy: 0, outAge: 0, shield: 0, hostile: false, scale: 1, t: 0, fx: 0, fy: 0, skin: pickSkin(),
     };
+    if (mode === 'probe') { const p = pickProbe(); if (p) Object.assign(u, p); else u.mode = 'scan'; }
+    if (mode === 'land') u.target = 'earth';
+    if (mode === 'abduct' || mode === 'rise') {
+      const b = ascendFrom(u);
+      Object.assign(u, { x: b.x, y: b.y, scale: 0.04, phase: 'ascend', cow: mode === 'abduct' });
+      blips.push({ x: b.x, y: b.y, age: 0 });
+    }
+    ufo = u;
+  }
+
+  function leave(u: Ufo, keepBeam = false) {
+    u.phase = 'out'; u.beam = keepBeam; u.vx = u.dir * 40; u.vy = -20; u.outAge = 0;
   }
 
   function stepUfo(dt: number) {
+    for (const b of blips) b.age += dt;
+    prune(blips, (b) => b.age < 0.9);
+    if (looseCow) {
+      const q = looseCow; q.age += dt; q.vy += 160 * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.rot += q.vr * dt;
+      if (q.age > 4 || q.y > H + 40) looseCow = null;
+    }
     if (!ufo) return;
     const u = ufo;
     u.age += dt;
@@ -803,13 +874,48 @@ export function initHeroSky() {
       if (reached && u.hover > 0) { u.hover -= dt; u.beam = true; }
       else { u.beam = false; u.x += u.dir * (reached ? 260 : 140) * dt; }
       wantTilt += u.beam ? 0 : u.dir * 0.08;
+    } else if (u.phase === 'ascend') {
+      // Grow up out of a planet to a post above it.
+      const b = ascendFrom(u), e = easeIO(u.t = Math.min(1, u.t + dt / 2.2));
+      u.x = b.x; u.y = lerp(b.y, probePost(b).y, e); u.scale = lerp(0.04, 1, e);
+      u.beam = !!u.cow && u.t > 0.15;
+      wantTilt = 0;
+      if (u.t >= 1) { if (u.cow) { u.phase = 'hold'; u.t = 0; } else leave(u); }
+    } else if (u.phase === 'hold') {
+      // Pull the specimen clear of Earth, sideways and up, then leave with it in tow.
+      u.t += dt; u.beam = true;
+      const side = earth.x < W / 2 ? 1 : -1, kz = ufoK / 0.38;
+      u.dir = side;
+      u.x += side * 70 * kz * dt; u.y = Math.max(28, u.y - 18 * kz * dt);
+      wantTilt = side * 0.1;
+      if (u.t > 1.6) leave(u, true);
+    } else if (u.phase === 'descend') {
+      // Shrink down into Earth.
+      const e = easeIO(u.t = Math.min(1, u.t + dt / 1.8));
+      u.x = lerp(u.fx, earth.x, e); u.y = lerp(u.fy, earth.y, e); u.scale = lerp(1, 0.04, e);
+      u.beam = false; wantTilt = 0;
+      if (u.t >= 1) { blips.push({ x: earth.x, y: earth.y, age: 0 }); ufo = null; return; }
     } else if (u.phase === 'in') {
       // Close on the moving post, fast at first, then ease in.
-      const p = scanPost(), dx = p.x - u.x, dy = p.y - u.y, d = Math.hypot(dx, dy);
+      const info = u.mode === 'scan' ? null : probeInfo(u);
+      if (u.mode !== 'scan' && !info) { leave(u); return; }
+      const p = info ? probePost(info) : scanPost(), dx = p.x - u.x, dy = p.y - u.y, d = Math.hypot(dx, dy);
       const sp = Math.min(320, d * 1.6);
       u.x += (dx / (d || 1)) * sp * dt; u.y += (dy / (d || 1)) * sp * dt;
       wantTilt = Math.max(-0.3, Math.min(0.3, dx / 600));
       if (d < 4) { u.phase = 'scan'; u.scan = 0; }
+    } else if (u.phase === 'scan' && u.mode !== 'scan') {
+      // Scanning another body: hold over it and sweep it top to bottom.
+      const info = probeInfo(u);
+      if (!info) { leave(u); return; }
+      const p = probePost(info);
+      u.x += (p.x - u.x) * Math.min(1, dt * 5); u.y += (p.y - u.y) * Math.min(1, dt * 5);
+      wantTilt = Math.max(-0.35, Math.min(0.35, -Math.atan2(info.x - u.x, info.y - u.y)));
+      u.scan += dt / 3.4; u.beam = true;
+      if (u.scan >= 1) {
+        if (u.mode === 'land') { u.phase = 'descend'; u.t = 0; u.fx = u.x; u.fy = u.y; u.beam = false; }
+        else leave(u);
+      }
     } else if (u.phase === 'scan') {
       const p = scanPost();
       u.x += (p.x - u.x) * Math.min(1, dt * 5); u.y += (p.y - u.y) * Math.min(1, dt * 5);
@@ -817,13 +923,14 @@ export function initHeroSky() {
       wantTilt = Math.max(-0.35, Math.min(0.35, -Math.atan2(ship.x - u.x, ship.y - u.y)));
       u.scan += dt / 4.2; u.beam = true;
       if (u.scan >= 1) {
-        u.phase = 'out'; u.beam = false; u.vx = u.dir * 40; u.vy = -20;
+        leave(u);
         // In Flight Mode, a friendly scan ends with a supply drop from the emitter.
         if (flight.active) flight.gift(u.x, u.y + UFO_EMIT * ufoK + 14);
       }
     } else {
-      // Satisfied (or offended): peel away and climb out of frame.
+      // Satisfied (or offended): peel away and climb out of frame, back to full size.
       u.outAge += dt;
+      u.scale += (1 - u.scale) * Math.min(1, dt * 3);
       u.vx += u.dir * 420 * dt; u.vy -= 260 * dt;
       u.x += u.vx * dt; u.y += u.vy * dt;
       wantTilt = u.dir * 0.3;
@@ -832,31 +939,76 @@ export function initHeroSky() {
     if (u.x < -160 || u.x > W + 160 || u.y < -120) ufo = null;
   }
 
-  // Beam from the emitter. Scanning: a fan onto a scan line sweeping the hull tail → nose → tail.
+  // The abducted cow: public/brand/nyko-cow.svg (viewBox -12 -10 24 20, origin at the body centre, facing right).
+  // Baked once at 4× its largest size; drawn ~19px long at k = 1, rotated and bobbing in the beam.
+  const COW = { img: new Image(), bake: document.createElement('canvas'), ready: false };
+  COW.img.onload = () => {
+    COW.bake.width = 192; COW.bake.height = 160;
+    COW.bake.getContext('2d')!.drawImage(COW.img, 0, 0, 192, 160);
+    COW.ready = true;
+  };
+  COW.img.src = '/brand/nyko-cow.svg';
+  function drawCow(x: number, y: number, k: number, rot: number, alpha = 1) {
+    if (!COW.ready) return;
+    const w = 24 * 0.8 * k, h = 20 * 0.8 * k;
+    ctx!.save(); ctx!.translate(x, y); ctx!.rotate(rot); ctx!.globalAlpha *= alpha;
+    ctx!.drawImage(COW.bake, -w / 2, -h / 2, w, h);
+    ctx!.restore();
+  }
+
+  function drawBlips() {
+    if (!blips.length) return;
+    ctx!.save(); ctx!.strokeStyle = c.nominal; ctx!.lineWidth = 1.5;
+    for (const b of blips) {
+      const k = b.age / 0.9;
+      ctx!.globalAlpha = (1 - k) * 0.8;
+      ctx!.beginPath(); ctx!.ellipse(b.x, b.y, 4 + k * 34, (4 + k * 34) * 0.45, 0, 0, TAU); ctx!.stroke();
+    }
+    ctx!.restore();
+  }
+
+  // Beam from the emitter. pass/abduct: a cone straight down (abduct carries the cow). scan/probe/land: a fan
+  // onto a scan line sweeping the rocket's hull, or across the scanned body top to bottom.
   function drawUfoBeam(u: Ufo) {
     if (!u.beam) return;
-    const bob = Math.sin(u.age * 3) * 3, ca = Math.cos(u.tilt), sa = Math.sin(u.tilt);
-    const ex = u.x - sa * UFO_EMIT * ufoK, ey = u.y + bob + ca * UFO_EMIT * ufoK, half = 9 * ufoK;
+    const s = u.scale, kz = ufoK / 0.38;
+    const bob = Math.sin(u.age * 3) * 3 * s, ca = Math.cos(u.tilt), sa = Math.sin(u.tilt);
+    const ex = u.x - sa * UFO_EMIT * ufoK * s, ey = u.y + bob + ca * UFO_EMIT * ufoK * s, half = 9 * ufoK * s;
     ctx!.save();
-    if (u.mode === 'pass') {
+    if (u.mode === 'pass' || u.mode === 'abduct') {
+      const len = u.mode === 'pass' ? 120 : 74 * s * kz, spread = u.mode === 'pass' ? 34 : 22 * s * kz;
       ctx!.translate(ex, ey); ctx!.rotate(u.tilt);
-      const g = ctx!.createLinearGradient(0, 0, 0, 120);
-      g.addColorStop(0, c.nominal); g.addColorStop(1, 'transparent');
+      const g = ctx!.createLinearGradient(0, 0, 0, len);
+      g.addColorStop(0, c.nominal); g.addColorStop(1, u.mode === 'pass' ? 'transparent' : 'rgba(63,214,155,0.12)');
       ctx!.globalAlpha = 0.2 + 0.08 * Math.sin(u.age * 20); ctx!.fillStyle = g;
-      ctx!.beginPath(); ctx!.moveTo(-half, 0); ctx!.lineTo(half, 0); ctx!.lineTo(34, 120); ctx!.lineTo(-34, 120); ctx!.closePath(); ctx!.fill();
+      ctx!.beginPath(); ctx!.moveTo(-half, 0); ctx!.lineTo(half, 0); ctx!.lineTo(spread, len); ctx!.lineTo(-spread, len); ctx!.closePath(); ctx!.fill();
+      if (u.cow) {
+        ctx!.globalAlpha = 1;
+        drawCow(Math.sin(u.age * 1.3) * 2 * s * kz, len * 0.6 + Math.sin(u.age * 2.2) * 2.5 * s * kz, 1.05 * s * kz, Math.sin(u.age * 1.7) * 0.35 - u.tilt);
+      }
       ctx!.restore(); return;
     }
-    // Sweep position along the hull, eased at each end.
-    const k = 0.5 - 0.5 * Math.cos(u.scan * TAU * 1.5);
-    const lx = lerp(-180, 185, k) * shipLen();
-    const a = toWorld(lx, -52), b = toWorld(lx, 52), mid = toWorld(lx, 0);
+    let a: { x: number; y: number }, b: { x: number; y: number }, mid: { x: number; y: number }, sweep: number;
+    if (u.mode === 'scan') {
+      // Sweep position along the hull, eased at each end.
+      const k = 0.5 - 0.5 * Math.cos(u.scan * TAU * 1.5);
+      const lx = lerp(-180, 185, k) * shipLen();
+      a = toWorld(lx, -52); b = toWorld(lx, 52); mid = toWorld(lx, 0); sweep = u.scan;
+    } else {
+      const info = probeInfo(u);
+      if (!info || u.phase !== 'scan') { ctx!.restore(); return; }
+      // A chord across the body, sweeping top → bottom → top.
+      const k = 0.5 - 0.5 * Math.cos(u.scan * TAU * 1.5), dy = lerp(-info.r, info.r, k) * 0.9;
+      const hw = Math.sqrt(Math.max(0, info.r * info.r - dy * dy)) + 3;
+      a = { x: info.x - hw, y: info.y + dy }; b = { x: info.x + hw, y: info.y + dy }; mid = { x: info.x, y: info.y + dy }; sweep = u.scan;
+    }
     const g = ctx!.createLinearGradient(ex, ey, mid.x, mid.y);
     g.addColorStop(0, c.nominal); g.addColorStop(1, 'rgba(63,214,155,0.05)');
-    const fadeIn = Math.min(1, u.scan * 8), fadeOut = Math.min(1, (1 - u.scan) * 10);
+    const fadeIn = Math.min(1, sweep * 8), fadeOut = Math.min(1, (1 - sweep) * 10);
     ctx!.globalAlpha = (0.24 + 0.06 * Math.sin(u.age * 24)) * fadeIn * fadeOut;
     ctx!.fillStyle = g;
     ctx!.beginPath(); ctx!.moveTo(ex - half, ey); ctx!.lineTo(ex + half, ey); ctx!.lineTo(b.x, b.y); ctx!.lineTo(a.x, a.y); ctx!.closePath(); ctx!.fill();
-    // The scan line on the hull, with end ticks.
+    // The scan line, with end ticks.
     ctx!.globalAlpha = 0.95 * fadeIn * fadeOut; ctx!.strokeStyle = c.nominal; ctx!.lineWidth = 1.6; ctx!.lineCap = 'round';
     ctx!.beginPath(); ctx!.moveTo(a.x, a.y); ctx!.lineTo(b.x, b.y); ctx!.stroke();
     ctx!.lineWidth = 1;
@@ -865,9 +1017,10 @@ export function initHeroSky() {
   }
 
   function drawUfo(u: Ufo) {
-    const bob = Math.sin(u.age * 3) * 3;
-    ctx!.save(); ctx!.translate(u.x, u.y + bob); ctx!.rotate(u.tilt);
-    if (ufoReady) ctx!.drawImage(ufoBake, UFO_BOX.x * ufoK, UFO_BOX.y * ufoK, UFO_BOX.w * ufoK, UFO_BOX.h * ufoK);
+    const s = u.scale, bob = Math.sin(u.age * 3) * 3 * s;
+    ctx!.save(); ctx!.translate(u.x, u.y + bob); ctx!.rotate(u.tilt); ctx!.scale(s, s);
+    const art = UFO_SKINS[u.skin].ready ? UFO_SKINS[u.skin] : UFO_SKINS.green;
+    if (art.ready) ctx!.drawImage(art.bake, UFO_BOX.x * ufoK, UFO_BOX.y * ufoK, UFO_BOX.w * ufoK, UFO_BOX.h * ufoK);
     // Rim-light chase: dim all but every third light; races while scanning, all red when hostile.
     const rate = u.phase === 'scan' || u.hostile ? 16 : 7, step = Math.floor(u.age * rate);
     UFO_LIGHTS.forEach((x, i) => {
@@ -901,12 +1054,26 @@ export function initHeroSky() {
       text = `SCAN · NYKO-1 · ${String(Math.min(99, Math.floor(u.scan * 100))).padStart(2, '0')}%`; sub = 'CRAFT ∙ UNREGISTERED';
     } else if (u.mode === 'scan' && u.phase === 'out' && u.outAge < 1.6) {
       text = 'ID OK · FRIENDLY'; sub = flight.active ? 'SUPPLY DROP RELEASED' : 'RESUMING COURSE'; alpha = 1 - u.outAge / 1.6;
+    } else if ((u.mode === 'probe' || u.mode === 'land') && u.phase === 'scan') {
+      const info = probeInfo(u);
+      if (info) { text = `SCAN · ${info.label} · ${String(Math.min(99, Math.floor(u.scan * 100))).padStart(2, '0')}%`; sub = info.sub; }
+    } else if (u.mode === 'probe' && u.phase === 'out' && u.outAge < 1.6) {
+      text = 'ANALYSIS COMPLETE'; sub = 'RESUMING COURSE'; alpha = 1 - u.outAge / 1.6;
+    } else if (u.mode === 'land' && u.phase === 'descend') {
+      text = 'DESCENT · EARTH'; sub = 'CLEARANCE ∙ NOT REQUESTED'; alpha = 1 - u.t;
+    } else if (u.mode === 'abduct' && u.cow && (u.phase !== 'out' || u.outAge < 2)) {
+      text = 'SPECIMEN SECURED'; sub = 'BOVINE ∙ 1 HEAD'; alpha = u.phase === 'out' ? 1 - u.outAge / 2 : Math.min(1, u.t * 2 + (u.phase === 'hold' ? 1 : 0));
+    } else if (u.mode === 'rise' && (u.phase === 'ascend' || (u.phase === 'out' && u.outAge < 1.6))) {
+      text = 'LAUNCH · RING WORLD'; sub = 'OUTPOST ∙ UNDISCLOSED'; alpha = u.phase === 'out' ? 1 - u.outAge / 1.6 : Math.min(1, u.t * 2);
     }
     if (!text || alpha <= 0) return;
     ctx!.save();
     ctx!.font = '500 10px "IBM Plex Mono", monospace';
     ctx!.fillStyle = u.hostile ? c['ember-text'] : c.nominal; ctx!.globalAlpha = alpha;
-    const tx = u.x + 136 * ufoK + 10, ty = u.y + bob - 6;
+    // Beside the saucer; flipped to its left side when it's near the right edge.
+    const span = 136 * ufoK * s + 10, right = u.x + span + 170 < W;
+    const tx = right ? u.x + span : u.x - span, ty = u.y + bob - 6;
+    ctx!.textAlign = right ? 'left' : 'right';
     ctx!.fillText(text, tx, ty);
     ctx!.fillStyle = c['ink-subtle'];
     ctx!.fillText(sub, tx, ty + 14);
@@ -919,7 +1086,7 @@ export function initHeroSky() {
     W: () => W, H: () => H, light: () => light, idle: () => idle,
     toWorld, heroPose,
     ufo: () => ufo,
-    ufoRadius: () => 130 * ufoK,
+    ufoRadius: () => 130 * ufoK * (ufo ? ufo.scale : 1),
     drawRock, newRockShape, tag,
   };
   const flight = createFlight(api, {
@@ -927,6 +1094,12 @@ export function initHeroSky() {
     onHitUfo: () => {
       if (!ufo) return;
       ufo.shield = 1;
+      if (ufo.cow) {
+        // Shot mid-abduction: it lets go of the cow.
+        const kz = ufoK / 0.38;
+        looseCow = { x: ufo.x, y: ufo.y + (UFO_EMIT * ufoK + 44 * kz) * ufo.scale, vx: rnd(-30, 30), vy: -20, rot: 0, vr: rnd(-3, 3), age: 0, k: 1.05 * kz * ufo.scale };
+        ufo.cow = false; ufo.beam = false;
+      }
       if (!ufo.hostile) {
         // First offence: it stops whatever it was doing and leaves, logging the incident.
         ufo.hostile = true;
@@ -976,6 +1149,8 @@ export function initHeroSky() {
     flight.drawUnder();
     drawShip();
     flight.drawOver();
+    drawBlips();
+    if (looseCow) drawCow(looseCow.x, looseCow.y, looseCow.k, looseCow.rot, Math.min(1, 4 - looseCow.age));
     if (ufo) { drawUfoBeam(ufo); drawUfo(ufo); }
     drawGamma();
     ctx!.restore();
@@ -996,7 +1171,7 @@ export function initHeroSky() {
     prune(puffs, (p) => p.age < p.life);
     if ((nextMeteor -= dt) <= 0) { spawnMeteor(); if (Math.random() < 0.15) setTimeout(spawnMeteor, 180); nextMeteor = rnd(2.5, 7); }
     if (!flight.active && (nextRock -= dt) <= 0) { if (rocks.length < 3) spawnRock(); nextRock = rnd(6, 14); }
-    if ((nextUfo -= dt) <= 0) { if (!ufo) spawnUfo(); nextUfo = rnd(35, 70); }
+    if ((nextUfo -= dt) <= 0) { if (!ufo) spawnUfo(); nextUfo = UFO_FORCE ? 2 : rnd(24, 48); }
     for (const me of meteors) { me.age += dt; me.x += me.vx * dt; me.y += me.vy * dt; }
     prune(meteors, (me) => me.age < me.life);
     if (!flight.active) {
@@ -1017,7 +1192,7 @@ export function initHeroSky() {
   function restart() {
     cancelAnimationFrame(raf); raf = 0;
     // Engines Idle stills the sky, but a game the visitor started keeps running.
-    if (idle && !flight.active) { meteors.length = 0; rocks.length = 0; ufo = null; puffs.length = 0; draw(); return; }
+    if (idle && !flight.active) { meteors.length = 0; rocks.length = 0; ufo = null; puffs.length = 0; blips.length = 0; looseCow = null; draw(); return; }
     if (!visible || document.hidden) return;
     last = performance.now();
     raf = requestAnimationFrame(frame);
