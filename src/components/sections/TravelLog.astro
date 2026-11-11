@@ -12,7 +12,7 @@ const legMiles = (t: (typeof trips)[number]) => t.stops.slice(1).reduce((s, id, 
 const miles = Math.round(trips.reduce((s, t) => s + legMiles(t), 0));
 const crewTrips = trips.filter((t) => t.crew);
 const crewMiles = Math.round(crewTrips.reduce((s, t) => s + legMiles(t), 0));
-const countries = new Set(Object.values(places).map((p) => p.country));
+const countries = new Set([...homes.map((h) => h.place), ...trips.flatMap((t) => t.stops)].map((id) => places[id].country));
 const modeOf = (t: (typeof trips)[number]) => [...new Set(t.modes ?? [t.mode])].join(' + ');
 const visited = new Set([...homes.map((h) => h.place), ...trips.flatMap((t) => t.stops)]);
 const sorted = [...trips].sort((a, b) => b.date.localeCompare(a.date));
@@ -55,14 +55,14 @@ const fmt = (v: number) => v.toLocaleString('en-US');
             </dl>
 
             <div class="tl-legend" role="group" aria-label="Show on globe">
-              <button type="button" class="tl-key" data-layer="homes" aria-pressed="true"><i class="k-home"></i>Lived<b>{new Set(homes.map((h) => h.place)).size}</b></button>
+              <button type="button" class="tl-key" data-layer="homes" aria-pressed="true"><i class="k-home"></i>Home<b>{new Set(homes.map((h) => h.place)).size}</b></button>
               <button type="button" class="tl-key" data-layer="solo" aria-pressed="true"><i class="k-solo"></i>Trips<b>{trips.length - crewTrips.length}</b></button>
               <button type="button" class="tl-key" data-layer="crew" aria-pressed="true"><i class="k-crew"></i>With Powder<b>{crewTrips.length}</b></button>
             </div>
-            <p class="nk-label-sm tl-modes"><span><i class="m-move"></i>Moved</span><span><i class="m-air"></i>Air</span><span><i class="m-road"></i>Road</span><span><i class="m-rail"></i>Rail</span><span><i class="m-sea"></i>Sea</span></p>
+            <p class="nk-label-sm tl-modes"><span><i class="m-air"></i>Air</span><span><i class="m-road"></i>Road</span><span><i class="m-rail"></i>Rail</span><span><i class="m-sea"></i>Sea</span></p>
 
             <div class="tl-log">
-              <h3 class="nk-label">Residences</h3>
+              <h3 class="nk-label">Home base</h3>
               <ol class="tl-list">
                 {[...homes].reverse().map((h) => (
                   <li><button type="button" class="tl-row home" data-place={h.place}>
@@ -144,7 +144,6 @@ const fmt = (v: number) => v.toLocaleString('en-US');
   .tl-modes { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-top: calc(-1 * var(--space-3)); }
   .tl-modes span { display: inline-flex; align-items: center; gap: var(--space-2); }
   .m-air { width: 22px; height: 2px; background: var(--ink-muted); }
-  .m-move { width: 22px; height: 2px; background: repeating-linear-gradient(90deg, var(--ember) 0 2px, transparent 2px 6px); }
   .m-sea { width: 22px; height: 2px; background: repeating-linear-gradient(90deg, var(--ink-muted) 0 2px, transparent 2px 5px); }
   .m-rail { width: 22px; height: 2px; background: repeating-linear-gradient(90deg, var(--ink-muted) 0 10px, transparent 10px 13px, var(--ink-muted) 13px 15px, transparent 15px 18px); }
   .m-road { width: 22px; height: 2px; background: repeating-linear-gradient(90deg, var(--ink-muted) 0 4px, transparent 4px 8px); }

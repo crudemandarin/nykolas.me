@@ -2,7 +2,7 @@
 //
 // - `places`: every point on the globe, keyed by a short id. lat/lon in decimal degrees (N and E positive).
 //   `country` is an ISO-3166 alpha-2 code; it drives the Countries readout.
-// - `homes`: where I've lived. Drawn as ember pins; the current one pulses.
+// - `homes`: home base. Drawn as an ember pin; the current one pulses.
 // - `trips`: each trip is an ordered list of stops (place ids). Ribbons connect consecutive stops.
 //     mode 'air'  → a high arc above the globe
 //     mode 'road' → a low, dashed ribbon that hugs the surface
@@ -25,9 +25,7 @@ export type Trip = {
 
 export const places: Record<string, Place> = {
   // United States
-  houston: { name: 'Houston', region: 'TX', country: 'US', lat: 29.76, lon: -95.37 },
   rogers: { name: 'Rogers', region: 'AR', country: 'US', lat: 36.33, lon: -94.12 },
-  chicago: { name: 'Chicago', region: 'IL', country: 'US', lat: 41.88, lon: -87.63 },
   austin: { name: 'Austin', region: 'TX', country: 'US', lat: 30.27, lon: -97.74 },
   dallas: { name: 'Dallas', region: 'TX', country: 'US', lat: 32.78, lon: -96.8 },
   denver: { name: 'Denver', region: 'CO', country: 'US', lat: 39.74, lon: -104.99 },
@@ -60,15 +58,7 @@ export const places: Record<string, Place> = {
   narita: { name: 'Narita', region: 'Japan', country: 'JP', lat: 35.78, lon: 140.32 },
 };
 
-// In order. Consecutive homes are joined by a faint ember relocation track.
 export const homes: Home[] = [
-  { place: 'houston', from: '1999', to: '2004' },
-  { place: 'rogers', from: '2004', to: '2009' },
-  { place: 'chicago', from: '2009', to: '2010' },
-  { place: 'rogers', from: '2010', to: '2012' },
-  { place: 'houston', from: '2012', to: '2022' },
-  { place: 'austin', from: '2022', to: '2025' },
-  { place: 'crestone', from: '2025', to: '2026', note: 'Sangre de Cristo' },
   { place: 'seattle', from: '2026', note: 'Home base' },
 ];
 

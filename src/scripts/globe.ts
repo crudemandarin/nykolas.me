@@ -64,16 +64,6 @@ export function mount(root: HTMLElement) {
       legs.push({ trip, mode, pts, phase: (ti * 0.37 + i * 0.21) % 1, speed: clamp(0.5 / (d + 0.15), 0.12, 0.9) });
     }
   });
-  // Relocation track: consecutive homes joined by a low, dotted ember arc.
-  const moves: Pt[][] = [];
-  for (let i = 0; i + 1 < data.homes.length; i++) {
-    const a = P(data.homes[i].place), b = P(data.homes[i + 1].place);
-    if (!a || !b || a === b) continue;
-    const A: LL = [a.lon, a.lat], B: LL = [b.lon, b.lat], d = geoDistance(A, B), f = geoInterpolate(A, B);
-    const n = clamp(Math.round(d / D * 1.5), 16, 120), peak = clamp(0.01 + d * 0.06, 0.01, 0.05), pts: Pt[] = [];
-    for (let k = 0; k <= n; k++) { const t = k / n, [lon, lat] = f(t); pts.push({ lon, lat, h: peak * Math.sin(Math.PI * t) }); }
-    moves.push(pts);
-  }
   const pinMap = new Map<string, Pin>();
   const pin = (id: string) => { if (!pinMap.has(id) && P(id)) pinMap.set(id, { id, place: P(id), stints: [], trips: [] }); return pinMap.get(id); };
   data.homes.forEach((h) => { const p = pin(h.place); if (p) { p.home ??= h; p.stints.push(h); } });
@@ -168,11 +158,6 @@ export function mount(root: HTMLElement) {
     // Ribbons.
     const focus = selected ?? preview;
     const prog = armed ? ease(clamp(intro, 0, 1)) : 1;
-    if (layers.homes) {
-      ctx!.lineCap = 'round'; ctx!.setLineDash([0.5, 5]);
-      for (const pts of moves) stroke(pts, Math.max(1, Math.floor(prog * (pts.length - 1))), hexA(c.ember, focus ? 0.25 : 0.75), 2);
-      ctx!.setLineDash([]);
-    }
     for (const leg of legs) {
       if (!tripOn(leg.trip)) continue;
       const on = !focus || focus === leg.trip;
@@ -361,7 +346,7 @@ export function mount(root: HTMLElement) {
     if (!p) { tip.hidden = true; canvas.style.cursor = ''; return; }
     const ts = p.trips.filter(tripOn), crew = ts.filter((t) => t.crew).length;
     const lines = [`<b>${esc(p.place.name)}, ${esc(p.place.region)}</b>`];
-    if (p.stints.length) lines.push(`<span class="hot">Lived · ${p.stints.map((h) => `${esc(h.from)}–${h.to ? esc(h.to) : "now"}`).join(", ")}</span>`);
+    if (p.stints.length) lines.push(`<span class="hot">Home · ${p.stints.map((h) => `${esc(h.from)}–${h.to ? esc(h.to) : "now"}`).join(", ")}</span>`);
     if (ts.length) lines.push(`<span>${ts.length} trip${ts.length > 1 ? 's' : ''}${crew ? ` · ${crew} with Powder` : ''}</span>`);
     lines.push(`<span>${fmtLat(p.place.lat)} ${fmtLon(p.place.lon)}</span>`);
     tip.innerHTML = lines.join('');
