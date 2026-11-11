@@ -20,8 +20,8 @@ only `<path>` elements. They have no masks, rasters, fonts, gradients or opacity
 Intermediate sources (app-icon SVGs, `og-card.html`, `contact-sheet.html`) are in `../build/`.
 
 **Flight Mode art** has its own script, which needs only `skia-pathops`: `python3 gen_flight.py`.
-It writes `nyko-laser-pod.svg`, the three HUD glyphs (see C), the game-over plate `nyko-flight-los.svg` (the climb trajectory breaks and the rocket tumbles, engines out, in the 404 art's language) and `qa/flight-mode-qa.svg`, which shows the pod on the rocket at 1× and 0.4× and the glyphs at 24/16px on Night and Day.
-It also copies the pod and the plate to `public/brand/` and the glyphs to `public/brand/ui/`.
+It writes `nyko-laser-pod.svg`, the six HUD glyphs (see C), the pickup canisters `nyko-pickup-{shield,repair,overclock}.svg` (32 viewBox centred on the origin, seen end-on: hull disc, four ink grapple lugs, and a lens in the kind colour carrying an ink symbol), the game-over plate `nyko-flight-los.svg` (the climb trajectory breaks and the rocket tumbles, engines out, in the 404 art's language) and `qa/flight-mode-qa.svg`, which shows the pod on the rocket at 1× and 0.4× and the glyphs at 24/16px on Night and Day.
+It also copies the pod, the plate and the canisters to `public/brand/` and the glyphs to `public/brand/ui/`.
 The pod is hardware art that the hero canvas draws inside the rocket's transform. Like `public/brand/nyko-ufo.svg`, it uses the rocket's gradient and strokes, not the single-path rules above.
 The deploy linkage, the anchors (`mount`, `muzzle`) and the clearances are in the pod's header comment.
 
@@ -96,6 +96,9 @@ Each is one `<path fill="currentColor">` with the strokes already expanded, so C
 | `nyko-ui-hull.svg` | Hull integrity, shown beside 3 pips. A curved hull plate crossed by two riveted seams. Its top and bottom edges curve together, so it reads as bent sheet, not a shield. |
 | `nyko-ui-laser.svg` | Weapon ready / heat. The laser pod's gun at 45°: a boxy housing on a hinge foot, then the focusing coil, barrel and muzzle brake, with two bolt dashes ahead. |
 | `nyko-ui-target.svg` | Score (rocks destroyed). Four corner brackets around a solid tumbling rock with a knocked-out crater. It has no crosshair, so it can't be mistaken for `nyko-sym-viewpoint`. |
+| `nyko-ui-shield.svg` | Shield active (beside `SHIELD nn`). A small solid rocket at 45° inside a bubble ring broken at the diagonals. The ring is what separates it from the hull plate. |
+| `nyko-ui-repair.svg` | Repair collected (shown briefly). A solid open-ended spanner at 45°, jaw up-right, with a ring end. |
+| `nyko-ui-overclock.svg` | Overclock active. An angular, mitred bolt, kept distinct from the laser glyph's dashed bolts at 14px. |
 
 ## D · Comms marks (24px, `currentColor`)
 

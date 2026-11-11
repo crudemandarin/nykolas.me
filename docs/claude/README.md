@@ -19,6 +19,7 @@ Update it when a decision changes; don't leave stale entries.
 | Flight Manual iconography explorer | `src/components/IconExplorer.astro` |
 | Travel Log globe (data / section / engine) | `src/data/travel.ts`, `src/components/sections/TravelLog.astro`, `src/scripts/globe.ts` |
 | Pending art request: Travel Log section mark | [handoffs/TRAVEL-ICON-HANDOFF.md](handoffs/TRAVEL-ICON-HANDOFF.md) |
+| Flight Mode pickups (brief) | [handoffs/FLIGHT-PICKUPS-ICON-HANDOFF.md](handoffs/FLIGHT-PICKUPS-ICON-HANDOFF.md). Delivered 2026-11-11: `nyko-pickup-{shield,repair,overclock}.svg` + `nyko-ui-{shield,repair,overclock}.svg` from `gen_flight.py` |
 | Wave patches: integration brief for the implementor | [handoffs/WAVE-PATCH-HANDOFF.md](handoffs/WAVE-PATCH-HANDOFF.md) |
 | Flight Mode art (brief) | [handoffs/FLIGHT-MODE-ICON-HANDOFF.md](handoffs/FLIGHT-MODE-ICON-HANDOFF.md). All four items delivered |
 | Pending art request: Flight Mode pickups (canisters + HUD glyphs) | [handoffs/FLIGHT-PICKUPS-ICON-HANDOFF.md](handoffs/FLIGHT-PICKUPS-ICON-HANDOFF.md). The game uses code-drawn placeholders until it's delivered |
