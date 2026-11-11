@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-136 -72 272 128" width="544" height="256"><title>NYKO UFO</title>
 <!--
   NYKO UFO. Origin (0,0) = saucer centre, on the rim line. Nose of nothing: the craft is symmetric.
-  Groups, back to front: underglow, dome-interior, pilot, dome-glass, hull, rim-lights (light-1..7), emitter.
+  Groups, back to front: underglow, dome-interior, cabin-glow, pilot, dome-glass, hull, rim-lights (light-1..7), emitter.
   Scan-beam anchor: the emitter lens at (0, 31). Palette matches the rocket in HeroSky.astro.
+  Pilot species: nyko-ufo.svg (green), nyko-ufo-pink.svg, nyko-ufo-purple.svg. Same saucer; only the pilot and
+  its cabin glow differ (brand/round-2-iconography/gen_ufo_aliens.mjs).
 -->
 <defs>
   <radialGradient id="ufo-glow" cx="0" cy="40" r="72" gradientTransform="translate(0 40) scale(1 0.2) translate(0 -40)" gradientUnits="userSpaceOnUse">
@@ -11,9 +13,12 @@
   <radialGradient id="ufo-cabin" cx="0" cy="-34" r="50" gradientUnits="userSpaceOnUse">
     <stop offset="0" stop-color="#2A3170"/><stop offset="1" stop-color="#1E2233"/>
   </radialGradient>
-  <linearGradient id="ufo-skin" x1="-14" y1="-54" x2="12" y2="-22" gradientUnits="userSpaceOnUse">
-    <stop offset="0" stop-color="#9BE3B4"/><stop offset="0.55" stop-color="#5FC48C"/><stop offset="1" stop-color="#3E9A6C"/>
-  </linearGradient>
+  <radialGradient id="ufo-skin" cx="-3" cy="-44" r="27" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#E6FFF0"/><stop offset="0.5" stop-color="#9BE3B4"/><stop offset="1" stop-color="#5FC48C"/>
+  </radialGradient>
+  <radialGradient id="ufo-cabin-glow" cx="0" cy="-40" r="40" gradientUnits="userSpaceOnUse">
+    <stop offset="0.5" stop-color="#3FD69B" stop-opacity="0.95"/><stop offset="0.72" stop-color="#3FD69B" stop-opacity="0.45"/><stop offset="1" stop-color="#3FD69B" stop-opacity="0"/>
+  </radialGradient>
   <linearGradient id="ufo-suit" x1="0" y1="-22" x2="0" y2="-12" gradientUnits="userSpaceOnUse">
     <stop offset="0" stop-color="#4A50D6"/><stop offset="1" stop-color="#2A3170"/>
   </linearGradient>
@@ -32,6 +37,7 @@
 <g id="underglow"><ellipse cx="0" cy="40" rx="72" ry="14" fill="url(#ufo-glow)"/></g>
 
 <g id="dome-interior"><path d="M -48,-15 C -48,-50 -22,-63 0,-63 C 22,-63 48,-50 48,-15 Z" fill="url(#ufo-cabin)"/></g>
+<g id="cabin-glow" clip-path="url(#ufo-dome-clip)"><ellipse cx="0" cy="-38" rx="46" ry="34" fill="url(#ufo-cabin-glow)"/></g>
 
 <g id="pilot" clip-path="url(#ufo-dome-clip)"><g transform="translate(0 -3)">
   <!-- shoulders and flight suit -->
@@ -39,9 +45,9 @@
   <path d="M -6,-21.5 L 0,-15.5 L 6,-21.5" fill="none" stroke="#FF4A22" stroke-width="1.8" stroke-linejoin="round"/>
   <path d="M -19,-19.5 L -19,-13 M 19,-19.5 L 19,-13" stroke="#9AA4BE" stroke-width="0.8" opacity="0.7"/>
   <!-- neck -->
-  <path d="M -4.5,-26 L 4.5,-26 L 5,-21 L -5,-21 Z" fill="#3E9A6C"/>
-  <!-- head -->
-  <path d="M 0,-56 C 17,-56 24.5,-46 22.5,-37.5 C 20.5,-29 10.5,-23 0,-22.5 C -10.5,-23 -20.5,-29 -22.5,-37.5 C -24.5,-46 -17,-56 0,-56 Z" fill="url(#ufo-skin)" stroke="#245E42" stroke-width="1.3" stroke-linejoin="round"/>
+  <path d="M -4.5,-26 L 4.5,-26 L 5,-21 L -5,-21 Z" fill="#2A7350"/>
+  <!-- head: lit from inside -->
+  <path d="M 0,-56 C 17,-56 24.5,-46 22.5,-37.5 C 20.5,-29 10.5,-23 0,-22.5 C -10.5,-23 -20.5,-29 -22.5,-37.5 C -24.5,-46 -17,-56 0,-56 Z" fill="url(#ufo-skin)" stroke="#2F8A5C" stroke-width="1.3" stroke-linejoin="round"/>
   <!-- eyes -->
   <path d="M -4,-37.5 C -5.5,-45 -14,-46.5 -18.5,-42.5 C -20,-37 -12.5,-32.5 -6.5,-33.5 C -4.3,-34.3 -3.6,-35.8 -4,-37.5 Z" fill="#1E2233"/>
   <path d="M 4,-37.5 C 5.5,-45 14,-46.5 18.5,-42.5 C 20,-37 12.5,-32.5 6.5,-33.5 C 4.3,-34.3 3.6,-35.8 4,-37.5 Z" fill="#1E2233"/>
@@ -50,7 +56,7 @@
   <circle cx="-9" cy="-38" r="0.8" fill="#FFFFFF" opacity="0.6"/>
   <circle cx="15" cy="-38" r="0.8" fill="#FFFFFF" opacity="0.6"/>
   <!-- mouth -->
-  <path d="M -3.2,-27.5 Q 0,-25.8 3.2,-27.5" fill="none" stroke="#245E42" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M -3.2,-27.5 Q 0,-25.8 3.2,-27.5" fill="none" stroke="#2A7350" stroke-width="1.1" stroke-linecap="round"/>
 </g></g>
 
 <g id="dome-glass">

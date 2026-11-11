@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-136 -72 272 128" width="544" height="256"><title>NYKO UFO (pink pilot)</title>
+<!--
+  NYKO UFO. Origin (0,0) = saucer centre, on the rim line. Nose of nothing: the craft is symmetric.
+  Groups, back to front: underglow, dome-interior, cabin-glow, pilot, dome-glass, hull, rim-lights (light-1..7), emitter.
+  Scan-beam anchor: the emitter lens at (0, 31). Palette matches the rocket in HeroSky.astro.
+  Pilot species: nyko-ufo.svg (green), nyko-ufo-pink.svg, nyko-ufo-purple.svg. Same saucer; only the pilot and
+  its cabin glow differ (brand/round-2-iconography/gen_ufo_aliens.mjs).
+-->
+<defs>
+  <radialGradient id="ufo-glow" cx="0" cy="40" r="72" gradientTransform="translate(0 40) scale(1 0.2) translate(0 -40)" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#3FD69B" stop-opacity="0.45"/><stop offset="1" stop-color="#3FD69B" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="ufo-cabin" cx="0" cy="-34" r="50" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#2A3170"/><stop offset="1" stop-color="#1E2233"/>
+  </radialGradient>
+  <radialGradient id="ufo-skin" cx="-3" cy="-44" r="27" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#FFE8F8"/><stop offset="0.5" stop-color="#FF9FE2"/><stop offset="1" stop-color="#F25CC8"/>
+  </radialGradient>
+  <radialGradient id="ufo-cabin-glow" cx="0" cy="-40" r="40" gradientUnits="userSpaceOnUse">
+    <stop offset="0.5" stop-color="#FF5FD2" stop-opacity="0.95"/><stop offset="0.72" stop-color="#FF5FD2" stop-opacity="0.45"/><stop offset="1" stop-color="#FF5FD2" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="ufo-suit" x1="0" y1="-22" x2="0" y2="-12" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#4A50D6"/><stop offset="1" stop-color="#2A3170"/>
+  </linearGradient>
+  <linearGradient id="ufo-upper" x1="0" y1="-18" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#DDE2EC"/><stop offset="0.6" stop-color="#B4BCCF"/><stop offset="1" stop-color="#9AA4BE"/>
+  </linearGradient>
+  <linearGradient id="ufo-lower" x1="0" y1="6" x2="0" y2="30" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#9AA4BE"/><stop offset="1" stop-color="#525C7A"/>
+  </linearGradient>
+  <linearGradient id="ufo-sheen" x1="-48" y1="0" x2="48" y2="0" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.04"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+  </linearGradient>
+  <clipPath id="ufo-dome-clip"><path d="M -48,-15 C -48,-50 -22,-63 0,-63 C 22,-63 48,-50 48,-15 Z"/></clipPath>
+</defs>
+
+<g id="underglow"><ellipse cx="0" cy="40" rx="72" ry="14" fill="url(#ufo-glow)"/></g>
+
+<g id="dome-interior"><path d="M -48,-15 C -48,-50 -22,-63 0,-63 C 22,-63 48,-50 48,-15 Z" fill="url(#ufo-cabin)"/></g>
+<g id="cabin-glow" clip-path="url(#ufo-dome-clip)"><ellipse cx="0" cy="-38" rx="46" ry="34" fill="url(#ufo-cabin-glow)"/></g>
+
+<g id="pilot" clip-path="url(#ufo-dome-clip)"><g transform="translate(0 -3)">
+  <!-- shoulders and flight suit -->
+  <path d="M -27,-12 Q -26,-21 -9,-21.5 L 9,-21.5 Q 26,-21 27,-12 Z" fill="url(#ufo-suit)" stroke="#1E2233" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M -6,-21.5 L 0,-15.5 L 6,-21.5" fill="none" stroke="#FF4A22" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M -19,-19.5 L -19,-13 M 19,-19.5 L 19,-13" stroke="#9AA4BE" stroke-width="0.8" opacity="0.7"/>
+  <!-- neck -->
+  <path d="M -4.5,-26 L 4.5,-26 L 5,-21 L -5,-21 Z" fill="#9C2A7C"/>
+  <!-- head: lit from inside -->
+  <path d="M 0,-56 C 17,-56 24.5,-46 22.5,-37.5 C 20.5,-29 10.5,-23 0,-22.5 C -10.5,-23 -20.5,-29 -22.5,-37.5 C -24.5,-46 -17,-56 0,-56 Z" fill="url(#ufo-skin)" stroke="#C23A9C" stroke-width="1.3" stroke-linejoin="round"/>
+  <!-- eyes -->
+  <path d="M -4,-37.5 C -5.5,-45 -14,-46.5 -18.5,-42.5 C -20,-37 -12.5,-32.5 -6.5,-33.5 C -4.3,-34.3 -3.6,-35.8 -4,-37.5 Z" fill="#1E2233"/>
+  <path d="M 4,-37.5 C 5.5,-45 14,-46.5 18.5,-42.5 C 20,-37 12.5,-32.5 6.5,-33.5 C 4.3,-34.3 3.6,-35.8 4,-37.5 Z" fill="#1E2233"/>
+  <circle cx="-14" cy="-42" r="1.7" fill="#FFFFFF"/>
+  <circle cx="10" cy="-42" r="1.7" fill="#FFFFFF"/>
+  <circle cx="-9" cy="-38" r="0.8" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="15" cy="-38" r="0.8" fill="#FFFFFF" opacity="0.6"/>
+  <!-- mouth -->
+  <path d="M -3.2,-27.5 Q 0,-25.8 3.2,-27.5" fill="none" stroke="#9C2A7C" stroke-width="1.1" stroke-linecap="round"/>
+</g></g>
+
+<g id="dome-glass">
+  <path d="M -48,-15 C -48,-50 -22,-63 0,-63 C 22,-63 48,-50 48,-15 Z" fill="url(#ufo-sheen)"/>
+  <path d="M -40,-20 C -42,-42 -28,-56 -11,-59 C -25,-53 -34,-42 -34.5,-20 Z" fill="#FFFFFF" opacity="0.32"/>
+  <path d="M 30,-50 C 35,-45 38,-38 39,-31" fill="none" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round" opacity="0.25"/>
+  <path d="M -48,-15 C -48,-50 -22,-63 0,-63 C 22,-63 48,-50 48,-15" fill="none" stroke="rgba(30,34,51,0.75)" stroke-width="1.6"/>
+</g>
+
+<g id="hull" stroke-linejoin="round">
+  <!-- lower hull -->
+  <path d="M -124,5 Q -84,26 -30,30 L 30,30 Q 84,26 124,5 Z" fill="url(#ufo-lower)"/>
+  <path d="M -96,13 Q -60,24 -20,26 M 96,13 Q 60,24 20,26" fill="none" stroke="rgba(30,34,51,0.4)" stroke-width="1"/>
+  <!-- upper hull -->
+  <path d="M -126,-1 Q -96,-14 -52,-16.5 L 52,-16.5 Q 96,-14 126,-1 Z" fill="url(#ufo-upper)"/>
+  <path d="M -44,-16 L -60,-1 M -22,-16.5 L -28,-1 M 22,-16.5 L 28,-1 M 44,-16 L 60,-1 M -84,-11 L -98,-1 M 84,-11 L 98,-1" fill="none" stroke="rgba(30,34,51,0.4)" stroke-width="1"/>
+  <!-- dome collar: the rocket's fairing band blue -->
+  <path d="M -50,-17.5 L 50,-17.5 L 52,-13.5 L -52,-13.5 Z" fill="#3238C9" opacity="0.9"/>
+  <!-- rim band -->
+  <path d="M -127,-1.5 L 127,-1.5 Q 130,2 126,6 L -126,6 Q -130,2 -127,-1.5 Z" fill="#1E2233"/>
+  <!-- outline -->
+  <path d="M -127,-1.5 Q -96,-14 -52,-16.5 L 52,-16.5 Q 96,-14 127,-1.5 Q 130,2 126,6 Q 84,26 30,30 L -30,30 Q -84,26 -126,6 Q -130,2 -127,-1.5 Z" fill="none" stroke="rgba(30,34,51,0.75)" stroke-width="1.6"/>
+</g>
+
+<g id="rim-lights">
+  <circle id="light-1" cx="-102" cy="2.3" r="2.4" fill="#FFB300"/>
+  <circle id="light-2" cx="-68" cy="2.3" r="2.4" fill="#3FD69B"/>
+  <circle id="light-3" cx="-34" cy="2.3" r="2.4" fill="#FF4A22"/>
+  <circle id="light-4" cx="0" cy="2.3" r="2.4" fill="#FFB300"/>
+  <circle id="light-5" cx="34" cy="2.3" r="2.4" fill="#3FD69B"/>
+  <circle id="light-6" cx="68" cy="2.3" r="2.4" fill="#FF4A22"/>
+  <circle id="light-7" cx="102" cy="2.3" r="2.4" fill="#FFB300"/>
+</g>
+
+<g id="emitter">
+  <ellipse cx="0" cy="30.5" rx="17" ry="4.5" fill="#1E2233"/>
+  <ellipse cx="0" cy="31" rx="10" ry="2.6" fill="#3FD69B"/>
+  <ellipse cx="-2.5" cy="30.3" rx="4" ry="1" fill="#E6FFF2" opacity="0.8"/>
+</g>
+</svg>
