@@ -43,7 +43,9 @@ These came out of reconciling `nyko-brand-export.zip` against the repo. The owne
 A model only. Someone else is programming it into `HeroSky.astro`, replacing `drawUfo()`. The intended behaviour: the UFO occasionally pulls up beside the NYKO rocket and scans it directly.
 
 - Origin (0,0) is the saucer centre on the rim line; the viewBox is `-136 -72 272 128`.
-- Groups, back to front: `underglow`, `dome-interior`, `pilot`, `dome-glass`, `hull`, `rim-lights` (`light-1`…`light-7`), `emitter`.
+- Groups, back to front: `underglow`, `dome-interior`, `cabin-glow`, `pilot`, `dome-glass`, `hull`, `rim-lights` (`light-1`…`light-7`), `emitter`.
+- **Pilots glow:** each alien's head is lit from inside, has a lit edge instead of an ink outline, and fills the cabin with its colour (`cabin-glow`), so the dome reads green, pink or purple even at phone size. The saucer, underglow and emitter are the same on all three. To add a species, add one line of colours in `gen_ufo_aliens.mjs`.
+- **Cow** (`public/brand/nyko-cow.svg`, from `brand/round-2-iconography/gen_cow.py`, delivered 2026-11-11): side view facing right, legs dangling, viewBox `-12 -10 24 20` with the origin at the body centre. It has an ink outline for the Day grid, and no green or ember. QA: `qa/cow-qa.svg` (11/18/32px, in a beam, ±20°).
 - The scan beam should originate at the emitter lens, `(0, 31)`.
 - The palette matches the rocket's hard-coded hull colours, plus `--nominal` green for the glow, emitter and pilot.
 - The green alien pilot must stay clearly visible in the dome. That was the explicit ask.
