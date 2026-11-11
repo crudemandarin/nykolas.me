@@ -72,31 +72,31 @@ export const trips: Trip[] = [
     draft: true, // Seattle → Crestone → Seattle legs drawn as air, mode unconfirmed.
   },
   {
-    id: 'ne26', title: 'New England', date: '2026-07',
+    id: 'ne26', title: "Friend's Wedding", date: '2026-07',
     stops: ['denver', 'boston', 'saco', 'boston', 'denver'],
     mode: 'air', modes: ['air', 'rail', 'rail', 'air'],
     note: 'Boston, then the train up the coast to Saco and Biddeford, Maine, and back the same way.',
   },
   {
-    id: 'asia26', title: 'Asia, solo', date: '2026-05',
+    id: 'asia26', title: 'Asia, friends + solo', date: '2026-05',
     stops: ['seattle', 'tokyo', 'hiroshima', 'ishigaki', 'hoian', 'chiangmai', 'bangkok', 'siemreap', 'narita', 'seattle'],
     mode: 'air', modes: ['air', 'rail', 'air', 'air', 'air', 'air', 'air', 'air', 'air'],
     note: 'Japan with friends, then solo south: Hiroshima and Miyajima, Ishigaki, Hoi An, Chiang Mai, Bangkok, Angkor. 25 days, 4 countries.',
     draft: true, // Origin (Seattle or Crestone?), return city and Tokyo arrival date unconfirmed.
   },
   {
-    id: 'eu24', title: 'Europe', date: '2024-01',
+    id: 'eu24', title: 'Europe, work + solo', date: '2024-01',
     stops: ['austin', 'london', 'stockholm', 'thehague', 'paris', 'dusseldorf', 'thehague', 'london', 'austin'],
     mode: 'air', modes: ['air', 'air', 'air', 'rail', 'rail', 'rail', 'air', 'air'],
     note: 'London for Google Generate, then a loop to see friends: Stockholm, The Hague, Paris, Düsseldorf, back through The Hague and London.',
     draft: true, // The Hague → London mode unconfirmed; drawn as air.
   },
   {
-    id: 'mx10', title: 'Riviera Maya', date: '2010',
+    id: 'mx10', title: 'Beach Mexico', date: '2010',
     stops: ['rogers', 'cancun', 'tulum', 'playa', 'cozumel', 'playa', 'cancun', 'rogers'],
     mode: 'air', modes: ['air', 'road', 'road', 'sea', 'sea', 'road', 'air'],
     note: 'A family trip as a kid: Tulum, Playa del Carmen and Cozumel.',
     draft: true, // Year approximate; origin (Rogers vs Houston) and Playa/Cozumel order assumed. Flew in and out of Cancún.
   },
-  { id: 'fo04', title: 'Wakaan', date: '2024', stops: ['austin', 'dallas', 'rogers', 'mulberry'], mode: 'road', note: 'Music weekend in the Ozarks, driven up through Dallas and Rogers.', draft: true /* year unconfirmed */ },
+  { id: 'fo04', title: 'Wakaan Music Festival', date: '2024', stops: ['austin', 'dallas', 'rogers', 'mulberry'], mode: 'road', note: 'Music weekend in the Ozarks, driven up through Dallas and Rogers.', draft: true /* year unconfirmed */ },
 ];
