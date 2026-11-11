@@ -10,8 +10,6 @@ const MI = 3958.8;
 const ll = (id: string) => [places[id].lon, places[id].lat] as [number, number];
 const legMiles = (t: (typeof trips)[number]) => t.stops.slice(1).reduce((s, id, i) => s + geoDistance(ll(t.stops[i]), ll(id)) * MI, 0);
 const miles = Math.round(trips.reduce((s, t) => s + legMiles(t), 0));
-const crewTrips = trips.filter((t) => t.crew);
-const crewMiles = Math.round(crewTrips.reduce((s, t) => s + legMiles(t), 0));
 const countries = new Set([...homes.map((h) => h.place), ...trips.flatMap((t) => t.stops)].map((id) => places[id].country));
 const modeOf = (t: (typeof trips)[number]) => [...new Set(t.modes ?? [t.mode])].join(' + ');
 const visited = new Set([...homes.map((h) => h.place), ...trips.flatMap((t) => t.stops)]);
@@ -50,14 +48,12 @@ const fmt = (v: number) => v.toLocaleString('en-US');
           <div class="tl-side">
             <dl class="tl-readouts">
               <div><dt class="nk-label-sm">Distance logged</dt><dd class="readout">{fmt(miles)}<small> mi</small></dd></div>
-              <div><dt class="nk-label-sm">With Powder</dt><dd class="readout">{fmt(crewMiles)}<small> mi</small></dd></div>
               <div><dt class="nk-label-sm">Countries</dt><dd class="readout">{countries.size}</dd></div>
             </dl>
 
             <div class="tl-legend" role="group" aria-label="Show on globe">
               <button type="button" class="tl-key" data-layer="homes" aria-pressed="true"><i class="k-home"></i>Home<b>{new Set(homes.map((h) => h.place)).size}</b></button>
-              <button type="button" class="tl-key" data-layer="solo" aria-pressed="true"><i class="k-solo"></i>Trips<b>{trips.length - crewTrips.length}</b></button>
-              <button type="button" class="tl-key" data-layer="crew" aria-pressed="true"><i class="k-crew"></i>With Powder<b>{crewTrips.length}</b></button>
+              <button type="button" class="tl-key" data-layer="solo" aria-pressed="true"><i class="k-solo"></i>Trips<b>{trips.length}</b></button>
             </div>
             <p class="nk-label-sm tl-modes"><span><i class="m-air"></i>Air</span><span><i class="m-road"></i>Road</span><span><i class="m-rail"></i>Rail</span><span><i class="m-sea"></i>Sea</span></p>
 
@@ -75,10 +71,9 @@ const fmt = (v: number) => v.toLocaleString('en-US');
               <h3 class="nk-label">Sorties</h3>
               <ol class="tl-list">
                 {sorted.map((t) => (
-                  <li><button type="button" class={`tl-row${t.crew ? ' crew' : ''}`} data-trip={t.id} aria-pressed="false">
+                  <li><button type="button" class="tl-row" data-trip={t.id} aria-pressed="false">
                     <span class="data">{t.date}</span>
                     <span class="t"><b>{t.title}</b><span class="nk-label-sm">{route(t)} · {modeOf(t)}</span></span>
-                    {t.crew && <span class="nk-tag tl-crew" title="Powder came along">CR-01</span>}
                   </button></li>
                 ))}
               </ol>
@@ -126,7 +121,7 @@ const fmt = (v: number) => v.toLocaleString('en-US');
   .tg-tip :global(.hot) { color: var(--ember-text); }
 
   .tl-side { display: grid; align-content: start; gap: var(--space-6); padding: var(--space-6); min-width: 0; }
-  .tl-readouts { display: grid; grid-template-columns: 1.3fr 1.3fr 1fr; gap: var(--space-4); margin: 0; }
+  .tl-readouts { display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--space-4); margin: 0; }
   .tl-readouts div { display: grid; gap: var(--space-1); padding-bottom: var(--space-3); border-bottom: var(--stroke-hair) solid var(--line); }
   .tl-readouts dd { margin: 0; }
   .tl-readouts small { font-size: 14px; color: var(--ink-subtle); }
@@ -140,7 +135,6 @@ const fmt = (v: number) => v.toLocaleString('en-US');
   .tl-key i, .tl-modes i { display: inline-block; flex: none; }
   .k-home { width: 9px; height: 9px; background: var(--ember); transform: rotate(45deg); }
   .k-solo { width: 9px; height: 9px; border: 2px solid var(--signal); border-radius: 50%; }
-  .k-crew { width: 9px; height: 9px; border: 2px solid var(--amber); }
   .tl-modes { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-top: calc(-1 * var(--space-3)); }
   .tl-modes span { display: inline-flex; align-items: center; gap: var(--space-2); }
   .m-air { width: 22px; height: 2px; background: var(--ink-muted); }
@@ -154,15 +148,10 @@ const fmt = (v: number) => v.toLocaleString('en-US');
   .tl-row { display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; width: 100%; padding: var(--space-3) var(--space-2); background: transparent; border: 0; border-bottom: var(--stroke-hair) solid var(--line); border-left: var(--stroke-lead) solid transparent; color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
   .tl-row:hover { background: var(--surface-300); }
   .tl-row[aria-pressed="true"] { background: var(--surface-300); border-left-color: var(--signal); }
-  .tl-row.crew[aria-pressed="true"] { border-left-color: var(--amber); }
   .tl-row .data { color: var(--ink-muted); }
   .tl-row .t { display: grid; gap: 2px; min-width: 0; }
   .tl-row .t b { font-weight: 500; font-size: 15px; }
   .tl-row .t .nk-label-sm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .tl-crew { color: var(--amber); border-color: var(--amber); }
-  :global([data-theme="light"]) .tl-crew { color: var(--caution); border-color: var(--caution); }
-  :global([data-theme="light"]) .k-crew { border-color: var(--caution); }
-  :global([data-theme="light"]) .tl-row.crew[aria-pressed="true"] { border-left-color: var(--caution); }
   @media (max-width: 640px) {
     .tg-hint, .tg-top > :first-child, .tl .nk-plate-head > :last-child { display: none; }
     .tl-side { padding: var(--space-4); }

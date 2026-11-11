@@ -10,7 +10,6 @@
 //     mode 'sea'  → a low, dotted ribbon (ferries)
 //   `modes` optionally overrides the mode per leg (length = stops - 1).
 //   Layover airports are left out on purpose: ribbons go destination to destination.
-//   Set `crew: true` when Powder (CR-01) came along. Crew trips are drawn in amber.
 //
 // Public site: cities and months only. No addresses, bookings or friends' names.
 // Entries marked `draft` still need confirming.
@@ -29,13 +28,9 @@ export const places: Record<string, Place> = {
   austin: { name: 'Austin', region: 'TX', country: 'US', lat: 30.27, lon: -97.74 },
   dallas: { name: 'Dallas', region: 'TX', country: 'US', lat: 32.78, lon: -96.8 },
   denver: { name: 'Denver', region: 'CO', country: 'US', lat: 39.74, lon: -104.99 },
-  sanfrancisco: { name: 'San Francisco', region: 'CA', country: 'US', lat: 37.77, lon: -122.42 },
-  losangeles: { name: 'Los Angeles', region: 'CA', country: 'US', lat: 34.05, lon: -118.24 },
-  sandiego: { name: 'San Diego', region: 'CA', country: 'US', lat: 32.72, lon: -117.16 },
   boston: { name: 'Boston', region: 'MA', country: 'US', lat: 42.36, lon: -71.06 },
   saco: { name: 'Saco / Biddeford', region: 'ME', country: 'US', lat: 43.49, lon: -70.45 },
   seattle: { name: 'Seattle', region: 'WA', country: 'US', lat: 47.61, lon: -122.33 },
-  crestone: { name: 'Crestone', region: 'CO', country: 'US', lat: 37.99, lon: -105.7 },
   mulberry: { name: 'Mulberry Mountain', region: 'AR', country: 'US', lat: 35.71, lon: -93.8 },
   // Mexico
   cancun: { name: 'Cancún', region: 'Mexico', country: 'MX', lat: 21.04, lon: -86.87 },
@@ -64,13 +59,6 @@ export const homes: Home[] = [
 ];
 
 export const trips: Trip[] = [
-  {
-    id: 'west26', title: 'West Coast, with Powder', date: '2026-10', crew: true,
-    stops: ['crestone', 'denver', 'sanfrancisco', 'losangeles', 'sandiego', 'seattle', 'crestone', 'seattle'],
-    mode: 'air', modes: ['road', 'air', 'air', 'rail', 'air', 'air', 'air'],
-    note: 'Drove to Denver, flew to San Francisco and LA, train down the coast to San Diego, then up to Seattle.',
-    draft: true, // Seattle → Crestone → Seattle legs drawn as air, mode unconfirmed.
-  },
   {
     id: 'ne26', title: "Friend's Wedding", date: '2026-07',
     stops: ['denver', 'boston', 'saco', 'boston', 'denver'],

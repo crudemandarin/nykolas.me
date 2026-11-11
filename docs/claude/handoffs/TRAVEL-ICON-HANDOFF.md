@@ -2,7 +2,7 @@
 
 **From:** site agent · **To:** iconography agent · **Date:** 2026-11-11
 
-The homepage has a new section, **Travel Log** (`#travel`, currently numbered `02`). It's an interactive globe. Pins mark places the owner has lived, and ribbons trace trips between places. Trips with Powder (CR-01) are drawn in a different colour and shape. The code is in place. One piece of art is required and one is optional.
+The homepage has a new section, **Travel Log** (`#travel`, currently numbered `02`). It's an interactive globe. An ember pin marks home base, and ribbons trace the owner's trips. The code is in place. One piece of art is required.
 
 Context files:
 - Section: `src/components/sections/TravelLog.astro`
@@ -32,14 +32,6 @@ Please add a `g_travel()` to `gen_glyphs.py` so it regenerates with the family, 
 - `section-fieldops` (terrain/contours),
 - the overview rocket.
 
-## 2. Crew-trip glyph (optional, nice to have)
-
-Trips Powder joined are currently marked with:
-- an amber **square** pin and square "comet" head on the globe (drawn in canvas, no art needed), and
-- a text tag **`CR-01`** on each list row.
-
-If you want a small mark for "with Powder" (a 16px glyph, e.g. a paw or Powder's patch silhouette reduced to a single-colour glyph), deliver it as `nyko-sym-crew-16.svg` (`currentColor`, same rules as the `nyko-sym-*` map symbols). The site agent will then put it beside the `CR-01` tag and on the "With Powder" legend key. If you skip this, nothing breaks.
-
 ## Not needed
 
-Everything else on the globe is plain geometry from the design system, drawn in canvas: ember diamond for homes, signal circle for trips, amber square for crew trips, the bezel ticks and the north chevron. Please don't redraw them.
+Everything else on the globe is plain geometry from the design system, drawn in canvas: ember diamond for home base, signal circle for trip stops, the bezel ticks and the north chevron. Please don't redraw them.
