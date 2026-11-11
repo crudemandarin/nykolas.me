@@ -16,11 +16,42 @@ hull-light `#C9CFDE`, hull-xlight `#DDE2EC`, brand-blue `#3238C9`, ember `#FF4A2
 | `nyko-patch-fo02[-1bit].svg` | Monarch ridge, **ember ski descent line**, Continental Divide obelisk at the pass | hull-shadow, hull-mid, ember, hull-light |
 | `nyko-patch-fo03[-1bit].svg` | Ravenna ravine: fir banks, truss footbridge, creek. No accent — quiet, home base | hull-shadow, hull-mid, hull-light |
 | `nyko-patch-fo04[-1bit].svg` | Mulberry Mountain: Ozark canopy ridges, **ember signal trace** rising, amber moon | hull-shadow, hull-mid, ember, amber |
-| `nyko-patch-fl01[-1bit].svg` | Flight Mode, first wave cleared: the rocket at its 45° climb fires one **ember bolt** into an asteroid split along a crack. Flat-filled mark planes, no lettering | hull-shadow, hull-mid, hull-light, blue band, amber flame, ember (bolt only) |
+| `nyko-patch-fl01[-1bit].svg` | Flight Mode wave 1 (FL-01): the rocket at its 45° climb fires one **ember bolt** into an asteroid split along a crack. It's wave 1 of the generated series below and is written by `gen_wave_patches.mjs`, not `gen_patches.py` | hull-shadow, hull-mid, hull-light, blue band, amber flame, ember (bolt only) |
 | `nyko-patch-cr01[-1bit].svg` | Powder, simple head-and-collar side profile facing right, minimal detail: bright-white head, ink outline, light-blue collar, rose-gold bone tag, gold patch trim | white `#FFFFFF`, powder-blue `#A6C6E6`, rose-gold `#EBC0AE`, gold trim `#CBA135` (palette extension per Nykolas) |
 
 1-bit versions are single black ink (invert freely): ring, silhouette art, knocked-out details, outlined text.
 Use on Field Ops cards at 96–128px; 1024px via the paired `.png` or re-render.
+
+
+## Wave patches (Flight Mode, any wave)
+
+`wave-patch.ts` (this folder) makes the patch for any wave, so the game can award one when a wave is cleared. How to wire it into the game: `docs/claude/handoffs/WAVE-PATCH-HANDOFF.md`.
+`wavePatch(n)` returns `{ color, onebit, code, tier, stars }`, where `color` and `onebit` are standalone 512px SVG strings.
+The function is pure: wave N always gives the same bytes. It uses the same template as the patches above, and the text is outlined from glyphs baked into the module.
+
+| Signal | Rule | What changes |
+|---|---|---|
+| Stars | `((n-1) % 5) + 1` | Amber stars with an ink keyline, embroidered on the top of the ring. Each wave in a tier adds one. In 1-bit they are knocked out of the ring. |
+| Tier | `min(floor((n-1)/5), 4)` | Every 5 waves the field, ring and speed stripes step up, and the stars reset to one. |
+| Contacts | `min(n-1, 8)` | Small background rocks fill in over the early waves. |
+
+| Tier | Waves | Field | Ring | Speed stripes |
+|---|---|---|---|---|
+| T0 | 1–5 | ink | slate (hull-mid) | none |
+| T1 | 6–10 | ink | slate | 1, hull-shadow |
+| T2 | 11–15 | ink | hull-light | 2, hull-shadow |
+| T3 | 16–20 | deep `#2A3170` | hull-light | 3, blue |
+| T4 | 21+ | deep | blue | 3, blue, + amber inner trim. This is the top rank: later waves keep it and only the code changes |
+
+Fixed rules:
+- **Ember:** the bolt is the only ember element at every wave.
+- **Stripes:** they sit on the rocket's upper-left flank, parallel to its axis like the mark's speed trails, and stay clear of the target and the code.
+- **No gold:** gold trim stays exclusive to the crew patch (CR-01).
+- **Code text:** `FL-07 · WAVE 7`.
+
+Regenerate:
+- `node gen_wave_patches.mjs` (Node 22.6+) writes the static FL-01 files and `qa/wave-progression.svg`, which shows waves 1–25 in colour and 1-bit.
+- `python3 gen_wave_font.py` re-bakes the glyphs. It's only needed if the code wording gains new characters.
 
 ## Section marks — `nyko-section-<name>.svg` (24px, currentColor) + `-spot.svg` (64px, fixed palette)
 

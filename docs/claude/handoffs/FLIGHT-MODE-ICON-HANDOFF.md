@@ -94,6 +94,11 @@ When the hull reaches 0, the site shows `LOSS OF SIGNAL` with the score and best
 
 Earned by clearing the first wave. The site would show it briefly in the HUD and might list it in the Flight Manual. Same template as FO-01…04 (512 viewBox, readable at 96px, 1-bit twin). The subject is your call: the rocket and a broken asteroid would be on theme. **≤1 ember element.**
 
+
+## 5. Wave patches for every wave (added 2026-11-11)
+
+There is now a patch for every wave, not just FL-01. The integration brief is [WAVE-PATCH-HANDOFF.md](WAVE-PATCH-HANDOFF.md).
+
 ---
 
 ## Not needed (drawn in code)

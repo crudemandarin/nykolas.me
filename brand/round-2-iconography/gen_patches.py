@@ -137,71 +137,8 @@ def fo04():
 PATCHES = [("fo01", fo01), ("fo02", fo02), ("fo03", fo03), ("fo04", fo04)]
 
 
-# ================================================================ FL-01 First wave (Flight Mode)
-# Earned by clearing the first wave of the hero easter egg. The rocket at its 45deg climb fires one
-# ember bolt (the patch's only ember element) into an asteroid that has split along a crack.
-# Rocket planes are the mark's own paths (nyko-animated.svg, rocket units), flat-filled, no lettering.
-RKT = {
-    "boosters": "M -175,-46 L -98,-40.5 Q -58,-34 -31,-18.5 L -175,-18.5 Z M -175,46 L -98,40.5 Q -58,34 -31,18.5 L -175,18.5 Z",
-    "core": "M -175,-18 L -60,-17.5 Q 10,-15.5 58,-15.5 L 58,15.5 Q 10,15.5 -60,17.5 L -175,18 Z",
-    "inter": "M 58,-15.5 L 76,-15.5 L 76,15.5 L 58,15.5 Z",
-    "upper": "M 76,-15.5 L 120,-15.5 L 120,15.5 L 76,15.5 Z",
-    "fairing": "M 112,-15.5 L 126,-19.5 L 154,-19.5 Q 174,-18 187,-4 L 187,4 Q 174,18 154,19.5 L 126,19.5 L 112,15.5 Z",
-    "band": "M 126,-19.5 L 133,-19.5 L 133,19.5 L 126,19.5 Z",
-    "nozzles": "M -175,-39 L -183,-36.5 L -183,-26.5 L -175,-24 Z M -175,39 L -183,36.5 L -183,26.5 L -175,24 Z M -175,-9 L -184,-7 L -184,7 L -175,9 Z",
-    "flame": "M -183,-38 C -199,-39.5 -216,-35 -246,-31.5 C -216,-28 -199,-23.5 -183,-25 Z "
-             "M -183,25 C -199,23.5 -216,28 -246,31.5 C -216,35 -199,39.5 -183,38 Z "
-             "M -184,-10.5 C -200,-12 -236,-5.25 -290,0 C -236,5.25 -200,12 -184,10.5 Z",
-    "core_flame": "M -184,-4.5 C -200,-6 -210,-2.5 -236,0 C -210,2.5 -200,6 -184,4.5 Z",
-}
-ROCK = [(0, -44), (28, -36), (44, -12), (40, 18), (20, 40), (-10, 44), (-34, 30), (-44, 4), (-36, -24), (-18, -40)]
-CRACK = [(-27, -32), (-12, -15), (-3, -10), (6, 5), (15, 10), (30, 29)]
-
-
-def fl01():
-    rk = 'transform="translate(190 290) rotate(-45) scale(0.52)"'
-    def pts(ps):
-        return " L ".join(f"{x},{y}" for x, y in ps)
-    near = f"M {pts(CRACK + [(20, 40), (-10, 44), (-34, 30), (-44, 4), (-36, -24)])} Z"
-    far = f"M {pts(CRACK + [(40, 18), (44, -12), (28, -36), (0, -44), (-18, -40)])} Z"
-    # halves part along the crack normal and turn away from each other
-    half_n = 'transform="translate(342 138) translate(-9 9) rotate(-10) scale(1.1)"'
-    half_f = 'transform="translate(342 138) translate(10 -10) rotate(14) scale(1.1)"'
-    craters_n = '<circle cx="-22" cy="18" r="7"/><circle cx="-4" cy="30" r="4"/>'
-    craters_f = '<circle cx="22" cy="-18" r="8"/><circle cx="30" cy="8" r="4"/>'
-    chips = "M 396,178 l 10,-2 l -3,9 Z M 410,152 l 7,2 l -5,5 Z M 300,96 l -9,-1 l 5,-8 Z"
-    bolt = "M 272,208 L 298,182"
-    rocket_col = (f'<g {rk}>'
-                  f'<path d="{RKT["flame"]}" fill="{AMBER}"/><path d="{RKT["core_flame"]}" fill="{CORE}"/>'
-                  f'<path d="{RKT["nozzles"]}" fill="{HULL_D}"/>'
-                  f'<path d="{RKT["boosters"]}" fill="{HULL_M}"/><path d="{RKT["core"]}" fill="{HULL_L}"/>'
-                  f'<path d="{RKT["inter"]}" fill="{HULL_D}"/><path d="{RKT["upper"]}" fill="{HULL_L}"/>'
-                  f'<path d="{RKT["fairing"]}" fill="{HULL_L}"/><path d="{RKT["band"]}" fill="{BLUE}"/></g>')
-    rocket_sil = (f'<g {rk} stroke-width="0">'
-                  + "".join(f'<path d="{RKT[k]}"/>' for k in ("flame", "nozzles", "boosters", "core", "inter", "upper", "fairing"))
-                  + "</g>")
-    # 1-bit: separate boosters from core, interstage and the band as knocked-out hairlines
-    rocket_cuts = (f'<g {rk} fill="none" stroke-width="5">'
-                   f'<path d="M -175,-18.5 L -31,-18.5 M -175,18.5 L -31,18.5 M 58,-15.5 V 15.5 M 76,-15.5 V 15.5 '
-                   f'M 126,-19.5 V 19.5 M 133,-19.5 V 19.5"/></g>')
-    rock_col = (f'<g {half_n}><path d="{near}" fill="{HULL_M}"/><g fill="{HULL_D}">{craters_n}</g></g>'
-                f'<g {half_f}><path d="{far}" fill="{HULL_M}"/><g fill="{HULL_D}">{craters_f}</g></g>'
-                f'<path d="{chips}" fill="{HULL_M}"/>')
-    rock_sil = (f'<g {half_n}><path d="{near}"/></g><g {half_f}><path d="{far}"/></g><path d="{chips}"/>')
-    rock_cuts = f'<g {half_n}>{craters_n}</g><g {half_f}>{craters_f}</g>'
-    art = [
-        L(cross(132, 160, 8) + cross(392, 292, 7) + cross(330, 340, 4) + cross(214, 112, 5), onebit="skip"),
-        L(rock_col, onebit="ink", onebit_svg=rock_sil),
-        L("", onebit="cut", onebit_svg=rock_cuts),
-        L(f'<g {CLIP}>{rocket_col}</g>', onebit="ink", onebit_svg=f'<g {CLIP}>{rocket_sil}</g>'),
-        L("", onebit="cut", onebit_svg=rocket_cuts),
-        L(f'<path d="{bolt}" stroke="{EMBER}" stroke-width="7" stroke-linecap="round" fill="none"/>',
-          onebit="ink", onebit_svg=f'<path d="{bolt}" stroke-width="7" stroke-linecap="round" fill="none"/>'),
-    ]
-    return patch("NYKO patch FL-01", "FL-01 · FIRST WAVE", art)
-
-
-PATCHES.append(("fl01", fl01))
+# FL-xx wave patches (Flight Mode) are not made here: wave-patch.ts (this folder) generates every wave,
+# so the game can mint them at runtime. Static FL-01 + QA sheet: node gen_wave_patches.mjs
 
 
 
