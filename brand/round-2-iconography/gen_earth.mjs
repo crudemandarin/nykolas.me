@@ -17,7 +17,7 @@ const put = (p, s) => { writeFileSync(p, s); console.log('wrote', p.slice(ROOT.l
 // ── palette (fixed in both themes, like the UFO) ──────────────────
 const OCEAN_HI = '#2F8BD8', OCEAN_LO = '#1C5FAE';   // cyan-leaning blue, clear of the ringed planet's indigo
 const LAND = '#5E9E4A';                              // illustration green; not --nominal, no ember
-const ICE = '#E9EEF6', CLOUD = '#F6F8FC';
+const ICE = '#DCE8F5', CLOUD = '#F6F8FC';
 const MOON = '#C9CFDE', MOON_HI = '#DDE2EC', MARE = '#9AA4BE';
 
 // ── Earth ─────────────────────────────────────────────────────────
@@ -31,10 +31,14 @@ const land = feature(topo, topo.objects.land);
 const polys = land.features.flatMap((f) => (f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : [f.geometry.coordinates]))
   .map((coordinates) => ({ type: 'Polygon', coordinates }));
 const projArea = (g) => path.area(g);
-// Small background art: low detail on purpose. Keep only the big landmasses; Greenland is the one ice shape.
+// Small background art: low detail on purpose. Keep only the big landmasses; Greenland is drawn as ice.
 const GREENLAND = [-42, 72];
 const kept = polys.filter((g) => projArea(g) >= 40);
-const ice = kept.filter((g) => geoContains(g, GREENLAND)), green = kept.filter((g) => !geoContains(g, GREENLAND));
+const greenland = kept.filter((g) => geoContains(g, GREENLAND)), green = kept.filter((g) => !geoContains(g, GREENLAND));
+// Arctic cap: a disc on the pole with two broad lobes, smooth-edged so it reads as ice, not as another cloud.
+// (The South Pole is on the far side from this view, so there's only one cap.)
+const CAP = [[0, 90, 19], [-95, 76, 9], [-150, 75, 8]]
+  .map(([lon, lat, r]) => geoCircle().center([lon, lat]).radius(r).precision(4)());
 
 // Path output: coarsen each projected ring (drop points closer than eps, 4 units for land) then round it off
 // with quadratic curves through the edge midpoints. The curve stays inside the points' hull, so nothing passes r=60.
@@ -82,7 +86,7 @@ const earthSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-64 -64 128 1
   Unlit: no terminator, night side or specular. The site shades it from the sun's direction (shadeFrom) and
   draws the atmosphere halo. Orthographic view centred ${Math.abs(CENTRE[1])}°N ${Math.abs(CENTRE[0])}°W (North America; Seattle upper-left).
   Land: Natural Earth 110m (public domain). Source: brand/round-2-iconography/gen_earth.mjs.
-  Groups, back to front: ocean, land, ice (Greenland), clouds. Low detail, rounded edges: it's small background art.
+  Groups, back to front: ocean, land, ice (Arctic cap + Greenland), clouds. Low detail, rounded edges: it's small background art.
 -->
 <defs>
   <linearGradient id="earth-ocean" x1="-42" y1="-42" x2="42" y2="42" gradientUnits="userSpaceOnUse">
@@ -91,7 +95,7 @@ const earthSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-64 -64 128 1
 </defs>
 <g id="ocean"><circle r="${R}" fill="url(#earth-ocean)"/></g>
 <g id="land"><path fill="${LAND}" d="${d(green)}"/></g>
-<g id="ice"><path fill="${ICE}" d="${d(ice)}"/></g>
+<g id="ice"><path fill="${ICE}" d="${d([...CAP, ...greenland], 2)}"/></g>
 <g id="clouds"><path fill="${CLOUD}" d="${d(CLOUDS, 1.2)}"/></g>
 </svg>
 `;
