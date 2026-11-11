@@ -8,7 +8,7 @@ Flight Mode, the hero easter egg, now has three pickups. They float in the field
 |---|---|---|---|
 | **Shield** | Absorbs the next hit; lasts 20s | Shooting a meteor (70%), breaking a big rock (10%), clearing a wave, a friendly UFO scan | `#7CC4FF` (the boost/γ blue) |
 | **Repair** | +1 hull, or +500 points at full hull | Same sources. Weighted towards repair when damaged; always a repair on a wave clear if damaged | `#3FD69B` (`--nominal`) |
-| **Overclock** | Laser becomes a continuous beam with no heat: 7s of beam charge, drained only while firing | Same sources | `#FFB300` (`--amber`) |
+| **Overclock** | Laser becomes a continuous beam with no heat: 5.6s of beam charge, drained only while firing | Same sources | `#FFB300` (`--amber`) |
 
 Context:
 - Code: `src/scripts/flight.ts`. See `drawPickup()`, `drawOver()` (the shield bubble) and the HUD section of `drawHud()`.

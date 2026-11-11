@@ -33,7 +33,7 @@ const THRUST = 560, RETRO = 240, TURN = 10, TURN_DAMP = 4.5, DRAG = 0.45, MAX_SP
 // Pickups: how long they float before expiring, and what they do.
 const MAGNET_RANGE = 150, MAGNET_PULL = 1100;
 // OVERCLOCK_TIME is beam charge in seconds of firing: it only drains while the beam is on.
-const PICKUP_LIFE = 14, SHIELD_TIME = 20, OVERCLOCK_TIME = 7, BEAM_DPS = 7, MAX_PICKUPS = 2;
+const PICKUP_LIFE = 14, SHIELD_TIME = 20, OVERCLOCK_TIME = 5.6, BEAM_DPS = 7, MAX_PICKUPS = 2;
 // Canister art: public/brand/nyko-pickup-<kind>.svg (32 viewBox, centred), drawn at 28px.
 const PICKUP_SIZE = 28;
 const pickupImgs: Partial<Record<Kind, HTMLImageElement>> = {};
