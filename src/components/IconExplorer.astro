@@ -1,0 +1,135 @@
+---
+// Image explorer for the NYKO brand kit: every SVG in brand/ plus the hi-fi mark.
+// Works without JS (tiles link to the file); JS adds category filters and a preview dialog.
+const urls = import.meta.glob('/brand/round-{1-launch,2-iconography}/*.svg', { query: '?url', import: 'default', eager: true }) as Record<string, string>;
+const raws = import.meta.glob('/brand/round-{1-launch,2-iconography}/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const hifi = ['nyko-animated.svg', 'nyko-1bit.svg', 'nyko-1bit-plain.svg'];
+
+const categories = [
+  ['marks', 'Marks'],
+  ['patches', 'Patches'],
+  ['sections', 'Section marks'],
+  ['map', 'Map symbols'],
+  ['ui', 'UI glyphs'],
+  ['type', 'Lettering'],
+  ['art', 'Illustration'],
+] as const;
+type Cat = (typeof categories)[number][0];
+
+const categorize = (name: string): Cat => {
+  if (name.startsWith('nyko-patch-')) return 'patches';
+  if (name.startsWith('nyko-section-')) return 'sections';
+  if (name.startsWith('nyko-sym-')) return 'map';
+  if (name.startsWith('nyko-ui-')) return 'ui';
+  if (name.startsWith('nyko-count-') || name.startsWith('nyko-wordmark-stencil')) return 'type';
+  if (name.startsWith('nyko-404-')) return 'art';
+  return 'marks';
+};
+// Dark-on-transparent artwork needs a light ground to be visible
+const paper = (name: string) => /1bit|-ink|-day|safari-pinned-tab|stencil/.test(name) && !name.includes('theme-day');
+
+type Item = { name: string; url: string; cat: Cat; mono: boolean; paper: boolean; kb: string };
+const items: Item[] = [];
+for (const [path, url] of Object.entries(urls)) {
+  const name = path.split('/').pop()!;
+  if (/-16\.svg$/.test(name)) continue; // 16 px map symbols are the same drawing as the 24 px set
+  const raw = raws[path];
+  items.push({ name, url, cat: categorize(name), mono: raw.includes('currentColor'), paper: paper(name), kb: (raw.length / 1024).toFixed(1) });
+}
+for (const name of hifi) items.push({ name, url: `/brand/${name}`, cat: 'marks', mono: false, paper: name.includes('1bit'), kb: '' });
+const order = categories.map(([c]) => c);
+items.sort((a, b) => order.indexOf(a.cat) - order.indexOf(b.cat) || a.name.localeCompare(b.name));
+const label = Object.fromEntries(categories) as Record<Cat, string>;
+const counts = Object.fromEntries(order.map((c) => [c, items.filter((i) => i.cat === c).length]));
+---
+<div class="ex" data-explorer>
+  <div class="ex-filters" role="group" aria-label="Filter graphics" hidden>
+    <button type="button" class="ex-chip" aria-pressed="true" data-cat="all">All <span>{items.length}</span></button>
+    {categories.map(([c, l]) => <button type="button" class="ex-chip" aria-pressed="false" data-cat={c}>{l} <span>{counts[c]}</span></button>)}
+  </div>
+  <ul class="ex-grid">
+    {items.map((i) => (
+      <li data-cat={i.cat}>
+        <a class:list={['ex-tile', { paper: i.paper }]} href={i.url} target="_blank" rel="noopener" data-name={i.name} data-kb={i.kb} data-cat-label={label[i.cat]}>
+          <span class="ex-art">
+            {i.mono
+              ? <span class="ex-mono" style={`--src:url("${i.url}")`} role="img" aria-label={i.name}></span>
+              : <img src={i.url} alt={i.name} loading="lazy" decoding="async" />}
+          </span>
+          <span class="ex-name nk-label-sm">{i.name.replace(/^nyko-|\.svg$/g, '')}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  <dialog class="ex-dialog" aria-label="Graphic preview">
+    <div class="ex-dialog-art"></div>
+    <div class="ex-dialog-meta">
+      <div><span class="nk-label-sm ex-d-cat"></span><p class="data ex-d-name"></p></div>
+      <div class="ex-d-actions">
+        <a class="nk-btn nk-btn--primary ex-d-dl" download>Download SVG</a>
+        <button type="button" class="nk-btn nk-btn--secondary ex-d-close">Close</button>
+      </div>
+    </div>
+  </dialog>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-explorer]')) {
+    const filters = root.querySelector<HTMLElement>('.ex-filters')!;
+    const chips = [...filters.querySelectorAll<HTMLButtonElement>('.ex-chip')];
+    const cells = [...root.querySelectorAll<HTMLElement>('.ex-grid > li')];
+    filters.hidden = false;
+    filters.addEventListener('click', (e) => {
+      const chip = (e.target as HTMLElement).closest<HTMLButtonElement>('.ex-chip');
+      if (!chip) return;
+      for (const c of chips) c.setAttribute('aria-pressed', String(c === chip));
+      const cat = chip.dataset.cat;
+      for (const li of cells) li.hidden = cat !== 'all' && li.dataset.cat !== cat;
+    });
+
+    const dlg = root.querySelector<HTMLDialogElement>('.ex-dialog')!;
+    const art = dlg.querySelector<HTMLElement>('.ex-dialog-art')!;
+    const dl = dlg.querySelector<HTMLAnchorElement>('.ex-d-dl')!;
+    root.querySelector('.ex-grid')!.addEventListener('click', (e) => {
+      const tile = (e.target as HTMLElement).closest<HTMLAnchorElement>('.ex-tile');
+      if (!tile || typeof dlg.showModal !== 'function') return;
+      e.preventDefault();
+      art.replaceChildren(tile.querySelector('.ex-art')!.cloneNode(true));
+      art.classList.toggle('paper', tile.classList.contains('paper'));
+      const name = tile.dataset.name!;
+      dlg.querySelector('.ex-d-name')!.textContent = name;
+      dlg.querySelector('.ex-d-cat')!.textContent = tile.dataset.catLabel + (tile.dataset.kb ? ` · ${tile.dataset.kb} KB` : '');
+      dl.href = tile.href;
+      dl.download = name;
+      dlg.showModal();
+    });
+    dlg.querySelector('.ex-d-close')!.addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  }
+</script>
+
+<style>
+  .ex-filters { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+  .ex-chip { font: 500 12px/16px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; padding: var(--space-2) var(--space-3); border: var(--stroke-hair) solid var(--line); background: transparent; color: var(--ink-muted); cursor: pointer; }
+  .ex-chip span { color: var(--ink-subtle); margin-left: 4px; }
+  .ex-chip:hover { color: var(--ink); border-color: var(--ink-subtle); }
+  .ex-chip[aria-pressed='true'] { color: var(--ink); border-color: var(--ember); }
+  .ex-chip:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+  .ex-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: var(--space-3); }
+  .ex-grid > li[hidden] { display: none; }
+  .ex-tile { display: grid; grid-template-rows: auto auto; border: var(--stroke-hair) solid var(--line); color: var(--ink); text-decoration: none; background: #101322; }
+  .ex-tile:hover { border-color: var(--ink-subtle); }
+  .ex-tile:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+  .ex-art { display: grid; place-items: center; aspect-ratio: 1; padding: var(--space-4); color: #E6E9F2; }
+  .ex-tile.paper .ex-art, .ex-dialog-art.paper .ex-art { background: #F4F5F9; color: #1E2233; }
+  .ex-art img { width: 100%; height: 100%; object-fit: contain; }
+  .ex-mono { width: 48%; aspect-ratio: 1; background: currentColor; -webkit-mask: var(--src) center / contain no-repeat; mask: var(--src) center / contain no-repeat; }
+  .ex-name { padding: var(--space-2); border-top: var(--stroke-hair) solid var(--line); background: var(--surface-000); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ex-dialog { width: min(560px, calc(100vw - 32px)); padding: 0; border: var(--stroke-hair) solid var(--line); background: var(--surface-000); color: var(--ink); }
+  .ex-dialog::backdrop { background: rgb(5 7 14 / .7); }
+  .ex-dialog-art { background: #101322; }
+  .ex-dialog-art .ex-art { padding: var(--space-8); }
+  .ex-dialog-meta { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: end; justify-content: space-between; padding: var(--space-4); border-top: var(--stroke-hair) solid var(--line); }
+  .ex-d-name { margin: var(--space-1) 0 0; word-break: break-all; }
+  .ex-d-actions { display: flex; gap: var(--space-2); }
+</style>

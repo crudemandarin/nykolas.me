@@ -3,6 +3,8 @@ import Base from '../layouts/Base.astro';
 import tokens from '../design/tokens.json';
 import budget from '../data/budget.json';
 import terrain from '../data/terrain-fo01.json';
+import IconExplorer from '../components/IconExplorer.astro';
+const showSurvey = false; // Survey data section hidden for now
 const brand = ['ember', 'amber', 'flame-core', 'brand-blue', 'signal', 'nominal', 'caution', 'hull-mid', 'hull-shadow'];
 const ui = ['surface-000', 'surface-100', 'surface-200', 'ink', 'ink-muted', 'ink-subtle', 'line', 'control'];
 const byName = Object.fromEntries(tokens.color.tokens.map((t) => [t.name, t]));
@@ -37,11 +39,13 @@ const hex = (n: string) => { const v = byName[n].value; return typeof v === 'str
         <p><strong>Motion obeys physics.</strong> Things move because they would: the orb orbits, the mark weaves, the lamp blinks. Set <span class="data">Engines: Idle</span> in the header, or ask your OS for reduced motion, and everything parks in its resting pose.</p>
       </div>
 
+      {showSurvey && <>
       <h2 class="display-md">Survey data</h2>
       <div class="section-body prose">
         <p>FO-01's contours come from <a class="nk-link" href="https://registry.opendata.aws/terrain-tiles/">Terrain Tiles on AWS</a> (Mapzen's terrarium encoding, zoom 12), derived from public elevation datasets including USGS 3DEP. Four tiles were resampled to a 64 × 64 grid of roughly 240 m cells, smoothed, and contoured every {terrain.interval_ft} ft with contourpy. The 3D model resamples that grid to 129 × 97 vertices at decimetre precision and draws contours in the fragment shader, so they stay sharp at any zoom. The transect samples the same grid along a straight line from Crestone to the summit, so it reads a little under the published 14,294 ft: the cells average the peak with its surroundings. Summit heights in the text are the published figures.</p>
         <p>The pipeline is two files: the grid, checksummed row by row, and <span class="data">scripts/terrain.py</span>. Swap in a GPX track and a finer grid and the same plate becomes a real route.</p>
       </div>
+      </>}
 
       <h2 class="display-md">Design system</h2>
       <div class="section-body prose">
@@ -57,6 +61,12 @@ const hex = (n: string) => { const v = byName[n].value; return typeof v === 'str
         <dt>Telemetry</dt><dd>IBM Plex Mono 400 / 500</dd>
         <dt>Stack</dt><dd>Astro 5 · static · Fontsource</dd>
       </dl>
+
+      <h2 class="display-md">Iconography</h2>
+      <div class="section-body prose" style="margin-bottom:var(--space-6)">
+        <p>Every mark, patch, glyph and symbol drawn for this site. Pick one to see it larger or download the SVG.</p>
+      </div>
+      <IconExplorer />
 
       <h2 class="display-md">Credits</h2>
       <div class="section-body prose">
