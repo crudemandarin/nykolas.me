@@ -22,7 +22,7 @@ const categorize = (name: string): Cat => {
   if (name.startsWith('nyko-sym-')) return 'map';
   if (name.startsWith('nyko-ui-')) return 'ui';
   if (name.startsWith('nyko-count-') || name.startsWith('nyko-wordmark-stencil')) return 'type';
-  if (name.startsWith('nyko-404-')) return 'art';
+  if (name.startsWith('nyko-404-') || name.startsWith('nyko-flight-')) return 'art';
   return 'marks';
 };
 // Dark-on-transparent artwork needs a light ground to be visible

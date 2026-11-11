@@ -20,8 +20,8 @@ only `<path>` elements. They have no masks, rasters, fonts, gradients or opacity
 Intermediate sources (app-icon SVGs, `og-card.html`, `contact-sheet.html`) are in `../build/`.
 
 **Flight Mode art** has its own script, which needs only `skia-pathops`: `python3 gen_flight.py`.
-It writes `nyko-laser-pod.svg`, the three HUD glyphs (see C) and `qa/flight-mode-qa.svg`, which shows the pod on the rocket at 1× and 0.4× and the glyphs at 24/16px on Night and Day.
-It also copies the pod to `public/brand/` and the glyphs to `public/brand/ui/`.
+It writes `nyko-laser-pod.svg`, the three HUD glyphs (see C), the game-over plate `nyko-flight-los.svg` (the climb trajectory breaks and the rocket tumbles, engines out, in the 404 art's language) and `qa/flight-mode-qa.svg`, which shows the pod on the rocket at 1× and 0.4× and the glyphs at 24/16px on Night and Day.
+It also copies the pod and the plate to `public/brand/` and the glyphs to `public/brand/ui/`.
 The pod is hardware art that the hero canvas draws inside the rocket's transform. Like `public/brand/nyko-ufo.svg`, it uses the rocket's gradient and strokes, not the single-path rules above.
 The deploy linkage, the anchors (`mount`, `muzzle`) and the clearances are in the pod's header comment.
 

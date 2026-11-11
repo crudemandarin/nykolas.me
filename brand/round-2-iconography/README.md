@@ -16,6 +16,7 @@ hull-light `#C9CFDE`, hull-xlight `#DDE2EC`, brand-blue `#3238C9`, ember `#FF4A2
 | `nyko-patch-fo02[-1bit].svg` | Monarch ridge, **ember ski descent line**, Continental Divide obelisk at the pass | hull-shadow, hull-mid, ember, hull-light |
 | `nyko-patch-fo03[-1bit].svg` | Ravenna ravine: fir banks, truss footbridge, creek. No accent — quiet, home base | hull-shadow, hull-mid, hull-light |
 | `nyko-patch-fo04[-1bit].svg` | Mulberry Mountain: Ozark canopy ridges, **ember signal trace** rising, amber moon | hull-shadow, hull-mid, ember, amber |
+| `nyko-patch-fl01[-1bit].svg` | Flight Mode, first wave cleared: the rocket at its 45° climb fires one **ember bolt** into an asteroid split along a crack. Flat-filled mark planes, no lettering | hull-shadow, hull-mid, hull-light, blue band, amber flame, ember (bolt only) |
 | `nyko-patch-cr01[-1bit].svg` | Powder, simple head-and-collar side profile facing right, minimal detail: bright-white head, ink outline, light-blue collar, rose-gold bone tag, gold patch trim | white `#FFFFFF`, powder-blue `#A6C6E6`, rose-gold `#EBC0AE`, gold trim `#CBA135` (palette extension per Nykolas) |
 
 1-bit versions are single black ink (invert freely): ring, silhouette art, knocked-out details, outlined text.

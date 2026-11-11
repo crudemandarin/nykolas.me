@@ -14,12 +14,13 @@ Update it when a decision changes; don't leave stale entries.
 | Favicon set actually in use | `brand/favicon-light/` → `public/favicon.*` |
 | Hi-fi logo files served by the site | `public/brand/` |
 | Section icons inlined in pages | `src/icons/section-*.svg` (same art as `nyko-section-*.svg`, with a11y attrs, no `<title>`) |
-| Hero night-sky canvas (rocket, satellite, UFO, meteors) | `src/components/HeroSky.astro` |
+| Hero night-sky canvas (rocket, satellite, UFO, meteors) | `src/scripts/hero-sky.ts`, mounted by `src/components/HeroSky.astro`. The laser pod and UFO are ported into `Path2D` there, so if the SVGs change, re-port them. |
+| Flight Mode game (click the hero rocket) | `src/scripts/flight.ts`. The HUD glyphs are read from `public/brand/ui/nyko-ui-{hull,laser,target}.svg` at build time. |
 | Flight Manual iconography explorer | `src/components/IconExplorer.astro` |
 | Travel Log globe (data / section / engine) | `src/data/travel.ts`, `src/components/sections/TravelLog.astro`, `src/scripts/globe.ts` |
 | Pending art request: Travel Log section mark | [handoffs/TRAVEL-ICON-HANDOFF.md](handoffs/TRAVEL-ICON-HANDOFF.md) |
-| Flight Mode art (brief) | [handoffs/FLIGHT-MODE-ICON-HANDOFF.md](handoffs/FLIGHT-MODE-ICON-HANDOFF.md). Items 1–2 delivered, 3–4 (optional) not drawn |
-| Flight Mode art (source) | `brand/round-1-launch/gen_flight.py` → `nyko-laser-pod.svg`, `nyko-ui-{hull,laser,target}.svg`, `qa/flight-mode-qa.svg`; copies in `public/brand/` and `public/brand/ui/` |
+| Flight Mode art (brief) | [handoffs/FLIGHT-MODE-ICON-HANDOFF.md](handoffs/FLIGHT-MODE-ICON-HANDOFF.md). All four items delivered |
+| Flight Mode art (source) | `brand/round-1-launch/gen_flight.py` → `nyko-laser-pod.svg`, `nyko-ui-{hull,laser,target}.svg`, `nyko-flight-los.svg`, `qa/flight-mode-qa.svg`; copies in `public/brand/` and `public/brand/ui/`. FL-01 patch: `fl01()` in round-2 `gen_patches.py` → `nyko-patch-fl01[-1bit].svg`, copy in `public/patches/` |
 
 The logo generator from the export (`logo/gen3.py`) is **not** in the repo. Files in `public/brand/` that came from it are copied outputs.
 
@@ -49,6 +50,7 @@ A model only. Someone else is programming it into `HeroSky.astro`, replacing `dr
 - Muzzle anchor (deployed): (81,−33). Groups: `mount`, then `stowed`/`deployed`, each with `-arm-rear`, `-arm-front` and `-gun`. The full recipe is in the file's header comment.
 - The file shows the deployed state; `stowed` has `display="none"`.
 - `gen_flight.py` only needs `skia-pathops`, not rsvg or Chrome. That isn't installed system-wide, so use a scratch venv. `gen.py` imports its glyphs so a full round-1 run includes them.
+- Round-2 `gen_patches.py`'s `__main__` writes to `out/` and calls `rsvg-convert`, and neither works in this repo. To rebuild one patch, import the module and call it (e.g. `fl01()`) with the scratch venv (`fonttools`), then write the two SVGs into round-2 and copy the colour one to `public/patches/`.
 - QA sheets go in `brand/round-1-launch/qa/`, not loose in round-1. The Flight Manual explorer globs `round-1-launch/*.svg`, so any loose SVG there becomes a gallery tile.
 
 ## Working with the owner
