@@ -2,9 +2,9 @@
 
 **From:** iconography · **To:** hero-sky implementor · **Date:** 2026-11-11 · **Status:** art done, not wired in
 
-The hero Earth should turn slowly on its axis. The art for any rotation angle now exists as a small, pure module. This doc covers how to wire it into `src/scripts/hero-sky.ts`. Nothing in `src/` has been changed for this.
+The hero Earth should turn on its axis, clearly visibly, one turn every 30 seconds. The art for any rotation angle now exists as a small, pure module. This doc covers how to wire it into `src/scripts/hero-sky.ts`. Nothing in `src/` has been changed for this.
 
-**It is decoration only.** The Earth must not be interactive in any way: no hover, click, cursor change, tooltip, focus or label. It sits between the rocket, the UFO and the Flight Mode targets, and anything that catches the pointer there would get in their way.
+**The `EARTH` callout stays as it is.** **The globe itself is decoration only.** The Earth must not be interactive in any way: no hover, click, cursor change, tooltip, focus or label. It sits between the rocket, the UFO and the Flight Mode targets, and anything that catches the pointer there would get in their way.
 
 ## What you get
 
@@ -40,11 +40,11 @@ The Earth is currently drawn by `drawBody(EARTH, …)` from the static SVG. Keep
 1. **Load only when it can move.** After the first frame, and only if the motion is not idle, `import()` the module. Vite will put `d3-geo` in a chunk shared with the Travel Log globe. Until the import resolves, keep drawing the SVG.
 2. **Angle.** When the module loads, note the world clock as `wt0`. Then use:
    ```ts
-   lon = EARTH.REST_LON - SPIN * (wt - wt0)    // SPIN = 3 (degrees per second): one turn in two minutes
-   cloudShift = 0.25 * (wt - wt0)              // optional slow weather drift
+   lon = EARTH.REST_LON - EARTH.SPIN * (wt - wt0)   // EARTH.SPIN = 12 (degrees per second): one turn in 30 s
+   cloudShift = 1 * (wt - wt0)                      // optional slow weather drift
    ```
    Starting from `REST_LON` makes the swap from the SVG seamless. Use the dilated world clock `wt`, like the Moon and the satellite, so the Earth slows with the rest of the sky during a boost or Flight Mode.
-3. **Bake to an offscreen canvas and redraw only when needed.** Re-render when `lon` has moved by at least 0.4° since the last bake, or when the drawn size changes, as `drawBody` already does. At 3°/s that's about 7 bakes a second, and every other frame just uses `drawImage`. The bake:
+3. **Bake to an offscreen canvas and redraw only when needed.** Re-render when `lon` has moved by at least 0.5° since the last bake, or when the drawn size changes, as `drawBody` already does. At 12°/s that's about 24 bakes a second, and every other frame just uses `drawImage`. The speed lives in the art module as `EARTH.SPIN`, so the owner can tune it in one place. Read it, don't hard-code it. The bake:
    ```ts
    const k = px / 128;                                  // px = bake canvas size, as in drawBody
    b.setTransform(k, 0, 0, k, px / 2, px / 2);
@@ -67,11 +67,11 @@ The Earth is currently drawn by `drawBody(EARTH, …)` from the static SVG. Keep
 | | Cost |
 |---|---|
 | Download: `earth-art` + the parts of `d3-geo` it uses | ~13 KB gzipped. `d3-geo` is shared with the Travel Log globe chunk, so the net addition to the home page is about 6 KB. |
-| `earthLayers()` per call (Node, M-series laptop) | ~2 ms |
-| Bakes at 3°/s with a 0.4° threshold | ~7 per second, so about 1.5% of one core. Other frames cost a single `drawImage`. |
+| `earthLayers()` per call (Node, M-series laptop) | ~1.75 ms |
+| Bakes at 12°/s with a 0.5° threshold | ~24 per second, so about 4–5% of one core. Other frames cost a single `drawImage`. |
 | First paint | Unchanged. The static SVG draws first, and the module loads after it. |
 
-If profiling shows the bakes matter on slow phones, raise the threshold to 0.6°. At the 30px phone size you won't see the difference.
+If profiling shows the bakes matter on slow phones, raise the threshold on phones. At 30px, 1° steps (12 bakes a second) look just as smooth.
 
 ## Rules to keep
 
@@ -82,7 +82,7 @@ If profiling shows the bakes matter on slow phones, raise the threshold to 0.6°
 ## Acceptance checklist
 
 - [ ] On load, the Earth matches the static SVG exactly, then starts turning eastward with no jump.
-- [ ] One full turn takes about two minutes, and the turn slows with the world clock during a boost or Flight Mode.
+- [ ] One full turn takes about 30 seconds (`EARTH.SPIN`), and the turn slows with the world clock during a boost or Flight Mode.
 - [ ] The night side stays on the side away from the sun as the globe turns.
 - [ ] The coastline and grid hold their shape while turning, with no wobble or flicker.
 - [ ] Engines off: no import, the Earth is still and in the resting pose. Switching Engines off mid-spin snaps it back to rest.

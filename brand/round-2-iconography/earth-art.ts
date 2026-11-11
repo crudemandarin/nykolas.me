@@ -17,6 +17,7 @@ export const EARTH = {
   R: 60,               // disc radius
   REST_LON: -100,      // resting pose: centred 28°N 100°W (North America, Seattle upper-left)
   LAT: 28,             // fixed tilt toward the viewer; only the longitude turns
+  SPIN: 12,            // recommended spin, degrees of longitude per second of world clock: one turn in 30 s
   ocean: ['#2F8BD8', '#1C5FAE'] as const,   // gradient from upper-left to lower-right (x/y ±42)
   land: '#5E9E4A',                          // illustration green; not --nominal, no ember
   ice: ['#E2F6F8', '#8FD3E3'] as const,     // glacial cyan, gradient from y = -60 (pole) to y = -30
@@ -97,18 +98,18 @@ function projector(lon: number) {
 }
 
 const poly = (coordinates: Poly) => ({ type: 'Polygon', coordinates });
-const puff = ([lon, lat, r]: [number, number, number]) => geoCircle().center([lon, lat]).radius(r).precision(8)();
+const puff = ([lon, lat, r]: [number, number, number]) => geoCircle().center([lon, lat]).radius(r).precision(15)();
 // Built once: the geometry never changes, only the view. Clouds shift by adding to their longitudes.
 const LAND_G = LAND.map(poly);
 const ICE_G = [...CAP.map(puff), ...ICE.map(poly)];
 const CLOUD_G = PUFFS.map(puff) as { type: string; coordinates: number[][][] }[];
 const shifted = (dl: number) => (dl ? CLOUD_G.map((g) => ({ type: g.type, coordinates: g.coordinates.map((r) => r.map(([a, b]) => [a + dl, b])) })) : CLOUD_G);
-// Graticule every 30°, densely sampled (every 2°) so no resampling is needed and the lines stay smooth.
-const span = (a: number, b: number) => Array.from({ length: Math.round((b - a) / 2) + 1 }, (_, i) => a + i * 2);
+// Graticule every 30°, sampled every 3° so no resampling is needed and the lines stay smooth.
+const span = (a: number, b: number) => Array.from({ length: Math.round((b - a) / 3) + 1 }, (_, i) => a + i * 3);
 const GRID = {
   type: 'MultiLineString',
   coordinates: [
-    ...span(-180, 150).filter((l) => l % 30 === 0).map((lon) => span(-80, 80).map((lat) => [lon, lat])),
+    ...[-180, -150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150].map((lon) => span(-78, 78).map((lat) => [lon, lat])),
     ...[-60, -30, 0, 30, 60].map((lat) => span(-180, 180).map((lon) => [lon, lat])),
   ],
 };
