@@ -6,6 +6,7 @@ import HeroSky from '../components/HeroSky.astro';
 import Missions from '../components/sections/Missions.astro';
 import Payloads from '../components/sections/Payloads.astro';
 import FieldOps from '../components/sections/FieldOps.astro';
+import TravelLog from '../components/sections/TravelLog.astro';
 import { person, profile, crew, allSections, sections } from '../data/site';
 const icons = Object.fromEntries(Object.entries(import.meta.glob('../icons/section-*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>).map(([k, v]) => [k.replace(/^.*section-|\.svg$/g, ''), v]));
 const show = Object.fromEntries(allSections.map((s) => [s.id, !s.hidden])) as Record<string, boolean>;
@@ -58,6 +59,7 @@ const num = Object.fromEntries(sections.map((s) => [s.id, s.n])) as Record<strin
   {show.missions && <Missions n={num.missions} icon={icons.missions} />}
   {show.payloads && <Payloads n={num.payloads} icon={icons.payloads} />}
   {show['field-ops'] && <FieldOps n={num['field-ops']} icon={icons.fieldops} />}
+  {show.travel && <TravelLog n={num.travel} icon={icons.travel} />}
 
   <!-- Crew -->
   <section id="crew" class="section" aria-labelledby="crew-h">

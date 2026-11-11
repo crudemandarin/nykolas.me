@@ -20,6 +20,7 @@ export const allSections: { id: string; title: string; hidden?: boolean }[] = [
   { id: 'missions', title: 'Missions', hidden: true },
   { id: 'payloads', title: 'Payloads', hidden: true },
   { id: 'field-ops', title: 'Field Ops', hidden: true },
+  { id: 'travel', title: 'Travel Log' },
   { id: 'crew', title: 'Crew' },
   { id: 'comms', title: 'Comms' },
 ];

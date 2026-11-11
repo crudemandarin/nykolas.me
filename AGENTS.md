@@ -26,13 +26,15 @@ src/
   pages/        index, flight-manual, flight-log, 404
   layouts/      Base.astro: <head>, masthead, footer, and the one inline script (theme/motion switches, clock, copy buttons, nav highlight)
   components/   Header, StatusBar, Footer, HeroSky (canvas night sky), Orbit, IconExplorer, TopoMap/Transect/Terrain3D (FO-01 survey)
-  components/sections/   Missions, Payloads, FieldOps: home-page sections that can be toggled off
+  components/sections/   Missions, Payloads, FieldOps, TravelLog: home-page sections that can be toggled off
   data/site.ts  ALL site copy: person, sections, profile, missions, payloads, fieldOps, crew, flightLog
+  data/travel.ts  Travel Log: places, homes, trips (stops, per-leg modes, crew flag for Powder)
   data/*.json   generated: budget.json (measure.mjs, every build), terrain-fo01.json (terrain.py)
   design/tokens.json   Flight Manual design tokens (source of truth)
   styles/       tokens.css (GENERATED), components.css (nk-* primitives), site.css (layout)
   icons/        section-*.svg, inlined with ?raw
   scripts/terrain3d.ts   hand-written WebGL 2 survey model, lazy-loaded
+  scripts/globe.ts       Travel Log globe: canvas + d3-geo, Natural Earth land, lazy-loaded
 public/         served as-is: brand marks, patches, crew photos, favicons, terrain mesh
 brand/          identity source art and Python generators (not served)
 scripts/        tokens.mjs, measure.mjs, terrain.py, build-archive.sh
