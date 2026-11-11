@@ -67,6 +67,8 @@ const ART_LOS = '/brand/nyko-flight-los.svg';
 const PATCH_KEY = 'nk-flight-patch', LEGACY_FL01_KEY = 'nk-flight-fl01';
 // Patch award beats: tier-up waves (1, 6, 11, 16, 21) get the full award; other waves just add a star.
 const AWARD_FULL = { dur: 3.4, size: 112 }, AWARD_SHORT = { dur: 1.2, size: 72 };
+// Game-over sticker: the best patch is stamped across the plate's corner just after the plate appears.
+const STICKER = { at: 1.3, slam: 0.18, size: 132, tilt: -0.21 };
 const isTierUp = (w: number) => waveStars(w) === 1 && waveTier(w) * 5 + 1 === w && waveTier(w) <= TOP_TIER;
 // One decoded image per wave, generated on first use and cached for the session.
 const patchImgs = new Map<number, HTMLImageElement>();
@@ -96,7 +98,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   // Patches: patchT runs the award animation (-1 when idle) for awardWave. runBest = highest patch this run,
   // everBest = highest on this device (0 = none).
   let losArt: HTMLImageElement | null = null;
-  let patchT = -1, awardWave = 0, award = AWARD_FULL, runBest = 0, everBest = readEverBest();
+  let patchT = -1, awardWave = 0, award = AWARD_FULL, runBest = 0, everBest = readEverBest(), stamped = false;
   // Pickups and their effects (seconds remaining; 0 = off). The beam is live while overclocked and Space is held.
   const pickups: Pickup[] = [];
   let shieldT = 0, overT = 0, beamOn = false, beamUfoCool = 0, repairFlash = 0;
@@ -354,7 +356,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   }
 
   function explode() {
-    phase = 'dead'; deadT = 0;
+    phase = 'dead'; deadT = 0; stamped = false;
     sparks(ship.x, ship.y, 46, 0, 0, [c.ember, c.amber, c['flame-core'], c.amber], 340);
     debris(ship.x, ship.y, 40, 1.6);
     ship.alpha = 0; ship.flame = 0; ship.exhaust = 0; ship.vx = 0; ship.vy = 0; ship.w = 0;
@@ -409,7 +411,12 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
       return;
     }
 
-    if (phase === 'dead') { deadT += dt; gamma = 1; beamOn = false; return; }
+    if (phase === 'dead') {
+      deadT += dt; gamma = 1; beamOn = false;
+      // The sticker lands with a small jolt.
+      if (!stamped && everBest > 0 && deadT > STICKER.at + STICKER.slam) { stamped = true; if (!sky.idle()) shakeAmt = 5; }
+      return;
+    }
 
     // Flying.
     const up = held('w', 'arrowup'), dn = held('s', 'arrowdown'), lt = held('a', 'arrowleft'), rt = held('d', 'arrowright');
@@ -840,19 +847,42 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     ctx.fillText(`WAVE ${pad(wave, 2)}`, px, ty + 128);
     let tagX = px + ctx.measureText(`WAVE ${pad(wave, 2)}`).width + 14;
     if (newBest) { ctx.fillStyle = c.amber; ctx.fillText('NEW BEST', tagX, ty + 128); tagX += ctx.measureText('NEW BEST').width + 14; }
-    // The best patch earned on this device sits on the plate.
-    const bestArt = everBest > 0 ? patchArt(everBest) : null;
-    if (isReady(bestArt)) {
-      ctx.drawImage(bestArt, x + w - 24 - 44, y + 18, 44, 44);
-      setFont(9); ctx.fillStyle = c['ink-subtle'];
-      const l = `FL-${pad(everBest, 2)}`; ctx.fillText(l, x + w - 24 - 22 - ctx.measureText(l).width / 2, y + 74);
-    }
     let kx = px;
     const ky = ty + 164;
     kx += keycap(kx, ky, 'R', keys.has('r')) + 6;
     setFont(10); ctx.fillStyle = c['ink-subtle']; ctx.fillText('RETRY', kx, ky); kx += ctx.measureText('RETRY').width + 18;
     kx += keycap(kx, ky, 'ESC', false) + 6;
     setFont(10); ctx.fillStyle = c['ink-subtle']; ctx.fillText('LAND', kx, ky);
+    drawSticker(x + w - 16, y + 4, a);
+  }
+
+  // The best patch earned on this device, as a die-cut sticker stamped across the plate's top-right
+  // corner: half on the plate, half off. Slams in from 1.5× with a jolt; Engines Idle just shows it.
+  function drawSticker(cx: number, cy: number, plateA: number) {
+    const art = everBest > 0 ? patchArt(everBest) : null;
+    const t = deadT - STICKER.at;
+    if (!isReady(art) || t < 0) return;
+    const still = sky.idle(), k = still ? 1 : Math.min(1, t / STICKER.slam);
+    const scale = 1 + 0.5 * (1 - k) * (1 - k);
+    const r = (STICKER.size / 2) * scale;
+    ctx.save();
+    ctx.globalAlpha = plateA * k;
+    ctx.translate(cx, cy); ctx.rotate(STICKER.tilt * (still ? 1 : 0.6 + 0.4 * k));
+    // Die-cut paper edge with a lifted shadow; the shadow tightens as it lands.
+    ctx.shadowColor = 'rgba(6,8,16,0.5)'; ctx.shadowBlur = 6 + 18 * (1 - k); ctx.shadowOffsetY = 3 + 10 * (1 - k);
+    ctx.fillStyle = sky.light() ? '#FFFFFF' : '#E6E9F2';
+    ctx.beginPath(); ctx.arc(0, 0, r + 6, 0, TAU); ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.drawImage(art!, -r, -r, r * 2, r * 2);
+    // A soft sheen across the vinyl.
+    const g = ctx.createLinearGradient(-r, -r, r, r);
+    g.addColorStop(0, 'rgba(255,255,255,0.16)'); g.addColorStop(0.45, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r + 6, 0, TAU); ctx.fill();
+    // Caption printed on the sticker's tab.
+    setFont(9); ctx.fillStyle = c['ink-subtle'];
+    const l = `BEST · FL-${pad(everBest, 2)}`;
+    ctx.fillText(l, -ctx.measureText(l).width / 2, r + 22);
+    ctx.restore();
   }
 
   // Fullscreen just the hero (the game area). The browser's own Esc leaves fullscreen first;

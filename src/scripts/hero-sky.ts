@@ -525,7 +525,10 @@ export function initHeroSky() {
 
   // Telemetry tag riding above the rocket while boosting: the Lorentz factor and the outside clock rate.
   // After a moment of hovering it also hints at Flight Mode.
-  const canFly = () => W >= 900 && matchMedia('(pointer: fine)').matches;
+  // Flight Mode needs a mouse (and so, very likely, a keyboard). Judge by the pointer actually in use,
+  // not by (pointer: fine): Chrome on Windows touchscreen PCs reports a coarse pointer even with a mouse.
+  let lastPointer = '';
+  const canFly = () => W >= 900 && (lastPointer === 'mouse' || lastPointer === 'pen');
   function drawGamma() {
     if (flight.active || boost < 0.03 || W < 900) return;
     const g = 1 + 3 * boost, p = toWorld(-60, -120); // right edge of the tag, off the upper flank
@@ -843,17 +846,22 @@ export function initHeroSky() {
   }
   const local = (e: PointerEvent | MouseEvent) => { const r = hero.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
   hero.addEventListener('pointermove', (e) => {
-    if (e.pointerType !== 'mouse') return;
+    lastPointer = e.pointerType;
+    if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
     if (flight.active) { setHover(false); return; }
     const [x, y] = local(e); setHover(hitsShip(x, y));
   });
   hero.addEventListener('pointerleave', () => setHover(false));
   hero.addEventListener('pointerdown', (e) => {
-    if (e.pointerType === 'mouse' || flight.active) return;
+    lastPointer = e.pointerType;
+    if (e.pointerType === 'mouse' || e.pointerType === 'pen' || flight.active) return;
     const [x, y] = local(e);
     if (hitsShip(x, y)) { tapUntil = performance.now() + 2500; if (idle) { boost = 1; draw(); setTimeout(() => { boost = 0; draw(); }, 2500); } }
   });
   hero.addEventListener('click', (e) => {
+    // Click events are PointerEvents in Chromium/Firefox; Safari's are MouseEvents (always a mouse there).
+    const pt = (e as PointerEvent).pointerType;
+    if (pt) lastPointer = pt; else if (!lastPointer) lastPointer = 'mouse';
     if (flight.active || !canFly()) return;
     const [x, y] = local(e);
     if (hitsShip(x, y)) { setHover(false); flight.enter(); }
