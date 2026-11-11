@@ -339,13 +339,27 @@ export function initHeroSky() {
   }
 
   // ── Earth and the Moon ─────────────────────────────────────────
-  // PLACEHOLDER art (ocean disc + rough land + cloud wisps) until nyko-earth.svg / nyko-moon.svg land;
-  // see docs/claude/handoffs/EARTH-GALAXY-ICON-HANDOFF.md. Lighting follows the sun's direction.
-  const LAND = [
-    new Path2D('M -0.62,-0.62 C -0.35,-0.78 -0.05,-0.7 0.02,-0.52 C 0.08,-0.36 -0.12,-0.28 -0.18,-0.12 C -0.24,0.02 -0.1,0.1 -0.16,0.2 C -0.24,0.3 -0.42,0.18 -0.5,0.02 C -0.6,-0.16 -0.78,-0.38 -0.62,-0.62 Z'),
-    new Path2D('M -0.1,0.26 C 0.04,0.22 0.16,0.34 0.14,0.5 C 0.12,0.66 0.02,0.82 -0.06,0.9 C -0.12,0.76 -0.2,0.58 -0.2,0.44 C -0.2,0.34 -0.16,0.28 -0.1,0.26 Z'),
-    new Path2D('M 0.42,-0.5 C 0.58,-0.56 0.74,-0.42 0.78,-0.24 C 0.82,-0.06 0.7,0.08 0.6,0.22 C 0.54,0.34 0.44,0.28 0.42,0.12 C 0.4,-0.02 0.3,-0.14 0.34,-0.3 C 0.36,-0.4 0.38,-0.46 0.42,-0.5 Z'),
-  ];
+  // Art: public/brand/nyko-earth.svg and nyko-moon.svg (unlit, origin at the centre; source
+  // brand/round-2-iconography/gen_earth.mjs). They're baked to offscreen canvases at the drawn size;
+  // the halo, night side and Moon phase are drawn here so lighting follows the sun on every layout.
+  type Body = { img: HTMLImageElement; bake: HTMLCanvasElement; ready: boolean; half: number; disc: number; px: number };
+  const mkBody = (src: string, half: number, disc: number): Body => {
+    const b: Body = { img: new Image(), bake: document.createElement('canvas'), ready: false, half, disc, px: 0 };
+    b.img.onload = () => { b.ready = true; b.px = 0; if (idle && !flight.active) draw(); }; // idle sky only redraws on demand
+    b.img.src = src;
+    return b;
+  };
+  const EARTH = mkBody('/brand/nyko-earth.svg', 64, 60), MOON = mkBody('/brand/nyko-moon.svg', 16, 15);
+  // Draws a body's art so its disc has radius r at (x, y); re-bakes only when the size changes.
+  function drawBody(b: Body, x: number, y: number, r: number, fallback: string) {
+    const size = (b.half / b.disc) * r, px = Math.ceil(size * 2 * Math.min(window.devicePixelRatio || 1, 2));
+    if (b.ready && b.px !== px) {
+      b.bake.width = b.bake.height = px; b.px = px;
+      b.bake.getContext('2d')!.drawImage(b.img, 0, 0, px, px);
+    }
+    if (b.ready) ctx!.drawImage(b.bake, x - size, y - size, size * 2, size * 2);
+    else { ctx!.fillStyle = fallback; ctx!.fillRect(x - r, y - r, r * 2, r * 2); }
+  }
   const moonPos = () => {
     const { x, y, r } = earth, a = wt * 0.32, tilt = 0.18;
     const ex = Math.cos(a) * r * 2.3, ey = Math.sin(a) * r * 0.5;
@@ -360,9 +374,8 @@ export function initHeroSky() {
   }
   function drawMoon(m: ReturnType<typeof moonPos>) {
     ctx!.save(); ctx!.globalAlpha = fade;
-    ctx!.beginPath(); ctx!.arc(m.x, m.y, m.r, 0, TAU); ctx!.fillStyle = c['hull-light']; ctx!.fill(); ctx!.clip();
-    ctx!.fillStyle = 'rgba(82,92,122,0.55)';
-    for (const [cx, cy, cr] of [[-0.3, -0.2, 0.22], [0.25, 0.3, 0.16], [0.35, -0.35, 0.12]]) { ctx!.beginPath(); ctx!.arc(m.x + cx * m.r, m.y + cy * m.r, cr * m.r, 0, TAU); ctx!.fill(); }
+    ctx!.beginPath(); ctx!.arc(m.x, m.y, m.r, 0, TAU); ctx!.clip();
+    drawBody(MOON, m.x, m.y, m.r, c['hull-light']);
     shadeFrom(m.x, m.y, m.r, light ? 0.5 : 0.8);
     ctx!.restore();
   }
@@ -378,17 +391,7 @@ export function initHeroSky() {
     atm.addColorStop(0, 'rgba(124,196,255,0.45)'); atm.addColorStop(1, 'rgba(124,196,255,0)');
     ctx!.fillStyle = atm; ctx!.beginPath(); ctx!.arc(x, y, r * 1.28, 0, TAU); ctx!.fill();
     ctx!.beginPath(); ctx!.arc(x, y, r, 0, TAU); ctx!.clip();
-    const sea = ctx!.createLinearGradient(x + r, y - r, x - r, y + r);
-    sea.addColorStop(0, '#3D8FE0'); sea.addColorStop(1, '#1B3F8F');
-    ctx!.fillStyle = sea; ctx!.fillRect(x - r, y - r, r * 2, r * 2);
-    ctx!.save(); ctx!.translate(x, y); ctx!.scale(r, r);
-    ctx!.fillStyle = '#4FA37A'; for (const p of LAND) ctx!.fill(p);
-    // Cloud wisps drifting east on the world clock.
-    ctx!.fillStyle = 'rgba(240,244,250,0.7)';
-    const d = ((wt * 0.03) % 2.4) - 1.2;
-    for (const [cx, cy, w, h] of [[-0.3, -0.3, 0.5, 0.07], [0.2, 0.05, 0.6, 0.06], [-0.5, 0.45, 0.45, 0.06], [0.4, 0.62, 0.35, 0.05]])
-      for (const off of [0, 2.4]) { ctx!.beginPath(); ctx!.ellipse(((cx + d + off + 1.2) % 2.4) - 1.2 - (off ? 2.4 : 0), cy, w / 2, h, 0, 0, TAU); ctx!.fill(); }
-    ctx!.restore();
+    drawBody(EARTH, x, y, r, '#1C5FAE');
     shadeFrom(x, y, r, light ? 0.6 : 0.88);
     ctx!.restore();
     if (moon.front) drawMoon(moon);
