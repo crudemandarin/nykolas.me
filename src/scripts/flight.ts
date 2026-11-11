@@ -108,6 +108,9 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   // Preflight briefing: first visit only. The ship flies, but Space dismisses instead of firing and nothing
   // can hit it. Two callouts point at the HUD (bottom left) and the controls (bottom right).
   let briefing = false, briefT = 0, briefBtn = { x: 0, y: 0, w: 0, h: 0 }, hudLX1 = 0, hudRX0 = 0;
+  // The HUD's BRIEFING button (top left): replays the briefing and restarts the run. Also H.
+  let rebriefBtn = { x: 0, y: 0, w: 0, h: 0 }, rebriefHover = false;
+  const canRebrief = () => !briefing && (phase === 'fly' || (phase === 'dead' && deadT > 0.9));
   const readBriefed = () => { try { return localStorage.getItem(BRIEF_KEY) === '1'; } catch { return false; } };
   function dismissBriefing() {
     if (!briefing || briefT < BRIEF_LOCK) return; // locked for the first few seconds, so it isn't skipped by accident
@@ -194,7 +197,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   function exit() {
     if (phase === 'off' || phase === 'exit') return;
     saveBest();
-    phase = 'exit'; k = 1; briefing = false; hero.style.cursor = '';
+    phase = 'exit'; k = 1; briefing = false; rebriefHover = false; hero.style.cursor = '';
     from = { x: ship.x, y: ship.y, a: ship.a, s: ship.s, flame: ship.flame };
     ship.alpha = 1; invuln = 0;
     keys.clear(); bolts.length = 0; pickups.length = 0; shieldT = 0; overT = 0; beamOn = false;
@@ -206,7 +209,9 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     announce('Landed.');
   }
 
-  function retry() {
+  // Fresh run. With brief = true it replays the preflight briefing instead of starting wave 1.
+  function retry(brief = false) {
+    saveBest();
     for (const r of rocks) debris(r.x, r.y, r.r, 0.5);
     rocks.length = 0; bolts.length = 0;
     score = 0; wave = 0; hull = 3; heat = 0; overheat = false; newBest = false; nextWaveT = -1;
@@ -214,8 +219,11 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     Object.assign(ship, { x: sky.W() * 0.5, y: sky.H() * 0.55, a: -Math.PI / 2, vx: 0, vy: 0, w: 0, alpha: 1 });
     invuln = 2;
     phase = 'fly';
-    startWave();
-    announce('Retrying.');
+    banner.t = banner.dur;
+    if (brief) {
+      briefing = true; briefT = 0; rebriefHover = false; hero.style.cursor = '';
+      announce('Run restarted. Preflight briefing. Dismiss unlocks in a few seconds.');
+    } else { startWave(); announce('Retrying.'); }
   }
 
   // ── Waves & rocks ─────────────────────────────────────────────
@@ -774,6 +782,16 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     if (runBest > 0 && patchT < 0) { const b = patchArt(runBest); if (isReady(b)) ctx.drawImage(b, L + 14 + ctx.measureText(t1).width + 10, top - 15, 20, 20); }
     ctx.fillStyle = c['ink-subtle'];
     ctx.fillText(`VEL ${pad(speed, 3)} · HDG ${pad(hdg, 3)}° · γ ${gamma.toFixed(2)}`, L, top + 18);
+    if (canRebrief()) {
+      setFont(10);
+      const lbl = 'BRIEFING', capW = Math.max(18, ctx.measureText('H').width + 10), bw = 10 + capW + 8 + ctx.measureText(lbl).width + 12, bh = 26, by = top + 30;
+      rebriefBtn = { x: L, y: by, w: bw, h: bh };
+      ctx.fillStyle = c['surface-200']; ctx.fillRect(L, by, bw, bh);
+      ctx.strokeStyle = rebriefHover ? c.amber : c['line-strong']; ctx.lineWidth = 1; ctx.strokeRect(L + 0.5, by + 0.5, bw - 1, bh - 1);
+      keycap(L + 5, by + 18, 'H', rebriefHover);
+      setFont(10); ctx.fillStyle = c.ink; ctx.fillText(lbl, L + 10 + capW + 4, by + 17);
+      if (rebriefHover) { ctx.fillStyle = c['ink-subtle']; ctx.fillText('RESTARTS YOUR RUN', L + bw + 10, by + 17); }
+    } else rebriefBtn = { x: 0, y: 0, w: 0, h: 0 };
 
     // Top right: score.
     setFont(14, undefined, 500, 0.08); ctx.fillStyle = c.ink;
@@ -1070,6 +1088,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     const key = e.key.toLowerCase();
     if (key === 'escape') { e.preventDefault(); exit(); return; }
     if (key === 'f' && !e.repeat) { e.preventDefault(); toggleFullscreen(); return; }
+    if (key === 'h' && !e.repeat && canRebrief()) { e.preventDefault(); retry(true); return; }
     if (phase === 'dead') {
       if ((key === 'r' || key === 'enter') && deadT > 0.9) { e.preventDefault(); retry(); }
       if (GAME_KEYS.has(key)) e.preventDefault();
@@ -1079,14 +1098,22 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     if (GAME_KEYS.has(key)) { e.preventDefault(); keys.add(key); }
   });
   // The briefing's Dismiss button (canvas-drawn; Space and Enter do the same).
-  const inBtn = (e: MouseEvent) => {
+  // Canvas-drawn buttons: Dismiss (briefing) and BRIEFING (HUD).
+  const inBtn = (e: MouseEvent, b = briefBtn) => {
     const r = ctx.canvas.getBoundingClientRect(), W = sky.W(), H = sky.H();
     const x = (e.clientX - r.left) * (r.width ? W / r.width : 1), y = (e.clientY - r.top) * (r.height ? H / r.height : 1);
-    const b = briefBtn;
-    return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+    return b.w > 0 && x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
   };
-  hero.addEventListener('pointermove', (e) => { if (briefing) hero.style.cursor = briefT >= BRIEF_LOCK && inBtn(e) ? 'pointer' : ''; });
-  hero.addEventListener('click', (e) => { if (briefing && inBtn(e)) dismissBriefing(); });
+  hero.addEventListener('pointermove', (e) => {
+    if (phase === 'off' || phase === 'exit') return;
+    if (briefing) { hero.style.cursor = briefT >= BRIEF_LOCK && inBtn(e) ? 'pointer' : ''; return; }
+    const was = rebriefHover; rebriefHover = canRebrief() && inBtn(e, rebriefBtn);
+    if (was !== rebriefHover) hero.style.cursor = rebriefHover ? 'pointer' : '';
+  });
+  hero.addEventListener('click', (e) => {
+    if (briefing) { if (inBtn(e)) dismissBriefing(); return; }
+    if (canRebrief() && inBtn(e, rebriefBtn)) retry(true);
+  });
   window.addEventListener('keyup', (e) => { keys.delete(e.key.toLowerCase()); });
   window.addEventListener('blur', () => keys.clear());
 
