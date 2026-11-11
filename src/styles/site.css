@@ -68,6 +68,21 @@ h1, h2, h3 { margin: 0; font-weight: inherit; }
 .hero .wrap, .hero .sheet { transition: opacity .5s ease, visibility 0s linear 0s; }
 .hero.is-flight .wrap, .hero.is-flight .sheet { opacity: 0; visibility: hidden; transition: opacity .45s ease, visibility 0s linear .45s; }
 .hero:fullscreen { width: 100vw; height: 100vh; border: 0; }
+/* Best Flight Mode patch, stamped beside the name (added by src/scripts/flight.ts once one is earned). */
+.hero-copy h1 { position: relative; }
+.hero-patch { position: absolute; left: 100%; top: -18px; margin-left: 22px; width: 112px; height: 112px; padding: 5px; border-radius: 50%; background: #E6E9F2; box-shadow: 0 6px 14px rgba(6, 8, 16, .45); transform: rotate(-11deg); }
+.hero-patch img { display: block; width: 100%; height: 100%; }
+.hero-patch::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(135deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, 0) 45%); pointer-events: none; }
+.hero-patch b { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 10px; font: 500 10px/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-subtle); white-space: nowrap; }
+:root[data-theme="light"] .hero-patch { background: #FFFFFF; box-shadow: 0 6px 14px rgba(30, 34, 51, .22); }
+.hero-patch.is-stamping { animation: nk-stamp .45s cubic-bezier(.2, .9, .3, 1.15) .5s both; }
+@keyframes nk-stamp {
+  from { opacity: 0; transform: rotate(-3deg) scale(1.6); box-shadow: 0 26px 34px rgba(6, 8, 16, .25); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: rotate(-11deg) scale(1); box-shadow: 0 6px 14px rgba(6, 8, 16, .45); }
+}
+[data-motion="idle"] .hero-patch.is-stamping { animation: none; }
+@media (max-width: 720px) { .hero-patch { width: 72px; height: 72px; padding: 4px; top: -8px; margin-left: 12px; } .hero-patch b { margin-top: 8px; font-size: 9px; } }
 .sheet { position: absolute; font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-subtle); }
 .sheet.tl { top: var(--space-4); left: var(--space-12); } .sheet.tr { top: var(--space-4); right: var(--space-12); }
 .sheet.bl { bottom: var(--space-4); left: var(--space-12); } .sheet.br { bottom: var(--space-4); right: var(--space-12); }

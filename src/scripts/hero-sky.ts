@@ -769,6 +769,23 @@ export function initHeroSky() {
     },
   });
 
+  // ?flightdebug: outline the rocket's hit box and the pointer, and print the display numbers.
+  const DEBUG = /[?&]flightdebug\b/.test(location.search);
+  let debugPtr: [number, number] | null = null;
+  function drawDebug() {
+    ctx!.save();
+    ctx!.translate(ship.x, ship.y); ctx!.rotate(ship.a); ctx!.scale(ship.s, ship.s);
+    ctx!.strokeStyle = '#FF2BD6'; ctx!.lineWidth = 2 / ship.s; ctx!.strokeRect(-230, -56, 430, 112);
+    ctx!.restore();
+    ctx!.save();
+    ctx!.strokeStyle = '#FF2BD6'; ctx!.lineWidth = 1.5;
+    if (debugPtr) { const [x, y] = debugPtr; ctx!.beginPath(); ctx!.moveTo(x - 10, y); ctx!.lineTo(x + 10, y); ctx!.moveTo(x, y - 10); ctx!.lineTo(x, y + 10); ctx!.stroke(); }
+    const r = cv!.getBoundingClientRect();
+    ctx!.fillStyle = '#FF2BD6'; ctx!.font = '500 11px "IBM Plex Mono", monospace';
+    ctx!.fillText(`dpr ${devicePixelRatio} · layout ${W}×${H} · canvas css ${r.width.toFixed(1)}×${r.height.toFixed(1)} @ ${r.left.toFixed(1)},${r.top.toFixed(1)} · backing ${cv!.width}×${cv!.height} · hover ${hovering}`, 12, H - 40);
+    ctx!.restore();
+  }
+
   // ── Loop ──────────────────────────────────────────────────────
   function draw() {
     ctx!.save();
@@ -795,6 +812,7 @@ export function initHeroSky() {
     drawGamma();
     ctx!.restore();
     flight.drawHud();
+    if (DEBUG) drawDebug();
   }
 
   function step(dt: number) {
@@ -844,7 +862,14 @@ export function initHeroSky() {
     hero!.style.cursor = on ? 'pointer' : '';
     if (idle) { boost = on ? 1 : 0; draw(); }
   }
-  const local = (e: PointerEvent | MouseEvent) => { const r = hero.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  // Pointer → canvas space, through the canvas's own on-screen box. If the canvas is ever displayed at a
+  // different size or offset than layout() assumed, hit tests still follow what's actually drawn.
+  const local = (e: PointerEvent | MouseEvent) => {
+    const r = cv.getBoundingClientRect();
+    const x = (e.clientX - r.left) * (r.width ? W / r.width : 1), y = (e.clientY - r.top) * (r.height ? H / r.height : 1);
+    debugPtr = [x, y];
+    return [x, y];
+  };
   hero.addEventListener('pointermove', (e) => {
     lastPointer = e.pointerType;
     if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;

@@ -104,6 +104,29 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   let shieldT = 0, overT = 0, beamOn = false, beamUfoCool = 0, repairFlash = 0;
   const beam = { x1: 0, y1: 0, x2: 0, y2: 0 };
 
+  // The best patch on this device, stamped beside the name in the hero copy (a page element, so it sits
+  // above the copy and fades out with it during Flight Mode). Re-stamps when a new best lands.
+  let heroPatchShown = 0;
+  function syncHeroPatch() {
+    const h1 = hero.querySelector('.hero-copy h1');
+    if (!h1 || everBest <= 0 || everBest === heroPatchShown) return;
+    let el = h1.querySelector<HTMLElement>('.hero-patch');
+    if (!el) {
+      el = document.createElement('span');
+      el.className = 'hero-patch';
+      el.setAttribute('aria-hidden', 'true'); // decorative; keeps the heading's accessible name clean
+      el.innerHTML = '<img alt="" width="112" height="112" decoding="async" /><b></b>';
+      h1.appendChild(el);
+    }
+    const code = waveCode(everBest);
+    el.title = `Best Flight Mode patch · ${code}. Click the rocket to fly.`;
+    el.querySelector('img')!.src = patchArt(everBest).src;
+    el.querySelector('b')!.textContent = `Best · FL-${pad(everBest, 2)}`;
+    // Restart the stamp animation.
+    el.classList.remove('is-stamping'); void el.offsetWidth; el.classList.add('is-stamping');
+    heroPatchShown = everBest;
+  }
+
   // Screen-reader announcements.
   const live = document.createElement('div');
   live.className = 'sr-only'; live.setAttribute('aria-live', 'polite');
@@ -407,6 +430,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
         phase = 'off';
         Object.assign(ship, { flame: 1, exhaust: 1, lines: 1, traj: 1, pod: 0, alpha: 1 });
         hooks.onChange();
+        syncHeroPatch(); // a new best gets stamped as the copy returns
       }
       return;
     }
@@ -911,6 +935,8 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   });
   window.addEventListener('keyup', (e) => { keys.delete(e.key.toLowerCase()); });
   window.addEventListener('blur', () => keys.clear());
+
+  syncHeroPatch();
 
   return {
     get active() { return phase !== 'off'; },
