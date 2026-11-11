@@ -143,7 +143,7 @@ export function initHeroSky() {
 
   function readColors() {
     const s = getComputedStyle(root);
-    for (const k of ['ink', 'ink-subtle', 'ink-muted', 'ember', 'ember-text', 'amber', 'flame-core', 'signal', 'brand-blue', 'deep-indigo', 'hull-xlight', 'hull-light', 'hull-mid', 'hull-shadow', 'surface-100', 'surface-200', 'line', 'line-strong', 'nominal', 'caution'])
+    for (const k of ['ink', 'ink-subtle', 'ink-muted', 'ember', 'ember-text', 'amber', 'flame-core', 'signal', 'brand-blue', 'deep-indigo', 'hull-xlight', 'hull-light', 'hull-mid', 'hull-shadow', 'surface-100', 'surface-200', 'on-ember', 'line', 'line-strong', 'nominal', 'caution'])
       c[k] = s.getPropertyValue('--' + k).trim();
     light = root.dataset.theme === 'light';
     const wasIdle = idle;

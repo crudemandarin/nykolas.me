@@ -60,6 +60,8 @@ const ROCK_PTS: Record<number, number> = { 3: 20, 2: 50, 1: 100 };
 const HULL: [number, number][] = [[-150, 44], [-85, 38], [-15, 22], [55, 19], [125, 19], [170, 12]];
 const GAME_KEYS = new Set(['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' ']);
 const BEST_KEY = 'nk-flight-best';
+// Set once the visitor dismisses the preflight briefing; it's shown before wave 1 only until then.
+const BRIEF_KEY = 'nk-flight-briefed';
 // HUD glyphs (round-1 UI family): single currentColor paths on a 24 grid, tinted here.
 const glyph = (svg: string) => new Path2D(/\sd="([^"]+)"/.exec(svg)?.[1] ?? '');
 const GLYPH = { hull: glyph(hullSvg), laser: glyph(laserSvg), target: glyph(targetSvg), shield: glyph(shieldSvg), repair: glyph(repairSvg), overclock: glyph(overclockSvg) };
@@ -103,6 +105,16 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   // Pickups and their effects (seconds remaining; 0 = off). overT is beam charge: it drains only while the
   // beam fires (overclocked + Space held), so an unused overclock keeps until it's spent.
   const pickups: Pickup[] = [];
+  // Preflight briefing: first visit only. The ship flies, but Space dismisses instead of firing and nothing
+  // can hit it. Two callouts point at the HUD (bottom left) and the controls (bottom right).
+  let briefing = false, briefT = 0, briefBtn = { x: 0, y: 0, w: 0, h: 0 }, hudLX1 = 0, hudRX0 = 0;
+  const readBriefed = () => { try { return localStorage.getItem(BRIEF_KEY) === '1'; } catch { return false; } };
+  function dismissBriefing() {
+    if (!briefing) return;
+    briefing = false; keys.delete(' '); hero.style.cursor = '';
+    try { localStorage.setItem(BRIEF_KEY, '1'); } catch { /* private mode: brief again next time */ }
+    startWave();
+  }
   let shieldT = 0, overT = 0, beamOn = false, beamUfoCool = 0, repairFlash = 0;
   const beam = { x1: 0, y1: 0, x2: 0, y2: 0 };
 
@@ -182,7 +194,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   function exit() {
     if (phase === 'off' || phase === 'exit') return;
     saveBest();
-    phase = 'exit'; k = 1;
+    phase = 'exit'; k = 1; briefing = false; hero.style.cursor = '';
     from = { x: ship.x, y: ship.y, a: ship.a, s: ship.s, flame: ship.flame };
     ship.alpha = 1; invuln = 0;
     keys.clear(); bolts.length = 0; pickups.length = 0; shieldT = 0; overT = 0; beamOn = false;
@@ -415,7 +427,11 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
       ship.lines = 1 - e; ship.traj = 1 - e;
       ship.pod = clamp((k - 0.35) / 0.65);
       gamma = 1;
-      if (k >= 1) { phase = 'fly'; thr = 0.25; startWave(); }
+      if (k >= 1) {
+        phase = 'fly'; thr = 0.25;
+        if (readBriefed()) startWave();
+        else { briefing = true; briefT = 0; announce('Preflight briefing. Bottom left: hull and laser heat. Bottom right: controls. Press Space or Dismiss to start wave 1.'); }
+      }
       return;
     }
 
@@ -482,10 +498,11 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     if (overheat && heat < 0.3) overheat = false;
     shieldT = Math.max(0, shieldT - dt);
     repairFlash = Math.max(0, repairFlash - dt);
-    beamOn = overT > 0 && held(' ');
+    if (briefing) briefT += dt;
+    beamOn = overT > 0 && held(' ') && !briefing;
     if (beamOn) overT = Math.max(0, overT - dt);
     if (overT > 0) { heat = 0; overheat = false; }
-    else if (held(' ') && cool <= 0 && !overheat) shoot();
+    else if (!briefing && held(' ') && cool <= 0 && !overheat) shoot();
     muzzleFlash = Math.max(0, muzzleFlash - dt);
 
     invuln = Math.max(0, invuln - dt);
@@ -562,8 +579,8 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     }
     prune(pickups, (p) => p.age < PICKUP_LIFE);
 
-    // Ship collisions.
-    if (phase === 'fly' && invuln <= 0) {
+    // Ship collisions (none during the briefing).
+    if (phase === 'fly' && invuln <= 0 && !briefing) {
       const circles = HULL.map(([x, r]) => ({ ...sky.toWorld(x, 0), r: r * ship.s }));
       outer: for (const rk of rocks) {
         for (const cc of circles) {
@@ -588,7 +605,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     prune(pops, (p) => p.age < 0.9);
 
     // Waves.
-    if (phase === 'fly' && rocks.length === 0 && nextWaveT < 0) {
+    if (phase === 'fly' && !briefing && rocks.length === 0 && nextWaveT < 0) {
       const bonus = 250 * wave;
       score += bonus;
       showBanner(`Wave ${pad(wave, 2)} clear`, `+${bonus} bonus · next wave`, 2.2);
@@ -748,7 +765,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     const speed = Math.hypot(ship.vx, ship.vy), hdg = ((ship.a * 180) / Math.PI + 90 + 360) % 360;
     ctx.fillStyle = c.ember; ctx.fillRect(L, top - 8, 7, 7);
     setFont(11); ctx.fillStyle = c.ink;
-    const t1 = `FLIGHT MODE · WAVE ${pad(wave, 2)}`;
+    const t1 = briefing ? 'FLIGHT MODE · PREFLIGHT' : `FLIGHT MODE · WAVE ${pad(wave, 2)}`;
     ctx.fillText(t1, L + 14, top);
     // HUD badge: the latest patch earned this run (hidden while it's being awarded).
     if (runBest > 0 && patchT < 0) { const b = patchArt(runBest); if (isReady(b)) ctx.drawImage(b, L + 14 + ctx.measureText(t1).width + 10, top - 15, 20, 20); }
@@ -782,6 +799,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     ctx.fillStyle = c['ink-subtle']; ctx.fillText('LASER', x, bot);
     x += ctx.measureText('LASER').width + 10;
     ctx.strokeStyle = c['line-strong']; ctx.strokeRect(x + 0.5, bot - 8.5, 72, 9);
+    hudLX1 = x + 72;
     let sx = x + 84;
     if (overT > 0) {
       // Overclocked: the bar shows beam charge left instead of heat.
@@ -812,6 +830,8 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
       // A pairs tightly with D ("A D TURN"); every other group gets a wide gap.
       rx -= i > 0 && !groups[i - 1][2] ? 4 : 16;
     }
+    hudRX0 = rx + 16;
+    if (briefing) drawBriefing(W, H, L, bot);
 
     // Centre banner.
     if (banner.t < banner.dur) {
@@ -829,6 +849,89 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   }
 
   // Patch award: pops in under the wave banner, holds, then fades. Engines Idle: static for the same time.
+  // ── Preflight briefing ──
+  const SANS = '"IBM Plex Sans", system-ui, sans-serif';
+  function drawBriefing(W: number, H: number, L: number, bot: number) {
+    const idle = sky.idle(), e = idle ? 1 : ease(clamp(briefT / 0.45)), lift = (1 - e) * 12;
+    const pulse = idle ? 1 : 0.65 + 0.35 * Math.sin(briefT * 4);
+    ctx.save();
+    ctx.globalAlpha = hudA * e;
+
+    // Brackets around the two HUD groups, with a leader up to each callout.
+    const bracket = (x0: number, y0: number, x1: number, y1: number) => {
+      const t = 9;
+      ctx.beginPath();
+      for (const [cx, cy, sx, sy] of [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]]) {
+        ctx.moveTo(cx + sx * t, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + sy * t);
+      }
+      ctx.stroke();
+    };
+    const by0 = bot - 19, by1 = bot + 8, boxH = 120, boxW = 368, gap = 26, boxY = by0 - gap - boxH + lift;
+    ctx.strokeStyle = c.amber; ctx.lineWidth = 1.5;
+    ctx.globalAlpha = hudA * e * pulse;
+    bracket(L - 9, by0, hudLX1 + 9, by1);
+    bracket(hudRX0 - 9, by0, W - L + 9, by1);
+    ctx.globalAlpha = hudA * e;
+
+    const plate = (x: number, y: number, w: number, h: number, leaderX: number, label: string) => {
+      ctx.fillStyle = c['surface-200']; ctx.globalAlpha = hudA * e * 0.96; ctx.fillRect(x, y, w, h);
+      ctx.globalAlpha = hudA * e; ctx.strokeStyle = c['line-strong']; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+      ctx.strokeStyle = c.amber; ctx.beginPath(); ctx.moveTo(leaderX + 0.5, y + h); ctx.lineTo(leaderX + 0.5, by0 - 3); ctx.stroke();
+      ctx.fillStyle = c.amber; ctx.fillRect(leaderX - 2, y + h - 2, 5, 5);
+      setFont(10); ctx.fillStyle = c['ink-subtle']; ctx.fillText(label, x + 18, y + 24);
+    };
+    const row = (x: number, y: number, text: string) => { setFont(13, SANS, 400, 0); ctx.fillStyle = c['ink-muted']; ctx.fillText(text, x, y); };
+
+    // Left: the status readouts.
+    let x = L, y = boxY;
+    plate(x, y, boxW, boxH, L + 24, '01 · STATUS');
+    const kx = x + 18, tx = x + 116;
+    const rows: [Path2D, string, string, string][] = [
+      [GLYPH.hull, 'HULL', 'Three hits and you lose signal.', c['ink-muted']],
+      [GLYPH.laser, 'LASER', 'Heats as you fire. Let it cool.', c['ink-muted']],
+      [GLYPH.shield, 'PICKUPS', 'Fly through canisters to collect.', '#7CC4FF'],
+    ];
+    rows.forEach(([g, k, t, col], i) => {
+      const ry = y + 54 + i * 24;
+      const gx = kx + drawGlyph(g, kx, ry + 1, col);
+      setFont(11); ctx.fillStyle = c.ink; ctx.fillText(k, gx, ry);
+      row(tx, ry, t);
+    });
+
+    // Right: the controls.
+    x = W - L - boxW;
+    plate(x, y, boxW, boxH, W - L - 24, '02 · CONTROLS');
+    const caps: [string[], string][] = [
+      [['W', 'A', 'D', 'S'], 'Thrust, turn, brake. You drift.'],
+      [['SPACE'], 'Fire the laser.'],
+      [['F', 'ESC'], 'Full screen. Land and quit.'],
+    ];
+    caps.forEach(([ks, t], i) => {
+      const ry = y + 54 + i * 24;
+      let cx = x + 18;
+      for (const k of ks) cx += keycap(cx, ry, k, false) + 4;
+      row(x + 128, ry, t);
+    });
+
+    // Centre: the call to action.
+    const cy = H * 0.34;
+    setFont(44, '"Big Shoulders Display", "Arial Narrow", sans-serif', 800, 0.02); ctx.fillStyle = c.ink;
+    const h1 = 'PREFLIGHT BRIEFING'; ctx.fillText(h1, (W - ctx.measureText(h1).width) / 2, cy + lift);
+    setFont(11); ctx.fillStyle = c['ink-subtle'];
+    const h2 = 'CLEAR EVERY ROCK. DON’T GET HIT.'; ctx.fillText(h2, (W - ctx.measureText(h2).width) / 2, cy + 24 + lift);
+    setFont(11);
+    const bl = 'DISMISS', bw = ctx.measureText(bl).width + 44, bh = 36, bx = (W - bw) / 2, byy = cy + 46 + lift;
+    briefBtn = { x: bx, y: byy, w: bw, h: bh };
+    ctx.fillStyle = c.ember; ctx.fillRect(bx, byy, bw, bh);
+    ctx.fillStyle = c['on-ember']; ctx.fillText(bl, bx + 22, byy + 22);
+    setFont(10); ctx.fillStyle = c['ink-subtle'];
+    const orW = ctx.measureText('OR PRESS').width, capW = Math.max(18, ctx.measureText('SPACE').width + 10), rowW = orW + 8 + capW;
+    const ox = (W - rowW) / 2, oy = byy + bh + 26;
+    ctx.fillText('OR PRESS', ox, oy);
+    keycap(ox + orW + 8, oy, 'SPACE', keys.has(' '));
+    ctx.restore();
+  }
+
   function drawPatchAward(W: number, H: number) {
     const t = patchT, { dur, size: full } = award, still = sky.idle();
     const pop = still || t >= 0.45 ? 1 : 1 + 0.12 * Math.sin((t / 0.45) * Math.PI);
@@ -933,8 +1036,18 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
       if (GAME_KEYS.has(key)) e.preventDefault();
       return;
     }
+    if (briefing && (key === ' ' || key === 'enter')) { e.preventDefault(); if (!e.repeat) dismissBriefing(); return; }
     if (GAME_KEYS.has(key)) { e.preventDefault(); keys.add(key); }
   });
+  // The briefing's Dismiss button (canvas-drawn; Space and Enter do the same).
+  const inBtn = (e: MouseEvent) => {
+    const r = ctx.canvas.getBoundingClientRect(), W = sky.W(), H = sky.H();
+    const x = (e.clientX - r.left) * (r.width ? W / r.width : 1), y = (e.clientY - r.top) * (r.height ? H / r.height : 1);
+    const b = briefBtn;
+    return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+  };
+  hero.addEventListener('pointermove', (e) => { if (briefing) hero.style.cursor = inBtn(e) ? 'pointer' : ''; });
+  hero.addEventListener('click', (e) => { if (briefing && inBtn(e)) dismissBriefing(); });
   window.addEventListener('keyup', (e) => { keys.delete(e.key.toLowerCase()); });
   window.addEventListener('blur', () => keys.clear());
 
