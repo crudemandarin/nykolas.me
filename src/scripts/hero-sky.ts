@@ -1,7 +1,7 @@
 // The hero's night sky, drawn on a canvas behind the copy (mounted by src/components/HeroSky.astro).
 // Stars sit on the 32px grid intersections and twinkle. The NYKO rocket flies through the middle,
 // trailing exhaust and a plotted trajectory; a sun, a ringed planet with the NYKO satellite in orbit,
-// and a small rocky world with a moon fill the rest. Meteors, tagged asteroids and the odd UFO pass
+// a small rocky world with a moon, and Earth with the Moon fill the rest, with two galaxies far behind. Meteors, tagged asteroids and the odd UFO pass
 // through. Hovering the rocket (or tapping it) fires the boost: blue flames, harder bob, faster travel,
 // and time dilation on everything else. Clicking it starts Flight Mode (src/scripts/flight.ts).
 // Follows the Theme and Engines switches.
@@ -130,7 +130,9 @@ export function initHeroSky() {
   const c: Record<string, string> = {};
 
   // Bodies are laid out in layout() so they scale with the hero.
-  let sun = { x: 0, y: 0, r: 0 }, planet = { x: 0, y: 0, r: 0 }, rocky = { x: 0, y: 0, r: 0 }, fade = 1;
+  let sun = { x: 0, y: 0, r: 0 }, planet = { x: 0, y: 0, r: 0 }, rocky = { x: 0, y: 0, r: 0 }, earth = { x: 0, y: 0, r: 0 }, fade = 1;
+  type Galaxy = { x: number; y: number; R: number; tilt: number; kind: 'spiral' | 'lens'; seed: number; img: HTMLCanvasElement };
+  let galaxies: Galaxy[] = [];
   let craters: [number, number, number][] = [];
 
   const ship: Ship = {
@@ -168,6 +170,8 @@ export function initHeroSky() {
       sun = { x: W + 6, y: 46, r: 46 };
       planet = { x: W * 0.84, y: 205, r: 26 };
       rocky = { x: W * 0.1, y: 215, r: 7 };
+      earth = { x: W * 0.2, y: 70, r: 15 };
+      galaxies = [mkGalaxy(W * 0.62, 50, 28, -0.5, 'spiral', 7)];
       Object.assign(ship, { hx: W * 0.46, hy: 140, hs: Math.min(0.42, W / 1000), base: -0.5 });
     } else {
       const k = Math.min(1, W / 1440);
@@ -175,6 +179,8 @@ export function initHeroSky() {
       sun = { x: W - 40, y: 170, r: 58 * k + 16 };
       planet = { x: W * 0.86, y: H * 0.72, r: 62 * k + 16 };
       rocky = { x: W * 0.57, y: H * 0.84, r: 13 * k + 5 };
+      earth = { x: W * 0.5, y: H * 0.2, r: 26 * k + 10 };
+      galaxies = [mkGalaxy(W * 0.33, H * 0.14, 46 * k + 12, -0.4, 'spiral', 7), mkGalaxy(W * 0.43, H * 0.9, 26 * k + 8, 0.32, 'lens', 3)];
       Object.assign(ship, { hx: W * 0.69, hy: H * 0.42, hs: Math.max(0.45, Math.min(0.72, 0.66 * W / 1440)), base: -0.56 });
     }
     // In Flight Mode the player owns the ship's pose; just keep it on screen.
@@ -182,6 +188,57 @@ export function initHeroSky() {
     else { ship.x = ship.hx; ship.y = ship.hy; ship.a = ship.base; ship.s = ship.hs; }
     ufoK = narrow ? 0.24 : 0.38; bakeUfo();
     craters = Array.from({ length: 4 }, () => [rnd(-0.5, 0.5), rnd(-0.5, 0.5), rnd(0.12, 0.26)]);
+    bakeGalaxies();
+  }
+
+  // ── Deep field: two far galaxies, baked once per layout/theme (they don't move on any human clock) ──
+  function mkGalaxy(x: number, y: number, R: number, tilt: number, kind: Galaxy['kind'], seed: number): Galaxy {
+    return { x, y, R, tilt, kind, seed, img: document.createElement('canvas') };
+  }
+  function bakeGalaxies() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const g of galaxies) {
+      let z = g.seed * 2654435761 >>> 0; // seeded, so a resize doesn't reshuffle the arms
+      const rand = () => ((z = (z + 0x6D2B79F5) >>> 0), (((z ^ (z >>> 15)) * (z | 1)) >>> 0) / 4294967296);
+      const gauss = () => (rand() + rand() + rand() - 1.5) / 1.5;
+      const size = Math.ceil(g.R * 2.4), b = g.img, x = b.getContext('2d')!;
+      b.width = b.height = Math.ceil(size * dpr);
+      x.setTransform(dpr, 0, 0, dpr, (size / 2) * dpr, (size / 2) * dpr); // origin at the centre, CSS px
+      const ct = Math.cos(g.tilt), st = Math.sin(g.tilt), squash = g.kind === 'spiral' ? 0.42 : 0.2;
+      const put = (px: number, py: number) => [px * ct - py * squash * st, px * st + py * squash * ct];
+      // Disc haze, then the core glow.
+      x.save(); x.rotate(g.tilt); x.scale(1, squash);
+      const haze = x.createRadialGradient(0, 0, 0, 0, 0, g.R);
+      haze.addColorStop(0, light ? 'rgba(50,56,201,0.16)' : 'rgba(138,147,255,0.2)'); haze.addColorStop(1, 'rgba(138,147,255,0)');
+      x.fillStyle = haze; x.beginPath(); x.arc(0, 0, g.R, 0, TAU); x.fill();
+      x.restore();
+      const coreR = g.R * (g.kind === 'spiral' ? 0.32 : 0.75);
+      x.save(); x.rotate(g.tilt); x.scale(1, g.kind === 'spiral' ? 0.6 : 0.3);
+      const glow = x.createRadialGradient(0, 0, 0, 0, 0, coreR);
+      glow.addColorStop(0, light ? c['ink-muted'] : c['hull-xlight']); glow.addColorStop(0.35, light ? c['ink-subtle'] : c.amber); glow.addColorStop(1, 'transparent');
+      x.globalAlpha = light ? 0.35 : 0.45; x.fillStyle = glow; x.beginPath(); x.arc(0, 0, coreR, 0, TAU); x.fill();
+      x.restore();
+      // Stars: two trailing arms plus a thin disk for the spiral; a gaussian swarm for the lens.
+      const dot = (px: number, py: number, r: number, a: number, blue: boolean) => {
+        const [qx, qy] = put(px, py);
+        x.globalAlpha = a; x.fillStyle = blue ? c.signal : light ? c['ink-muted'] : c['hull-xlight'];
+        x.fillRect(qx - r / 2, qy - r / 2, r, r);
+      };
+      if (g.kind === 'spiral') {
+        for (let arm = 0; arm < 2; arm++) for (let i = 0; i < 260; i++) {
+          const u = Math.pow(rand(), 0.9), rad = g.R * (0.12 + 0.88 * u) * (1 + gauss() * 0.09), ang = arm * Math.PI + u * 3.4 + gauss() * (0.5 - u * 0.25);
+          dot(Math.cos(ang) * rad, Math.sin(ang) * rad, rand() < 0.12 ? 1.5 : 1, (1 - u * 0.55) * (0.3 + 0.7 * rand()), rand() < 0.4);
+        }
+        for (let i = 0; i < 120; i++) { const ang = rand() * TAU, rad = g.R * Math.pow(rand(), 0.6); dot(Math.cos(ang) * rad, Math.sin(ang) * rad, 0.7, 0.35 * rand(), false); }
+      } else {
+        for (let i = 0; i < 160; i++) dot(gauss() * g.R * 0.7, gauss() * g.R * 0.7, rand() < 0.08 ? 1.3 : 0.8, 0.75 * rand(), rand() < 0.15);
+      }
+    }
+  }
+  function drawGalaxies() {
+    ctx!.save(); ctx!.globalAlpha = fade * (light ? 0.6 : 0.75);
+    for (const g of galaxies) { const size = Math.ceil(g.R * 2.4); ctx!.drawImage(g.img, g.x - size / 2, g.y - size / 2, size, size); }
+    ctx!.restore();
   }
 
   // ── Static bodies ─────────────────────────────────────────────
@@ -279,6 +336,69 @@ export function initHeroSky() {
     ctx!.fillStyle = '#C9CFDE'; ctx!.beginPath(); ctx!.arc(-13, 0, 7.5, 0, TAU); ctx!.fill(); ctx!.stroke();
     ctx!.strokeStyle = '#525C7A'; ctx!.lineWidth = 2; ctx!.stroke(S.dishArc);
     ctx!.restore();
+  }
+
+  // ── Earth and the Moon ─────────────────────────────────────────
+  // PLACEHOLDER art (ocean disc + rough land + cloud wisps) until nyko-earth.svg / nyko-moon.svg land;
+  // see docs/claude/handoffs/EARTH-GALAXY-ICON-HANDOFF.md. Lighting follows the sun's direction.
+  const LAND = [
+    new Path2D('M -0.62,-0.62 C -0.35,-0.78 -0.05,-0.7 0.02,-0.52 C 0.08,-0.36 -0.12,-0.28 -0.18,-0.12 C -0.24,0.02 -0.1,0.1 -0.16,0.2 C -0.24,0.3 -0.42,0.18 -0.5,0.02 C -0.6,-0.16 -0.78,-0.38 -0.62,-0.62 Z'),
+    new Path2D('M -0.1,0.26 C 0.04,0.22 0.16,0.34 0.14,0.5 C 0.12,0.66 0.02,0.82 -0.06,0.9 C -0.12,0.76 -0.2,0.58 -0.2,0.44 C -0.2,0.34 -0.16,0.28 -0.1,0.26 Z'),
+    new Path2D('M 0.42,-0.5 C 0.58,-0.56 0.74,-0.42 0.78,-0.24 C 0.82,-0.06 0.7,0.08 0.6,0.22 C 0.54,0.34 0.44,0.28 0.42,0.12 C 0.4,-0.02 0.3,-0.14 0.34,-0.3 C 0.36,-0.4 0.38,-0.46 0.42,-0.5 Z'),
+  ];
+  const moonPos = () => {
+    const { x, y, r } = earth, a = wt * 0.32, tilt = 0.18;
+    const ex = Math.cos(a) * r * 2.3, ey = Math.sin(a) * r * 0.5;
+    return { x: x + ex * Math.cos(tilt) - ey * Math.sin(tilt), y: y + ex * Math.sin(tilt) + ey * Math.cos(tilt), front: Math.sin(a) > 0, r: Math.max(3, r * 0.27) };
+  };
+  function shadeFrom(x: number, y: number, r: number, strength: number) {
+    // Night side: a gradient running away from the sun, across a disc that's already clipped.
+    const a = Math.atan2(sun.y - y, sun.x - x), dx = Math.cos(a) * r, dy = Math.sin(a) * r;
+    const g = ctx!.createLinearGradient(x + dx * 0.4, y + dy * 0.4, x - dx, y - dy);
+    g.addColorStop(0, 'rgba(10,13,24,0)'); g.addColorStop(0.3, 'rgba(10,13,24,0.15)'); g.addColorStop(1, `rgba(10,13,24,${strength})`);
+    ctx!.fillStyle = g; ctx!.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  function drawMoon(m: ReturnType<typeof moonPos>) {
+    ctx!.save(); ctx!.globalAlpha = fade;
+    ctx!.beginPath(); ctx!.arc(m.x, m.y, m.r, 0, TAU); ctx!.fillStyle = c['hull-light']; ctx!.fill(); ctx!.clip();
+    ctx!.fillStyle = 'rgba(82,92,122,0.55)';
+    for (const [cx, cy, cr] of [[-0.3, -0.2, 0.22], [0.25, 0.3, 0.16], [0.35, -0.35, 0.12]]) { ctx!.beginPath(); ctx!.arc(m.x + cx * m.r, m.y + cy * m.r, cr * m.r, 0, TAU); ctx!.fill(); }
+    shadeFrom(m.x, m.y, m.r, light ? 0.5 : 0.8);
+    ctx!.restore();
+  }
+  function drawEarth() {
+    const { x, y, r } = earth, moon = moonPos();
+    // The Moon's orbit, faint and dashed like the satellite's.
+    ctx!.save(); ctx!.globalAlpha = fade * 0.4; ctx!.strokeStyle = c['line-strong']; ctx!.lineWidth = 1; ctx!.setLineDash([2, 5]);
+    ctx!.beginPath(); ctx!.ellipse(x, y, r * 2.3, r * 0.5, 0.18, 0, TAU); ctx!.stroke(); ctx!.restore();
+    if (!moon.front) drawMoon(moon);
+    ctx!.save(); ctx!.globalAlpha = fade;
+    // Atmosphere: a thin blue halo just off the limb.
+    const atm = ctx!.createRadialGradient(x, y, r * 0.9, x, y, r * 1.28);
+    atm.addColorStop(0, 'rgba(124,196,255,0.45)'); atm.addColorStop(1, 'rgba(124,196,255,0)');
+    ctx!.fillStyle = atm; ctx!.beginPath(); ctx!.arc(x, y, r * 1.28, 0, TAU); ctx!.fill();
+    ctx!.beginPath(); ctx!.arc(x, y, r, 0, TAU); ctx!.clip();
+    const sea = ctx!.createLinearGradient(x + r, y - r, x - r, y + r);
+    sea.addColorStop(0, '#3D8FE0'); sea.addColorStop(1, '#1B3F8F');
+    ctx!.fillStyle = sea; ctx!.fillRect(x - r, y - r, r * 2, r * 2);
+    ctx!.save(); ctx!.translate(x, y); ctx!.scale(r, r);
+    ctx!.fillStyle = '#4FA37A'; for (const p of LAND) ctx!.fill(p);
+    // Cloud wisps drifting east on the world clock.
+    ctx!.fillStyle = 'rgba(240,244,250,0.7)';
+    const d = ((wt * 0.03) % 2.4) - 1.2;
+    for (const [cx, cy, w, h] of [[-0.3, -0.3, 0.5, 0.07], [0.2, 0.05, 0.6, 0.06], [-0.5, 0.45, 0.45, 0.06], [0.4, 0.62, 0.35, 0.05]])
+      for (const off of [0, 2.4]) { ctx!.beginPath(); ctx!.ellipse(((cx + d + off + 1.2) % 2.4) - 1.2 - (off ? 2.4 : 0), cy, w / 2, h, 0, 0, TAU); ctx!.fill(); }
+    ctx!.restore();
+    shadeFrom(x, y, r, light ? 0.6 : 0.88);
+    ctx!.restore();
+    if (moon.front) drawMoon(moon);
+    // Callout, blueprint style (mirrors NK-4B, off to the upper left).
+    if (W >= 900) {
+      ctx!.save(); ctx!.globalAlpha = 0.8; ctx!.strokeStyle = c['ink-subtle']; ctx!.fillStyle = c['ink-subtle']; ctx!.lineWidth = 1;
+      ctx!.beginPath(); ctx!.moveTo(x - r - 4, y - r - 4); ctx!.lineTo(x - r - 22, y - r - 22); ctx!.lineTo(x - r - 70, y - r - 22); ctx!.stroke();
+      ctx!.font = '500 10px "IBM Plex Mono", monospace'; ctx!.textAlign = 'right'; ctx!.fillText('EARTH', x - r - 24, y - r - 27);
+      ctx!.restore();
+    }
   }
 
   function drawRocky() {
@@ -791,8 +911,10 @@ export function initHeroSky() {
     ctx!.save();
     flight.shake();
     ctx!.clearRect(-20, -20, W + 40, H + 40);
+    drawGalaxies();
     drawStars();
     drawSun();
+    drawEarth();
     const sat = satPos();
     drawSatOrbit();
     if (!sat.front) drawSatellite();
@@ -897,7 +1019,7 @@ export function initHeroSky() {
   document.fonts?.ready.then(() => { if (idle && !flight.active) draw(); });
 
   new ResizeObserver(() => { const w = hero.clientWidth, h = hero.clientHeight; if (w !== W || h !== H) { layout(); if (idle) draw(); } }).observe(hero);
-  new MutationObserver(() => { readColors(); restart(); }).observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-motion'] });
+  new MutationObserver(() => { readColors(); bakeGalaxies(); restart(); }).observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-motion'] });
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (!visible) flight.releaseKeys(); restart(); }).observe(hero);
   document.addEventListener('visibilitychange', () => { flight.releaseKeys(); restart(); });
 }
