@@ -25,10 +25,20 @@ Use on Field Ops cards at 96–128px; 1024px via the paired `.png` or re-render.
 
 ## Earth and Moon (hero sky)
 
-`gen_earth.mjs` (`node brand/round-2-iconography/gen_earth.mjs`) writes `nyko-earth.svg` (viewBox -64…64, disc r60) and `nyko-moon.svg` (viewBox -16…16, disc r15), plus copies in `public/brand/` and `qa/earth-moon-qa.svg`.
-- **Earth:** Natural Earth 110m land, orthographic view centred over North America (28°N 100°W). It is coarsened and rounded on purpose, because it's small background art (30–72px). A north polar cap and Greenland are ice: a glacial cyan gradient (`#E2F6F8` at the pole to `#8FD3E3`), so they read apart from the white clouds. The South Pole is on the far side from this view. There are eight puffy cloud clusters.
-- **Moon:** near side with simplified maria.
-- **Both:** unlit, because the site shades the night side and phase from the sun's direction. There is no ember, and the green isn't `--nominal`.
+- **The art:** `earth-art.ts` (this folder) is the Earth as a pure module. `earthLayers(lon)` returns the ocean, grid, land, ice and cloud paths for any rotation, so the hero can spin it. How to wire it in: `docs/claude/handoffs/EARTH-SPIN-HANDOFF.md`.
+- **The generator:** `gen_earth.mjs` (`node brand/round-2-iconography/gen_earth.mjs`) bakes the coastline into `earth-art.ts`, then writes:
+  - `nyko-earth.svg`: the resting pose, viewBox -64…64, disc r60;
+  - `nyko-moon.svg`: viewBox -16…16, disc r15;
+  - copies of both in `public/brand/`;
+  - `qa/earth-moon-qa.svg`, which shows the sizes, lit and unlit, on Night and Day, plus an 8-step rotation strip.
+- **Earth:**
+  - **View:** orthographic. The resting pose is centred over North America (28°N 100°W), with Seattle upper-left.
+  - **Land:** Natural Earth 110m, coarsened on the sphere (3.5° point spacing). Islands smaller than about 140,000 km² are dropped. Edges are rounded at draw time. The level of detail is low on purpose, so it reads as engineering-cartoon background art at 30–72px.
+  - **Grid:** a faint 30° graticule (latitude/longitude lines) over the ocean, which gives the engineering touch and makes the spin readable.
+  - **Ice:** a north polar cap and Greenland, in a glacial cyan gradient (`#E2F6F8` at the pole to `#8FD3E3`), so it reads apart from the white clouds.
+  - **Clouds:** puffy clusters on both hemispheres, so no view of the globe is empty.
+- **Moon:** the near side, with simplified maria.
+- **Both:** unlit, because the site shades the night side and the phase from the sun's direction. There is no ember, and the green isn't `--nominal`. The palette is the same in both themes.
 
 ## Wave patches (Flight Mode, any wave)
 
