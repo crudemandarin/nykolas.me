@@ -64,6 +64,10 @@ h1, h2, h3 { margin: 0; font-weight: inherit; }
 .hero-copy .lead { max-width: 30ch; font-size: 24px; line-height: 34px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-2); }
 .hero .wrap, .sheet { z-index: 1; }
+/* Flight Mode (src/scripts/flight.ts): the copy and sheet labels clear out while the rocket is flown. */
+.hero .wrap, .hero .sheet { transition: opacity .5s ease, visibility 0s linear 0s; }
+.hero.is-flight .wrap, .hero.is-flight .sheet { opacity: 0; visibility: hidden; transition: opacity .45s ease, visibility 0s linear .45s; }
+.hero:fullscreen { width: 100vw; height: 100vh; border: 0; }
 .sheet { position: absolute; font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-subtle); }
 .sheet.tl { top: var(--space-4); left: var(--space-12); } .sheet.tr { top: var(--space-4); right: var(--space-12); }
 .sheet.bl { bottom: var(--space-4); left: var(--space-12); } .sheet.br { bottom: var(--space-4); right: var(--space-12); }
