@@ -146,7 +146,9 @@ export function initHeroSky() {
     for (const k of ['ink', 'ink-subtle', 'ink-muted', 'ember', 'ember-text', 'amber', 'flame-core', 'signal', 'brand-blue', 'deep-indigo', 'hull-xlight', 'hull-light', 'hull-mid', 'hull-shadow', 'surface-100', 'surface-200', 'line', 'line-strong', 'nominal', 'caution'])
       c[k] = s.getPropertyValue('--' + k).trim();
     light = root.dataset.theme === 'light';
+    const wasIdle = idle;
     idle = root.dataset.motion === 'idle';
+    if (wasIdle && !idle) { wt0 = wt; spunLon = NaN; } // engines back on: spin resumes from the resting pose
   }
 
   function layout() {
@@ -349,7 +351,7 @@ export function initHeroSky() {
     b.img.src = src;
     return b;
   };
-  const EARTH = mkBody('/brand/nyko-earth.svg', 64, 60), MOON = mkBody('/brand/nyko-moon.svg', 16, 15);
+  const EARTH_SVG = mkBody('/brand/nyko-earth.svg', 64, 60), MOON = mkBody('/brand/nyko-moon.svg', 16, 15);
   // Draws a body's art so its disc has radius r at (x, y); re-bakes only when the size changes.
   function drawBody(b: Body, x: number, y: number, r: number, fallback: string) {
     const size = (b.half / b.disc) * r, px = Math.ceil(size * 2 * Math.min(window.devicePixelRatio || 1, 2));
@@ -360,6 +362,47 @@ export function initHeroSky() {
     if (b.ready) ctx!.drawImage(b.bake, x - size, y - size, size * 2, size * 2);
     else { ctx!.fillStyle = fallback; ctx!.fillRect(x - r, y - r, r * 2, r * 2); }
   }
+  // Spinning Earth (docs/claude/handoffs/EARTH-SPIN-HANDOFF.md). The art module (+ d3-geo, shared with the
+  // Travel Log globe) loads after first paint, only while the engines are armed. It starts at REST_LON, the
+  // static SVG's pose, so the swap doesn't jump. Decoration only: nothing here touches pointer handling.
+  type EarthArt = typeof import('../../brand/round-2-iconography/earth-art');
+  let earthArt: EarthArt | null = null, earthLoading = false, wt0 = 0, spunLon = NaN, spunPx = 0;
+  const spinBake = document.createElement('canvas');
+  function loadSpin() {
+    if (earthArt || earthLoading || idle) return;
+    earthLoading = true;
+    import('../../brand/round-2-iconography/earth-art')
+      .then((m) => { earthArt = m; wt0 = wt; })
+      .catch(() => { earthLoading = false; }); // keep the static SVG; try again on the next restart
+  }
+  function drawSpin(x: number, y: number, r: number): boolean {
+    if (!earthArt || idle) return false;
+    const { EARTH, earthLayers } = earthArt, el = wt - wt0;
+    const lon = EARTH.REST_LON - EARTH.SPIN * el;
+    const size = (EARTH.HALF / EARTH.R) * r, px = Math.ceil(size * 2 * Math.min(window.devicePixelRatio || 1, 2));
+    if (px !== spunPx || Math.abs(lon - spunLon) >= (W < 900 ? 1 : 0.5)) {
+      const L = earthLayers(((lon % 360) + 540) % 360 - 180, el % 360);
+      if (spinBake.width !== px) spinBake.width = spinBake.height = px;
+      const b = spinBake.getContext('2d')!, k = px / (EARTH.HALF * 2);
+      b.setTransform(k, 0, 0, k, px / 2, px / 2);
+      b.clearRect(-EARTH.HALF, -EARTH.HALF, EARTH.HALF * 2, EARTH.HALF * 2);
+      b.save();
+      const sea = b.createLinearGradient(-42, -42, 42, 42);
+      sea.addColorStop(0, EARTH.ocean[0]); sea.addColorStop(1, EARTH.ocean[1]);
+      b.beginPath(); b.arc(0, 0, EARTH.R, 0, TAU); b.fillStyle = sea; b.fill(); b.clip();
+      b.globalAlpha = EARTH.gridAlpha; b.lineWidth = 1; b.strokeStyle = EARTH.grid; b.stroke(new Path2D(L.grid)); b.globalAlpha = 1;
+      b.fillStyle = EARTH.land; b.fill(new Path2D(L.land));
+      const ice = b.createLinearGradient(0, -60, 0, -30);
+      ice.addColorStop(0, EARTH.ice[0]); ice.addColorStop(1, EARTH.ice[1]);
+      b.fillStyle = ice; b.fill(new Path2D(L.ice));
+      b.fillStyle = EARTH.cloud; b.fill(new Path2D(L.clouds));
+      b.restore();
+      spunLon = lon; spunPx = px;
+    }
+    ctx!.drawImage(spinBake, x - size, y - size, size * 2, size * 2);
+    return true;
+  }
+
   const moonPos = () => {
     const { x, y, r } = earth, a = wt * 0.32, tilt = 0.18;
     const ex = Math.cos(a) * r * 2.3, ey = Math.sin(a) * r * 0.5;
@@ -391,7 +434,7 @@ export function initHeroSky() {
     atm.addColorStop(0, 'rgba(124,196,255,0.45)'); atm.addColorStop(1, 'rgba(124,196,255,0)');
     ctx!.fillStyle = atm; ctx!.beginPath(); ctx!.arc(x, y, r * 1.28, 0, TAU); ctx!.fill();
     ctx!.beginPath(); ctx!.arc(x, y, r, 0, TAU); ctx!.clip();
-    drawBody(EARTH, x, y, r, '#1C5FAE');
+    if (!drawSpin(x, y, r)) drawBody(EARTH_SVG, x, y, r, '#1C5FAE');
     shadeFrom(x, y, r, light ? 0.6 : 0.88);
     ctx!.restore();
     if (moon.front) drawMoon(moon);
@@ -978,6 +1021,7 @@ export function initHeroSky() {
     if (!visible || document.hidden) return;
     last = performance.now();
     raf = requestAnimationFrame(frame);
+    requestAnimationFrame(() => requestAnimationFrame(loadSpin)); // after first paint
   }
 
   // ── Interaction: hover (or tap) the rocket to fire the boost; click it to fly ──

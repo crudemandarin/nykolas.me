@@ -1,6 +1,6 @@
 # Handoff: a slowly rotating Earth in the hero
 
-**From:** iconography · **To:** hero-sky implementor · **Date:** 2026-11-11 · **Status:** art done, not wired in
+**From:** iconography · **To:** hero-sky implementor · **Date:** 2026-11-11 · **Status:** wired in 2026-11-11 (`loadSpin()` / `drawSpin()` in `hero-sky.ts`)
 
 The hero Earth should turn on its axis, clearly visibly, one turn every 30 seconds. The art for any rotation angle now exists as a small, pure module. This doc covers how to wire it into `src/scripts/hero-sky.ts`. Nothing in `src/` has been changed for this.
 
