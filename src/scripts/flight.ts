@@ -61,7 +61,7 @@ const HULL: [number, number][] = [[-150, 44], [-85, 38], [-15, 22], [55, 19], [1
 const GAME_KEYS = new Set(['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' ']);
 const BEST_KEY = 'nk-flight-best';
 // Set once the visitor dismisses the preflight briefing; it's shown before wave 1 only until then.
-const BRIEF_KEY = 'nk-flight-briefed';
+const BRIEF_KEY = 'nk-flight-briefed', BRIEF_LOCK = 4; // seconds before the briefing can be dismissed
 // HUD glyphs (round-1 UI family): single currentColor paths on a 24 grid, tinted here.
 const glyph = (svg: string) => new Path2D(/\sd="([^"]+)"/.exec(svg)?.[1] ?? '');
 const GLYPH = { hull: glyph(hullSvg), laser: glyph(laserSvg), target: glyph(targetSvg), shield: glyph(shieldSvg), repair: glyph(repairSvg), overclock: glyph(overclockSvg) };
@@ -110,7 +110,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   let briefing = false, briefT = 0, briefBtn = { x: 0, y: 0, w: 0, h: 0 }, hudLX1 = 0, hudRX0 = 0;
   const readBriefed = () => { try { return localStorage.getItem(BRIEF_KEY) === '1'; } catch { return false; } };
   function dismissBriefing() {
-    if (!briefing) return;
+    if (!briefing || briefT < BRIEF_LOCK) return; // locked for the first few seconds, so it isn't skipped by accident
     briefing = false; keys.delete(' '); hero.style.cursor = '';
     try { localStorage.setItem(BRIEF_KEY, '1'); } catch { /* private mode: brief again next time */ }
     startWave();
@@ -430,7 +430,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
       if (k >= 1) {
         phase = 'fly'; thr = 0.25;
         if (readBriefed()) startWave();
-        else { briefing = true; briefT = 0; announce('Preflight briefing. Bottom left: hull and laser heat. Bottom right: controls. Press Space or Dismiss to start wave 1.'); }
+        else { briefing = true; briefT = 0; announce('Preflight briefing. Bottom left: hull and laser heat. Bottom right: controls. Dismiss unlocks in a few seconds.'); }
       }
       return;
     }
@@ -498,7 +498,10 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     if (overheat && heat < 0.3) overheat = false;
     shieldT = Math.max(0, shieldT - dt);
     repairFlash = Math.max(0, repairFlash - dt);
-    if (briefing) briefT += dt;
+    if (briefing) {
+      const was = briefT; briefT += dt;
+      if (was < BRIEF_LOCK && briefT >= BRIEF_LOCK) announce('Ready. Press Space or Dismiss to start wave 1.');
+    }
     beamOn = overT > 0 && held(' ') && !briefing;
     if (beamOn) overT = Math.max(0, overT - dt);
     if (overT > 0) { heat = 0; overheat = false; }
@@ -852,78 +855,114 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   // ── Preflight briefing ──
   const SANS = '"IBM Plex Sans", system-ui, sans-serif';
   function drawBriefing(W: number, H: number, L: number, bot: number) {
-    const idle = sky.idle(), e = idle ? 1 : ease(clamp(briefT / 0.45)), lift = (1 - e) * 12;
-    const pulse = idle ? 1 : 0.65 + 0.35 * Math.sin(briefT * 4);
+    const idle = sky.idle(), t = briefT;
+    // Staged entrance: heading first, then the two callouts rise out of the HUD one after the other.
+    const stage = (at: number, dur = 0.45) => (idle ? 1 : ease(clamp((t - at) / dur)));
+    const eHead = stage(0), eL = stage(0.35), eR = stage(0.6);
+    const lift = (1 - eHead) * 12;
     ctx.save();
-    ctx.globalAlpha = hudA * e;
 
-    // Brackets around the two HUD groups, with a leader up to each callout.
-    const bracket = (x0: number, y0: number, x1: number, y1: number) => {
-      const t = 9;
-      ctx.beginPath();
-      for (const [cx, cy, sx, sy] of [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]]) {
-        ctx.moveTo(cx + sx * t, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + sy * t);
+    const by0 = bot - 19, by1 = bot + 8, boxH = 122, boxW = 368, gap = 28, band = 30;
+    const boxY = (e: number) => by0 - gap - boxH + (1 - e) * 22;
+
+    // HUD highlight: amber corner brackets, a faint wash, and a radar ping every 1.8s.
+    const bracket = (x0: number, x1: number, e: number, phase: number) => {
+      if (e <= 0) return;
+      const y0 = by0, y1 = by1, tk = 10;
+      ctx.globalAlpha = hudA * e * (idle ? 0.1 : 0.07 + 0.05 * Math.sin(t * 4 + phase));
+      ctx.fillStyle = c.amber; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+      ctx.globalAlpha = hudA * e;
+      ctx.strokeStyle = c.amber; ctx.lineWidth = 2;
+      const corners = (o: number) => {
+        ctx.beginPath();
+        for (const [cx, cy, sx, sy] of [[x0 - o, y0 - o, 1, 1], [x1 + o, y0 - o, -1, 1], [x0 - o, y1 + o, 1, -1], [x1 + o, y1 + o, -1, -1]]) {
+          ctx.moveTo(cx + sx * tk, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + sy * tk);
+        }
+        ctx.stroke();
+      };
+      corners(0);
+      if (!idle) {
+        const p = ((t + phase) % 1.8) / 1.8; // ping: an outline that grows and fades
+        ctx.globalAlpha = hudA * e * (1 - p) * 0.9; ctx.lineWidth = 1.5;
+        ctx.strokeRect(x0 - p * 14 + 0.5, y0 - p * 14 + 0.5, x1 - x0 + p * 28, y1 - y0 + p * 28);
       }
-      ctx.stroke();
+      ctx.globalAlpha = hudA;
     };
-    const by0 = bot - 19, by1 = bot + 8, boxH = 120, boxW = 368, gap = 26, boxY = by0 - gap - boxH + lift;
-    ctx.strokeStyle = c.amber; ctx.lineWidth = 1.5;
-    ctx.globalAlpha = hudA * e * pulse;
-    bracket(L - 9, by0, hudLX1 + 9, by1);
-    bracket(hudRX0 - 9, by0, W - L + 9, by1);
-    ctx.globalAlpha = hudA * e;
+    bracket(L - 9, hudLX1 + 9, eL, 0);
+    bracket(hudRX0 - 9, W - L + 9, eR, 0.9);
 
-    const plate = (x: number, y: number, w: number, h: number, leaderX: number, label: string) => {
-      ctx.fillStyle = c['surface-200']; ctx.globalAlpha = hudA * e * 0.96; ctx.fillRect(x, y, w, h);
-      ctx.globalAlpha = hudA * e; ctx.strokeStyle = c['line-strong']; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-      ctx.strokeStyle = c.amber; ctx.beginPath(); ctx.moveTo(leaderX + 0.5, y + h); ctx.lineTo(leaderX + 0.5, by0 - 3); ctx.stroke();
-      ctx.fillStyle = c.amber; ctx.fillRect(leaderX - 2, y + h - 2, 5, 5);
-      setFont(10); ctx.fillStyle = c['ink-subtle']; ctx.fillText(label, x + 18, y + 24);
+    // A callout plate: amber header band and border, and a leader whose dashes flow down into the HUD.
+    const plate = (x: number, y: number, w: number, h: number, leaderX: number, label: string, e: number) => {
+      ctx.globalAlpha = hudA * e * 0.97; ctx.fillStyle = c['surface-200']; ctx.fillRect(x, y, w, h);
+      ctx.globalAlpha = hudA * e;
+      ctx.fillStyle = c.amber; ctx.fillRect(x, y, w, band);
+      ctx.strokeStyle = c.amber; ctx.lineWidth = 1.5; ctx.strokeRect(x + 0.75, y + 0.75, w - 1.5, h - 1.5);
+      setFont(11); ctx.fillStyle = c['on-ember']; ctx.fillText(label, x + 16, y + 20);
+      // Leader.
+      ctx.save();
+      ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]); ctx.lineDashOffset = idle ? 0 : -t * 28;
+      ctx.beginPath(); ctx.moveTo(leaderX + 0.5, y + h); ctx.lineTo(leaderX + 0.5, by0 - 6); ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle = c.amber;
+      ctx.beginPath(); ctx.moveTo(leaderX - 4.5, by0 - 9); ctx.lineTo(leaderX + 5.5, by0 - 9); ctx.lineTo(leaderX + 0.5, by0 - 3); ctx.closePath(); ctx.fill();
     };
     const row = (x: number, y: number, text: string) => { setFont(13, SANS, 400, 0); ctx.fillStyle = c['ink-muted']; ctx.fillText(text, x, y); };
 
     // Left: the status readouts.
-    let x = L, y = boxY;
-    plate(x, y, boxW, boxH, L + 24, '01 · STATUS');
-    const kx = x + 18, tx = x + 116;
-    const rows: [Path2D, string, string, string][] = [
-      [GLYPH.hull, 'HULL', 'Three hits and you lose signal.', c['ink-muted']],
-      [GLYPH.laser, 'LASER', 'Heats as you fire. Let it cool.', c['ink-muted']],
-      [GLYPH.shield, 'PICKUPS', 'Fly through canisters to collect.', '#7CC4FF'],
-    ];
-    rows.forEach(([g, k, t, col], i) => {
-      const ry = y + 54 + i * 24;
-      const gx = kx + drawGlyph(g, kx, ry + 1, col);
-      setFont(11); ctx.fillStyle = c.ink; ctx.fillText(k, gx, ry);
-      row(tx, ry, t);
-    });
+    let x = L, y = boxY(eL);
+    if (eL > 0) {
+      plate(x, y, boxW, boxH, L + 24, '01 · STATUS', eL);
+      const kx = x + 18, tx = x + 116;
+      const rows: [Path2D, string, string, string][] = [
+        [GLYPH.hull, 'HULL', 'Three hits and you lose signal.', c['ink-muted']],
+        [GLYPH.laser, 'LASER', 'Heats as you fire. Let it cool.', c['ink-muted']],
+        [GLYPH.shield, 'PICKUPS', 'Fly through canisters to collect.', '#7CC4FF'],
+      ];
+      rows.forEach(([g, k, tt, col], i) => {
+        const ry = y + band + 28 + i * 24;
+        const gx = kx + drawGlyph(g, kx, ry + 1, col);
+        setFont(11); ctx.fillStyle = c.ink; ctx.fillText(k, gx, ry);
+        row(tx, ry, tt);
+      });
+    }
 
     // Right: the controls.
-    x = W - L - boxW;
-    plate(x, y, boxW, boxH, W - L - 24, '02 · CONTROLS');
+    x = W - L - boxW; y = boxY(eR);
+    if (eR > 0) plate(x, y, boxW, boxH, W - L - 24, '02 · CONTROLS', eR);
     const caps: [string[], string][] = [
       [['W', 'A', 'D', 'S'], 'Thrust, turn, brake. You drift.'],
       [['SPACE'], 'Fire the laser.'],
       [['F', 'ESC'], 'Full screen. Land and quit.'],
     ];
-    caps.forEach(([ks, t], i) => {
-      const ry = y + 54 + i * 24;
+    if (eR > 0) caps.forEach(([ks, tt], i) => {
+      const ry = y + band + 28 + i * 24;
       let cx = x + 18;
       for (const k of ks) cx += keycap(cx, ry, k, false) + 4;
-      row(x + 128, ry, t);
+      row(x + 128, ry, tt);
     });
 
     // Centre: the call to action.
+    ctx.globalAlpha = hudA * eHead;
     const cy = H * 0.34;
     setFont(44, '"Big Shoulders Display", "Arial Narrow", sans-serif', 800, 0.02); ctx.fillStyle = c.ink;
     const h1 = 'PREFLIGHT BRIEFING'; ctx.fillText(h1, (W - ctx.measureText(h1).width) / 2, cy + lift);
     setFont(11); ctx.fillStyle = c['ink-subtle'];
     const h2 = 'CLEAR EVERY ROCK. DON’T GET HIT.'; ctx.fillText(h2, (W - ctx.measureText(h2).width) / 2, cy + 24 + lift);
+    // Dismiss: locked for BRIEF_LOCK seconds. While locked it reads STAND BY · n and fills with ember.
     setFont(11);
-    const bl = 'DISMISS', bw = ctx.measureText(bl).width + 44, bh = 36, bx = (W - bw) / 2, byy = cy + 46 + lift;
+    const ready = t >= BRIEF_LOCK, bw = 168, bh = 36, bx = (W - bw) / 2, byy = cy + 46 + lift;
     briefBtn = { x: bx, y: byy, w: bw, h: bh };
-    ctx.fillStyle = c.ember; ctx.fillRect(bx, byy, bw, bh);
-    ctx.fillStyle = c['on-ember']; ctx.fillText(bl, bx + 22, byy + 22);
+    const bl = ready ? 'DISMISS' : `STAND BY · ${Math.ceil(BRIEF_LOCK - t)}`, blw = ctx.measureText(bl).width;
+    if (ready) {
+      ctx.fillStyle = c.ember; ctx.fillRect(bx, byy, bw, bh);
+      ctx.fillStyle = c['on-ember']; ctx.fillText(bl, bx + (bw - blw) / 2, byy + 22);
+    } else {
+      ctx.fillStyle = c['surface-200']; ctx.fillRect(bx, byy, bw, bh);
+      if (!idle) { ctx.globalAlpha = hudA * eHead * 0.35; ctx.fillStyle = c.ember; ctx.fillRect(bx, byy, bw * (t / BRIEF_LOCK), bh); ctx.globalAlpha = hudA * eHead; }
+      ctx.strokeStyle = c['line-strong']; ctx.lineWidth = 1; ctx.strokeRect(bx + 0.5, byy + 0.5, bw - 1, bh - 1);
+      ctx.fillStyle = c['ink-muted']; ctx.fillText(bl, bx + (bw - blw) / 2, byy + 22);
+    }
+    if (!ready) ctx.globalAlpha = hudA * eHead * 0.4;
     setFont(10); ctx.fillStyle = c['ink-subtle'];
     const orW = ctx.measureText('OR PRESS').width, capW = Math.max(18, ctx.measureText('SPACE').width + 10), rowW = orW + 8 + capW;
     const ox = (W - rowW) / 2, oy = byy + bh + 26;
@@ -1046,7 +1085,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     const b = briefBtn;
     return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
   };
-  hero.addEventListener('pointermove', (e) => { if (briefing) hero.style.cursor = inBtn(e) ? 'pointer' : ''; });
+  hero.addEventListener('pointermove', (e) => { if (briefing) hero.style.cursor = briefT >= BRIEF_LOCK && inBtn(e) ? 'pointer' : ''; });
   hero.addEventListener('click', (e) => { if (briefing && inBtn(e)) dismissBriefing(); });
   window.addEventListener('keyup', (e) => { keys.delete(e.key.toLowerCase()); });
   window.addEventListener('blur', () => keys.clear());
