@@ -868,6 +868,8 @@ export function initHeroSky() {
     const u = ufo;
     u.age += dt;
     u.shield = Math.max(0, u.shield - dt * 2.5);
+    // Backstop: no visit outstays 30 seconds.
+    if (u.age > 30 && u.phase !== 'out') leave(u, !!u.cow);
     let wantTilt = Math.sin(u.age * 2) * 0.05;
     if (u.mode === 'pass') {
       const reached = u.dir > 0 ? u.x >= u.hoverAt : u.x <= u.hoverAt;
@@ -903,7 +905,11 @@ export function initHeroSky() {
       const sp = Math.min(320, d * 1.6);
       u.x += (dx / (d || 1)) * sp * dt; u.y += (dy / (d || 1)) * sp * dt;
       wantTilt = Math.max(-0.3, Math.min(0.3, dx / 600));
-      if (d < 4) { u.phase = 'scan'; u.scan = 0; }
+      // A proportional chase never fully closes on a moving post (it trails by speed / 1.6), so lock on
+      // within 20px and let the scan phase's tracking finish the job; give up if it can't catch it at all.
+      u.t += dt;
+      if (d < 20) { u.phase = 'scan'; u.scan = 0; }
+      else if (u.t > 8) leave(u);
     } else if (u.phase === 'scan' && u.mode !== 'scan') {
       // Scanning another body: hold over it and sweep it top to bottom.
       const info = probeInfo(u);
