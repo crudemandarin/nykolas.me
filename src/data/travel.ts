@@ -38,6 +38,7 @@ export const places: Record<string, Place> = {
   crestone: { name: 'Crestone', region: 'CO', country: 'US', lat: 37.99, lon: -105.7 },
   mulberry: { name: 'Mulberry Mountain', region: 'AR', country: 'US', lat: 35.71, lon: -93.8 },
   // Mexico
+  cancun: { name: 'Cancún', region: 'Mexico', country: 'MX', lat: 21.04, lon: -86.87 },
   tulum: { name: 'Tulum', region: 'Mexico', country: 'MX', lat: 20.21, lon: -87.46 },
   playa: { name: 'Playa del Carmen', region: 'Mexico', country: 'MX', lat: 20.63, lon: -87.08 },
   cozumel: { name: 'Cozumel', region: 'Mexico', country: 'MX', lat: 20.51, lon: -86.95 },
@@ -92,10 +93,10 @@ export const trips: Trip[] = [
   },
   {
     id: 'mx10', title: 'Riviera Maya', date: '2010',
-    stops: ['rogers', 'tulum', 'playa', 'cozumel', 'rogers'],
-    mode: 'air', modes: ['air', 'road', 'sea', 'air'],
+    stops: ['rogers', 'cancun', 'tulum', 'playa', 'cozumel', 'playa', 'cancun', 'rogers'],
+    mode: 'air', modes: ['air', 'road', 'road', 'sea', 'sea', 'road', 'air'],
     note: 'A family trip as a kid: Tulum, Playa del Carmen and Cozumel.',
-    draft: true, // Year approximate; origin (Rogers vs Houston) and stop order assumed.
+    draft: true, // Year approximate; origin (Rogers vs Houston) and Playa/Cozumel order assumed. Flew in and out of Cancún.
   },
   { id: 'fo04', title: 'Wakaan', date: '2024', stops: ['austin', 'dallas', 'rogers', 'mulberry'], mode: 'road', note: 'Music weekend in the Ozarks, driven up through Dallas and Rogers.', draft: true /* year unconfirmed */ },
 ];
