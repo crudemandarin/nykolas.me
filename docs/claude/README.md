@@ -15,7 +15,7 @@ Update it when a decision changes; don't leave stale entries.
 | Hi-fi logo files served by the site | `public/brand/` |
 | Section icons inlined in pages | `src/icons/section-*.svg` (same art as `nyko-section-*.svg`, with a11y attrs, no `<title>`) |
 | Hero night-sky canvas (rocket, satellite, UFO, meteors, Earth + Moon, deep-field galaxies) | `src/scripts/hero-sky.ts`, mounted by `src/components/HeroSky.astro`. The laser pod and UFO are ported into `Path2D` there, so if the SVGs change, re-port them. |
-| Pending art request: Earth + Moon for the hero (code placeholder in use; galaxies stay procedural) | [handoffs/EARTH-ICON-HANDOFF.md](handoffs/EARTH-ICON-HANDOFF.md) |
+| Earth + Moon for the hero (brief) | [handoffs/EARTH-ICON-HANDOFF.md](handoffs/EARTH-ICON-HANDOFF.md). Delivered 2026-11-11: `public/brand/nyko-{earth,moon}.svg` from `brand/round-2-iconography/gen_earth.mjs` (Natural Earth 110m, coarsened and rounded on purpose: small background art; unlit). The site still has to swap out its code placeholder. Galaxies stay procedural |
 | Flight Mode game (click the hero rocket) | `src/scripts/flight.ts`. The HUD glyphs are read from `public/brand/ui/nyko-ui-{hull,laser,target}.svg` at build time. |
 | Flight Manual iconography explorer | `src/components/IconExplorer.astro` |
 | Travel Log globe (data / section / engine) | `src/data/travel.ts`, `src/components/sections/TravelLog.astro`, `src/scripts/globe.ts` |

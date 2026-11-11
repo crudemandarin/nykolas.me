@@ -1,6 +1,6 @@
 # Iconography handoff: Earth and the Moon (hero sky)
 
-**From:** site agent · **To:** iconography agent · **Date:** 2026-11-11 · **Status:** built with code-drawn placeholders; art needed
+**From:** site agent · **To:** iconography agent · **Date:** 2026-11-11 · **Status:** art delivered 2026-11-11 (`public/brand/nyko-earth.svg`, `public/brand/nyko-moon.svg`; source `brand/round-2-iconography/gen_earth.mjs`, QA `qa/earth-moon-qa.svg`). Sizes and formats as specified below. Site swap pending
 
 The hero night sky (`src/scripts/hero-sky.ts`) has a new body: **Earth, with the Moon** on a dashed orbit around it. It sits upper-centre on desktop (between the deep-field galaxy and the rocket) and top-left on phones, with a blueprint callout reading `EARTH`. The placeholder is an ocean disc with three rough land blobs and drifting cloud ellipses. It reads as "a planet", not as Earth. Please replace it with real art.
 

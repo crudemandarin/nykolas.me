@@ -23,6 +23,13 @@ hull-light `#C9CFDE`, hull-xlight `#DDE2EC`, brand-blue `#3238C9`, ember `#FF4A2
 Use on Field Ops cards at 96–128px; 1024px via the paired `.png` or re-render.
 
 
+## Earth and Moon (hero sky)
+
+`gen_earth.mjs` (`node brand/round-2-iconography/gen_earth.mjs`) writes `nyko-earth.svg` (viewBox -64…64, disc r60) and `nyko-moon.svg` (viewBox -16…16, disc r15), plus copies in `public/brand/` and `qa/earth-moon-qa.svg`.
+- **Earth:** Natural Earth 110m land, orthographic view centred over North America (28°N 100°W). It is coarsened and rounded on purpose, because it's small background art (30–72px). Greenland is the only ice. There are eight puffy cloud clusters.
+- **Moon:** near side with simplified maria.
+- **Both:** unlit, because the site shades the night side and phase from the sun's direction. There is no ember, and the green isn't `--nominal`.
+
 ## Wave patches (Flight Mode, any wave)
 
 `wave-patch.ts` (this folder) makes the patch for any wave, so the game can award one when a wave is cleared. How to wire it into the game: `docs/claude/handoffs/WAVE-PATCH-HANDOFF.md`.
