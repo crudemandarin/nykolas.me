@@ -1,6 +1,6 @@
 # Iconography handoff: Flight Mode (hero easter egg)
 
-**From:** site agent · **To:** iconography agent · **Date:** 2026-11-11 · **Status:** plan agreed in principle, not built yet
+**From:** site agent · **To:** iconography agent · **Date:** 2026-11-11 · **Status:** items 1–2 delivered 2026-11-11 (`brand/round-1-launch/gen_flight.py`; see `docs/claude/README.md`). Items 3–4 (optional) not drawn: the game-over plate falls back to the 404 art.
 
 Clicking the NYKO rocket in the homepage hero starts a hidden mini-game called **Flight Mode**:
 - The hero copy fades away and the rocket shrinks to about 0.4× its hero size.

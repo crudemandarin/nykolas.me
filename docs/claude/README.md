@@ -18,7 +18,8 @@ Update it when a decision changes; don't leave stale entries.
 | Flight Manual iconography explorer | `src/components/IconExplorer.astro` |
 | Travel Log globe (data / section / engine) | `src/data/travel.ts`, `src/components/sections/TravelLog.astro`, `src/scripts/globe.ts` |
 | Pending art request: Travel Log section mark | [handoffs/TRAVEL-ICON-HANDOFF.md](handoffs/TRAVEL-ICON-HANDOFF.md) |
-| Pending art request: Flight Mode laser pod + HUD glyphs | [handoffs/FLIGHT-MODE-ICON-HANDOFF.md](handoffs/FLIGHT-MODE-ICON-HANDOFF.md) |
+| Flight Mode art (brief) | [handoffs/FLIGHT-MODE-ICON-HANDOFF.md](handoffs/FLIGHT-MODE-ICON-HANDOFF.md). Items 1–2 delivered, 3–4 (optional) not drawn |
+| Flight Mode art (source) | `brand/round-1-launch/gen_flight.py` → `nyko-laser-pod.svg`, `nyko-ui-{hull,laser,target}.svg`, `qa/flight-mode-qa.svg`; copies in `public/brand/` and `public/brand/ui/` |
 
 The logo generator from the export (`logo/gen3.py`) is **not** in the repo. Files in `public/brand/` that came from it are copied outputs.
 
@@ -40,6 +41,15 @@ A model only. Someone else is programming it into `HeroSky.astro`, replacing `dr
 - The scan beam should originate at the emitter lens, `(0, 31)`.
 - The palette matches the rocket's hard-coded hull colours, plus `--nominal` green for the glow, emitter and pilot.
 - The green alien pilot must stay clearly visible in the dome. That was the explicit ask.
+
+## Flight Mode laser pod (`public/brand/nyko-laser-pod.svg`)
+
+- Drawn in rocket units with the rocket origin at (0,0), so it goes inside the rocket's transform, after the hull.
+- Deploy uses a parallelogram linkage: two arms of length 13 hinge at (16,−17.5) and (36,−17.5). One angle drives it, 180° stowed to 270° deployed. The barrel stays parallel to +x throughout.
+- Muzzle anchor (deployed): (81,−33). Groups: `mount`, then `stowed`/`deployed`, each with `-arm-rear`, `-arm-front` and `-gun`. The full recipe is in the file's header comment.
+- The file shows the deployed state; `stowed` has `display="none"`.
+- `gen_flight.py` only needs `skia-pathops`, not rsvg or Chrome. That isn't installed system-wide, so use a scratch venv. `gen.py` imports its glyphs so a full round-1 run includes them.
+- QA sheets go in `brand/round-1-launch/qa/`, not loose in round-1. The Flight Manual explorer globs `round-1-launch/*.svg`, so any loose SVG there becomes a gallery tile.
 
 ## Working with the owner
 

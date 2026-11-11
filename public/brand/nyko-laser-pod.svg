@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -44 116 32" width="464" height="128"><title>NYKO laser pod</title>
+<!--
+  NYKO laser pod (Flight Mode). Units = rocket units; (0,0) = the rocket origin, so draw it inside the
+  rocket's own transform, after the hull. Brief: docs/claude/handoffs/FLIGHT-MODE-ICON-HANDOFF.md.
+
+  Groups, back to front: mount (fixed plate + hinge pins), then one state group, each holding
+  <state>-arm-rear, <state>-arm-front, <state>-gun. Both states share the same parts; only transforms differ.
+  `deployed` is displayed; `stowed` carries display="none". Ignore display when porting.
+
+  Anchors (rocket units):
+    mount         rear hinge 16,-17.5   (front hinge 36,-17.5)
+    muzzle        81,-33   deployed; bolts travel +x from here
+    muzzle (stowed, for reference)  68,-20
+
+  Deploy = parallelogram linkage, one parameter. Arm length 13. Arm angle a: 180deg stowed -> 270deg deployed
+  (SVG angles, y down). For t in 0..1:
+    a   = 180 + 90*ease(t)
+    arm-rear  : translate(16 -17.5) rotate(a)
+    arm-front : translate(36 -17.5) rotate(a)
+    gun       : translate(16+13*cos(a), -17.5+13*sin(a))   barrel stays parallel to +x
+  Gun origin: stowed 3,-17.5 -> deployed 16,-30.5. Barrel axis y: -20 stowed, -33 deployed.
+
+  Clearances: stowed top edge y -23.2 (outline to -24.0), so it stays inside y -24. Deployed barrel tip x 81, which is under 110.
+  Footprint x -7..81, clear of the N-Y-K-O lettering (x <= -33) and the booster tips (x -31).
+  Palette: rocket hull gradient, ink, one blue part (focusing coil). No ember.
+-->
+<defs><linearGradient id="pod-hull" x1="0" y1="-5.7" x2="0" y2="0.8" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#C9CFDE"/><stop offset="0.55" stop-color="#9AA4BE"/><stop offset="1" stop-color="#525C7A"/></linearGradient></defs>
+<g id="mount"><path d="M 9,-15.93 L 12,-19.5 L 40,-19.5 L 43,-15.55 L 43,-14.95 L 40.17,-14.96 L 37.33,-14.98 L 34.5,-15.01 L 31.67,-15.03 L 28.83,-15.06 L 26,-15.09 L 23.17,-15.13 L 20.33,-15.16 L 17.5,-15.2 L 14.67,-15.24 L 11.83,-15.28 L 9,-15.33 Z" fill="#525C7A" stroke="#1E2233" stroke-width="1" stroke-linejoin="round"/><circle cx="16" cy="-17.5" r="1.6" fill="#1E2233"/><circle cx="36" cy="-17.5" r="1.6" fill="#1E2233"/></g><g id="stowed" display="none"><g id="stowed-arm-rear" transform="translate(16 -17.5) rotate(180)"><rect x="-2.2" y="-2.2" width="17.4" height="4.4" rx="2.2" fill="#9AA4BE" stroke="#1E2233" stroke-width="1" stroke-linejoin="round"/><circle cx="13" cy="0" r="1.2" fill="#1E2233"/></g><g id="stowed-arm-front" transform="translate(36 -17.5) rotate(180)"><rect x="-2.2" y="-2.2" width="17.4" height="4.4" rx="2.2" fill="#9AA4BE" stroke="#1E2233" stroke-width="1" stroke-linejoin="round"/><circle cx="13" cy="0" r="1.2" fill="#1E2233"/></g><g id="stowed-gun" transform="translate(3 -17.5)"><rect x="25" y="-5" width="34" height="5" fill="#9AA4BE" stroke="#1E2233" stroke-width="1" stroke-linejoin="round"/><rect x="29" y="-5.75" width="5" height="6.5" fill="#3238C9" stroke="#1E2233" stroke-width="1" stroke-linejoin="round"/><rect x="58" y="-5.75" width="7" height="6.5" fill="#1E2233"/><path d="M -10,-3.7 Q -10,-5.7 -8,-5.7 L 20,-5.7 L 26,-4.4 L 26,-0.6 L 20,0.8 L -8,0.8 Q -10,0.8 -10,-1.2 Z" fill="url(#pod-hull)" stroke="rgba(30,34,51,0.75)" stroke-width="1.6" stroke-linejoin="round"/><path d="M 9,-5.7 V 0.8" fill="none" stroke="#1E2233" stroke-opacity=".4" stroke-width="1"/><circle cx="0" cy="0" r="1.2" fill="#1E2233"/><circle cx="20" cy="0" r="1.2" fill="#1E2233"/></g></g><g id="deployed"><g id="deployed-arm-rear" transform="translate(16 -17.5) rotate(270)"><rect x="-2.2" y="-2.2" width="17.4" height="4.4" rx="2.2" fill="#9AA4BE" stroke="#1E2233" stroke-width="1" stroke-linejoin="round"/><circle cx="13" cy="0" r="1.2" fill="#1E2233"/></g><g id="deployed-arm-front" transform="translate(36 -17.5) rotate(270)"><rect x="-2.2" y="-2.2" width="17.4" height="4.4" rx="2.2" fill="#9AA4BE" stroke="#1E2233" stroke-width="1" stroke-linejoin="round"/><circle cx="13" cy="0" r="1.2" fill="#1E2233"/></g><g id="deployed-gun" transform="translate(16 -30.5)"><rect x="25" y="-5" width="34" height="5" fill="#9AA4BE" stroke="#1E2233" stroke-width="1" stroke-linejoin="round"/><rect x="29" y="-5.75" width="5" height="6.5" fill="#3238C9" stroke="#1E2233" stroke-width="1" stroke-linejoin="round"/><rect x="58" y="-5.75" width="7" height="6.5" fill="#1E2233"/><path d="M -10,-3.7 Q -10,-5.7 -8,-5.7 L 20,-5.7 L 26,-4.4 L 26,-0.6 L 20,0.8 L -8,0.8 Q -10,0.8 -10,-1.2 Z" fill="url(#pod-hull)" stroke="rgba(30,34,51,0.75)" stroke-width="1.6" stroke-linejoin="round"/><path d="M 9,-5.7 V 0.8" fill="none" stroke="#1E2233" stroke-opacity=".4" stroke-width="1"/><circle cx="0" cy="0" r="1.2" fill="#1E2233"/><circle cx="20" cy="0" r="1.2" fill="#1E2233"/></g></g>
+</svg>

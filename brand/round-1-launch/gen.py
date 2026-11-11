@@ -433,6 +433,10 @@ GLYPHS = {
 }
 
 
+from gen_flight import FLIGHT_GLYPHS  # noqa: E402  Flight Mode HUD glyphs (hull, laser, target)
+GLYPHS.update(FLIGHT_GLYPHS)
+
+
 def glyph_svg(name):
     p = GLYPHS[name]()
     x0, y0, x1, y1 = p.bounds

@@ -19,6 +19,12 @@ All booleans (occlusion gaps, knock-outs, 1-bit unions) are exact path operation
 only `<path>` elements. They have no masks, rasters, fonts, gradients or opacity.
 Intermediate sources (app-icon SVGs, `og-card.html`, `contact-sheet.html`) are in `../build/`.
 
+**Flight Mode art** has its own script, which needs only `skia-pathops`: `python3 gen_flight.py`.
+It writes `nyko-laser-pod.svg`, the three HUD glyphs (see C) and `qa/flight-mode-qa.svg`, which shows the pod on the rocket at 1× and 0.4× and the glyphs at 24/16px on Night and Day.
+It also copies the pod to `public/brand/` and the glyphs to `public/brand/ui/`.
+The pod is hardware art that the hero canvas draws inside the rocket's transform. Like `public/brand/nyko-ufo.svg`, it uses the rocket's gradient and strokes, not the single-path rules above.
+The deploy linkage, the anchors (`mount`, `muzzle`) and the clearances are in the pod's header comment.
+
 Palette: ink `#1E2233` · hull-shadow `#525C7A` · hull-mid `#9AA4BE` · hull-light `#C9CFDE` ·
 hull-xlight `#DDE2EC` · deep-indigo `#2A3170` · brand-blue `#3238C9` · ember `#FF4A22` ·
 amber `#FFB300`. Grounds: Night `#101322`, Day `#F4F5F9`.
@@ -82,6 +88,14 @@ Each is one `<path fill="currentColor">` with the strokes already expanded, so C
 | `nyko-ui-engine-armed.svg` | Motion toggle on. A solid nozzle (hardware) with a knocked-out hairline hoop, at the mark's 45° flight attitude, with three **outline** plumes (long centre, short sides), as in the mark's three exhausts. |
 | `nyko-ui-engine-idle.svg` | Motion toggle off. The same nozzle in the same position, with no flame, so the toggle never jumps. |
 | `nyko-ui-copy.svg` / `nyko-ui-check.svg` | Copy email / copied. The check's two legs are both 45°. |
+
+**Flight Mode HUD** (hero easter egg; made by `gen_flight.py`, same rules as above):
+
+| File | Use |
+|---|---|
+| `nyko-ui-hull.svg` | Hull integrity, shown beside 3 pips. A curved hull plate crossed by two riveted seams. Its top and bottom edges curve together, so it reads as bent sheet, not a shield. |
+| `nyko-ui-laser.svg` | Weapon ready / heat. The laser pod's gun at 45°: a boxy housing on a hinge foot, then the focusing coil, barrel and muzzle brake, with two bolt dashes ahead. |
+| `nyko-ui-target.svg` | Score (rocks destroyed). Four corner brackets around a solid tumbling rock with a knocked-out crater. It has no crosshair, so it can't be mistaken for `nyko-sym-viewpoint`. |
 
 ## D · Comms marks (24px, `currentColor`)
 
