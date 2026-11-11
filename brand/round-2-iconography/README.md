@@ -26,7 +26,7 @@ Use on Field Ops cards at 96–128px; 1024px via the paired `.png` or re-render.
 ## Earth and Moon (hero sky)
 
 `gen_earth.mjs` (`node brand/round-2-iconography/gen_earth.mjs`) writes `nyko-earth.svg` (viewBox -64…64, disc r60) and `nyko-moon.svg` (viewBox -16…16, disc r15), plus copies in `public/brand/` and `qa/earth-moon-qa.svg`.
-- **Earth:** Natural Earth 110m land, orthographic view centred over North America (28°N 100°W). It is coarsened and rounded on purpose, because it's small background art (30–72px). A north polar cap and Greenland are ice (pale blue, so they read apart from the white clouds). The South Pole is on the far side from this view. There are eight puffy cloud clusters.
+- **Earth:** Natural Earth 110m land, orthographic view centred over North America (28°N 100°W). It is coarsened and rounded on purpose, because it's small background art (30–72px). A north polar cap and Greenland are ice: a glacial cyan gradient (`#E2F6F8` at the pole to `#8FD3E3`), so they read apart from the white clouds. The South Pole is on the far side from this view. There are eight puffy cloud clusters.
 - **Moon:** near side with simplified maria.
 - **Both:** unlit, because the site shades the night side and phase from the sun's direction. There is no ember, and the green isn't `--nominal`.
 

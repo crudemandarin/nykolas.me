@@ -17,7 +17,7 @@ const put = (p, s) => { writeFileSync(p, s); console.log('wrote', p.slice(ROOT.l
 // ── palette (fixed in both themes, like the UFO) ──────────────────
 const OCEAN_HI = '#2F8BD8', OCEAN_LO = '#1C5FAE';   // cyan-leaning blue, clear of the ringed planet's indigo
 const LAND = '#5E9E4A';                              // illustration green; not --nominal, no ember
-const ICE = '#DCE8F5', CLOUD = '#F6F8FC';
+const ICE_HI = '#E2F6F8', ICE_LO = '#8FD3E3', CLOUD = '#F6F8FC';
 const MOON = '#C9CFDE', MOON_HI = '#DDE2EC', MARE = '#9AA4BE';
 
 // ── Earth ─────────────────────────────────────────────────────────
@@ -92,10 +92,13 @@ const earthSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-64 -64 128 1
   <linearGradient id="earth-ocean" x1="-42" y1="-42" x2="42" y2="42" gradientUnits="userSpaceOnUse">
     <stop offset="0" stop-color="${OCEAN_HI}"/><stop offset="1" stop-color="${OCEAN_LO}"/>
   </linearGradient>
+  <linearGradient id="earth-ice" x1="0" y1="-60" x2="0" y2="-30" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="${ICE_HI}"/><stop offset="1" stop-color="${ICE_LO}"/>
+  </linearGradient>
 </defs>
 <g id="ocean"><circle r="${R}" fill="url(#earth-ocean)"/></g>
 <g id="land"><path fill="${LAND}" d="${d(green)}"/></g>
-<g id="ice"><path fill="${ICE}" d="${d([...CAP, ...greenland], 2)}"/></g>
+<g id="ice"><path fill="url(#earth-ice)" d="${d([...CAP, ...greenland], 2)}"/></g>
 <g id="clouds"><path fill="${CLOUD}" d="${d(CLOUDS, 1.2)}"/></g>
 </svg>
 `;
