@@ -845,6 +845,11 @@ export function initHeroSky() {
     };
     if (mode === 'probe') { const p = pickProbe(); if (p) Object.assign(u, p); else u.mode = 'scan'; }
     if (mode === 'land') u.target = 'earth';
+    // Visits with a destination enter from the nearer edge (a long crossing on a wide screen is just waiting).
+    if (u.mode === 'scan' || u.mode === 'probe' || u.mode === 'land') {
+      const info = u.mode === 'scan' ? null : probeInfo(u), px = info ? info.x : scanPost().x;
+      u.dir = px < W / 2 ? 1 : -1; u.x = u.dir > 0 ? -80 : W + 80;
+    }
     if (mode === 'abduct' || mode === 'rise') {
       const b = ascendFrom(u);
       Object.assign(u, { x: b.x, y: b.y, scale: 0.04, phase: 'ascend', cow: mode === 'abduct' });
@@ -902,14 +907,14 @@ export function initHeroSky() {
       const info = u.mode === 'scan' ? null : probeInfo(u);
       if (u.mode !== 'scan' && !info) { leave(u); return; }
       const p = info ? probePost(info) : scanPost(), dx = p.x - u.x, dy = p.y - u.y, d = Math.hypot(dx, dy);
-      const sp = Math.min(320, d * 1.6);
+      // Cruise faster on wide screens so the crossing doesn't drag.
+      const sp = Math.min(320 * Math.max(1, W / 1440), d * 1.6);
       u.x += (dx / (d || 1)) * sp * dt; u.y += (dy / (d || 1)) * sp * dt;
       wantTilt = Math.max(-0.3, Math.min(0.3, dx / 600));
-      // A proportional chase never fully closes on a moving post (it trails by speed / 1.6), so lock on
-      // within 20px and let the scan phase's tracking finish the job; give up if it can't catch it at all.
-      u.t += dt;
-      if (d < 20) { u.phase = 'scan'; u.scan = 0; }
-      else if (u.t > 8) leave(u);
+      // A proportional chase never fully closes on a moving post (it trails by speed / 1.6). Lock on within
+      // 20px, or after 1.5s spent close (within 140px) without catching it; the scan phase tracks from there.
+      if (d < 140) u.t += dt;
+      if (d < 20 || u.t > 1.5) { u.phase = 'scan'; u.scan = 0; }
     } else if (u.phase === 'scan' && u.mode !== 'scan') {
       // Scanning another body: hold over it and sweep it top to bottom.
       const info = probeInfo(u);
