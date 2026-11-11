@@ -21,7 +21,7 @@ const ease = (k: number) => k * k * (3 - 2 * k);
 const pad = (n: number, w: number) => String(Math.max(0, Math.floor(n))).padStart(w, '0');
 const wrapAngle = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
 
-type Bolt = { x: number; y: number; vx: number; vy: number; age: number };
+type Bolt = { x: number; y: number; vx: number; vy: number; dead: boolean };
 type Part = { x: number; y: number; vx: number; vy: number; age: number; life: number; size: number; color: string; kind: 'spark' | 'shard' | 'puff'; rot: number; vr: number };
 type Pop = { x: number; y: number; text: string; age: number; color: string };
 type Phase = 'off' | 'enter' | 'fly' | 'dead' | 'exit';
@@ -32,6 +32,7 @@ type Pickup = { x: number; y: number; vx: number; vy: number; kind: Kind; age: n
 const THRUST = 560, RETRO = 240, TURN = 10, TURN_DAMP = 4.5, DRAG = 0.45, MAX_SPEED = 620;
 // Pickups: how long they float before expiring, and what they do.
 const MAGNET_RANGE = 150, MAGNET_PULL = 1100;
+// OVERCLOCK_TIME is beam charge in seconds of firing: it only drains while the beam is on.
 const PICKUP_LIFE = 14, SHIELD_TIME = 20, OVERCLOCK_TIME = 7, BEAM_DPS = 7, MAX_PICKUPS = 2;
 // Canister art: public/brand/nyko-pickup-<kind>.svg (32 viewBox, centred), drawn at 28px.
 const PICKUP_SIZE = 28;
@@ -46,7 +47,7 @@ const PICKUP_STYLE: Record<Kind, { color: string; label: string }> = {
   repair: { color: '#3FD69B', label: 'REPAIR' },
   overclock: { color: '#FFB300', label: 'OVERCLOCK' },
 };
-const BOLT_SPEED = 1150, BOLT_LIFE = 0.85, FIRE_GAP = 0.13, HEAT_PER_SHOT = 0.085;
+const BOLT_SPEED = 1150, FIRE_GAP = 0.13, HEAT_PER_SHOT = 0.085;
 const ROCK_R = { 3: [26, 32], 2: [15, 19], 1: [8, 11] } as Record<number, [number, number]>;
 const ROCK_HP: Record<number, number> = { 3: 3, 2: 2, 1: 1 };
 // Waves 1–2 are a warm-up: softer rocks (big 2 hits, medium 1).
@@ -99,7 +100,8 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
   // everBest = highest on this device (0 = none).
   let losArt: HTMLImageElement | null = null;
   let patchT = -1, awardWave = 0, award = AWARD_FULL, runBest = 0, everBest = readEverBest(), stamped = false;
-  // Pickups and their effects (seconds remaining; 0 = off). The beam is live while overclocked and Space is held.
+  // Pickups and their effects (seconds remaining; 0 = off). overT is beam charge: it drains only while the
+  // beam fires (overclocked + Space held), so an unused overclock keeps until it's spent.
   const pickups: Pickup[] = [];
   let shieldT = 0, overT = 0, beamOn = false, beamUfoCool = 0, repairFlash = 0;
   const beam = { x1: 0, y1: 0, x2: 0, y2: 0 };
@@ -391,7 +393,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
 
   function shoot() {
     const m = sky.toWorld(sky.muzzle.x, sky.muzzle.y), ca = Math.cos(ship.a), sa = Math.sin(ship.a);
-    bolts.push({ x: m.x, y: m.y, vx: ca * BOLT_SPEED + ship.vx, vy: sa * BOLT_SPEED + ship.vy, age: 0 });
+    bolts.push({ x: m.x, y: m.y, vx: ca * BOLT_SPEED + ship.vx, vy: sa * BOLT_SPEED + ship.vy, dead: false });
     cool = FIRE_GAP; heat += HEAT_PER_SHOT; muzzleFlash = 0.06;
     ship.vx -= ca * 1.5; ship.vy -= sa * 1.5; // barely-there recoil
     if (heat >= 1) { heat = 1; overheat = true; pops.push({ x: ship.x, y: ship.y - 34, text: 'OVERHEAT', age: 0, color: c['ember-text'] }); }
@@ -479,9 +481,9 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     heat = Math.max(0, heat - dt * (overheat ? 0.55 : 0.4));
     if (overheat && heat < 0.3) overheat = false;
     shieldT = Math.max(0, shieldT - dt);
-    overT = Math.max(0, overT - dt);
     repairFlash = Math.max(0, repairFlash - dt);
     beamOn = overT > 0 && held(' ');
+    if (beamOn) overT = Math.max(0, overT - dt);
     if (overT > 0) { heat = 0; overheat = false; }
     else if (held(' ') && cool <= 0 && !overheat) shoot();
     muzzleFlash = Math.max(0, muzzleFlash - dt);
@@ -509,30 +511,30 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
 
     // Bolts fly in ship time so shooting stays crisp under dilation.
     const ufo = sky.ufo(), ur = sky.ufoRadius();
+    // No range limit: a bolt flies until it hits something or leaves the screen (bolts never wrap).
     for (const b of bolts) {
-      b.age += dt;
       // Sub-step so fast bolts can't tunnel through small rocks.
-      for (let s = 0; s < 3 && b.age < BOLT_LIFE; s++) {
+      for (let s = 0; s < 3 && !b.dead; s++) {
         b.x += b.vx * dt / 3; b.y += b.vy * dt / 3;
         for (const r of rocks) {
-          if ((b.x - r.x) ** 2 + (b.y - r.y) ** 2 < (r.r + 2) ** 2) { hitRock(r, b); b.age = BOLT_LIFE; break; }
+          if ((b.x - r.x) ** 2 + (b.y - r.y) ** 2 < (r.r + 2) ** 2) { hitRock(r, b); b.dead = true; break; }
         }
-        if (b.age >= BOLT_LIFE) break;
+        if (b.dead) break;
         for (const me of meteors) {
           if (me.age < me.life && Math.hypot(b.x - me.x, b.y - me.y) < 16) {
-            shootMeteor(me); b.age = BOLT_LIFE;
+            shootMeteor(me); b.dead = true;
             break;
           }
         }
-        if (b.age >= BOLT_LIFE) break;
+        if (b.dead) break;
         if (ufo && Math.hypot(b.x - ufo.x, b.y - ufo.y) < ur) {
-          hooks.onHitUfo(); b.age = BOLT_LIFE;
+          hooks.onHitUfo(); b.dead = true;
           sparks(b.x, b.y, 8, -b.vx, -b.vy, [c.nominal, '#E6FFF2'], 200);
         }
       }
-      if (b.x < -20 || b.x > W + 20 || b.y < -20 || b.y > H + 20) b.age = BOLT_LIFE;
+      if (b.x < -20 || b.x > W + 20 || b.y < -20 || b.y > H + 20) b.dead = true;
     }
-    prune(bolts, (b) => b.age < BOLT_LIFE);
+    prune(bolts, (b) => !b.dead);
 
     // Overclocked beam: a ray from the muzzle that stops at the first rock and chews through it.
     if (beamOn && phase === 'fly') stepBeam(dt, W, H);
@@ -782,7 +784,7 @@ export function createFlight(sky: SkyApi, hooks: FlightHooks) {
     ctx.strokeStyle = c['line-strong']; ctx.strokeRect(x + 0.5, bot - 8.5, 72, 9);
     let sx = x + 84;
     if (overT > 0) {
-      // Overclocked: the bar shows time left instead of heat.
+      // Overclocked: the bar shows beam charge left instead of heat.
       ctx.fillStyle = c.amber; ctx.fillRect(x + 2, bot - 7, 69 * (overT / OVERCLOCK_TIME), 6);
       sx += drawGlyph(GLYPH.overclock, sx, bot + 1, c.amber);
       ctx.fillStyle = c.amber; ctx.fillText('OVERCLOCK', sx, bot); sx += ctx.measureText('OVERCLOCK').width + 18;
