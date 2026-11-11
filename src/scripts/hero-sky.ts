@@ -148,7 +148,7 @@ export function initHeroSky() {
     light = root.dataset.theme === 'light';
     const wasIdle = idle;
     idle = root.dataset.motion === 'idle';
-    if (wasIdle && !idle) { wt0 = wt; spunLon = NaN; } // engines back on: spin resumes from the resting pose
+    if (wasIdle && !idle) { wt0 = wt; spunPx = 0; } // engines back on: re-bake and resume from the resting pose
   }
 
   function layout() {
@@ -380,7 +380,7 @@ export function initHeroSky() {
     const { EARTH, earthLayers } = earthArt, el = wt - wt0;
     const lon = EARTH.REST_LON - EARTH.SPIN * el;
     const size = (EARTH.HALF / EARTH.R) * r, px = Math.ceil(size * 2 * Math.min(window.devicePixelRatio || 1, 2));
-    if (px !== spunPx || Math.abs(lon - spunLon) >= (W < 900 ? 1 : 0.5)) {
+    if (px !== spunPx || !(Math.abs(lon - spunLon) < (W < 900 ? 1 : 0.5))) { // NaN-safe
       const L = earthLayers(((lon % 360) + 540) % 360 - 180, el % 360);
       if (spinBake.width !== px) spinBake.width = spinBake.height = px;
       const b = spinBake.getContext('2d')!, k = px / (EARTH.HALF * 2);
