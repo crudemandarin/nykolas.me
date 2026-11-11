@@ -8,7 +8,7 @@
     "tokens": "node scripts/tokens.mjs",
     "terrain": "python3 scripts/terrain.py",
     "dev": "npm run tokens && astro dev",
-    "build": "npm run tokens && astro build",
+    "build": "npm run tokens && astro build && node scripts/measure.mjs",
     "preview": "astro preview",
     "build:archive": "bash scripts/build-archive.sh"
   },
